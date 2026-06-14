@@ -1,5 +1,5 @@
 // 차 한 잔의 시간 · Time for Tea — 앱 셸 캐시 (M1 기본)
-const CACHE = "chahanjan-v13";
+const CACHE = "chahanjan-v14";
 const ASSETS = [
   "./",
   "./index.html",

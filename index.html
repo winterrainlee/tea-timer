@@ -67,12 +67,6 @@
   .seglab{ display:flex; justify-content:space-between; align-items:baseline; font-size:.7rem; color:var(--ink-dim); margin-bottom:.3rem; }
   .seglab .meta{ color:var(--gold); }
 
-  .seg{ display:flex; gap:.2rem; background:rgba(20,16,9,.45); border:0.5px solid var(--line); border-radius:14px; padding:.3rem; }
-  .vcell{ flex:1; display:flex; flex-direction:column; align-items:center; gap:.15rem; padding:.35rem .1rem .3rem; border-radius:10px; color:var(--ink-faint); background:none; border:0.5px solid transparent; cursor:pointer; transition:color .15s,background .15s,border-color .15s; }
-  .vcell svg{ width:30px; height:31px; display:block; }
-  .vcell .vlab{ font-size:.66rem; white-space:nowrap; }
-  .vcell[aria-pressed="true"]{ color:var(--gold-soft); background:rgba(205,191,99,.12); border-color:var(--gold-line); }
-
   .carousel{ display:flex; align-items:center; gap:.25rem; }
   .carousel .chev{ background:none; border:none; color:var(--gold-line); cursor:pointer; display:flex; align-items:center; padding:.3rem; }
   .carousel .chev svg{ width:20px; height:20px; }
@@ -80,6 +74,9 @@
   .carousel .ghost{ font-size:.72rem; color:var(--ink-faint); opacity:.55; white-space:nowrap; flex:none; }
   .carousel .cur{ display:flex; align-items:center; gap:.4rem; flex:none; white-space:nowrap; padding:.3rem .85rem; border:0.5px solid var(--gold); border-radius:999px; background:rgba(205,191,99,.1); color:var(--gold-soft); font-size:.84rem; }
   .carousel .cur .dot{ width:8px; height:8px; border-radius:50%; }
+  .vessel-picker .cur{ min-width:7.6rem; justify-content:center; }
+  .vessel-picker .cur svg{ width:18px; height:19px; flex:none; stroke:currentColor; stroke-width:1.8; }
+  .vessel-picker .ghost{ min-width:3.4rem; text-align:center; }
   .dots{ display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:.4rem; }
   .dots i{ width:5px; height:5px; border-radius:50%; background:var(--track); transition:width .2s,background .2s; }
   .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
@@ -206,7 +203,15 @@
   <div class="controls">
     <div>
       <div class="seglab"><span>우림 도구</span><span class="meta" id="vesselMeta">개완 蓋碗 · 유리 · 탕색 보임</span></div>
-      <div class="seg" id="seg"></div>
+      <div class="carousel vessel-picker" id="vesselPicker">
+        <button class="chev" id="vesselPrev" aria-label="이전 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="track">
+          <span class="ghost" id="vesselGhostL"></span>
+          <span class="cur" id="vesselCur" aria-live="polite"><svg id="vesselCurIcon" viewBox="0 0 40 42" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span id="vesselCurName">개완</span></span>
+          <span class="ghost" id="vesselGhostR"></span>
+        </div>
+        <button class="chev" id="vesselNext" aria-label="다음 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
     </div>
 
     <div>
@@ -371,17 +376,23 @@
     [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===teaIdx));
   }
   function buildDots(){ const d=$("dots"); d.innerHTML=""; TEAS.forEach(()=>d.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml","i"))); }
-  function buildSeg(){
-    const seg=$("seg"); seg.innerHTML="";
-    VESSELS.forEach(v=>{
-      const b=document.createElement("button"); b.className="vcell"; b.setAttribute("aria-pressed", v.id===vesselId); b.setAttribute("aria-label", v.name);
-      b.innerHTML=`<svg viewBox="0 0 40 42" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${VICONS[v.id]}</svg><span class="vlab">${v.shortName||v.name}</span>`;
-      b.onclick=()=>{ if(phase==="pour"||phase==="steep") return; vesselId=v.id; reset(); buildSegState(); };
-      seg.appendChild(b);
-    });
+  function vesselIndex(){ return VESSELS.findIndex(v=>v.id===vesselId); }
+  function vesselLabel(v){ return v.shortName||v.name; }
+  function paintVesselPicker(){
+    const idx=vesselIndex(), l=VESSELS[(idx+VESSELS.length-1)%VESSELS.length], r=VESSELS[(idx+1)%VESSELS.length], v=vessel();
+    $("vesselGhostL").textContent=vesselLabel(l);
+    $("vesselGhostR").textContent=vesselLabel(r);
+    $("vesselCurName").textContent=vesselLabel(v);
+    $("vesselCurIcon").innerHTML=VICONS[v.id];
+  }
+  function selectVessel(delta){
+    if(phase==="pour"||phase==="steep") return;
+    const idx=vesselIndex();
+    vesselId=VESSELS[(idx+delta+VESSELS.length)%VESSELS.length].id;
+    reset(); buildSegState();
   }
   function buildSegState(){
-    [...$("seg").children].forEach((b,i)=>b.setAttribute("aria-pressed", VESSELS[i].id===vesselId));
+    paintVesselPicker();
     $("vesselMeta").textContent=vessel().label;
     VESSELS.forEach(v=>{ const g=$("v-"+v.id); if(g) g.style.display = v.id===vesselId?"":"none"; });
     const r=vessel().round;
@@ -561,6 +572,8 @@
     }
   };
   $("reset").onclick=reset;
+  $("vesselPrev").onclick=()=>selectVessel(-1);
+  $("vesselNext").onclick=()=>selectVessel(1);
   $("teaPrev").onclick=()=>selectTea(teaIdx-1,true);
   $("teaNext").onclick=()=>selectTea(teaIdx+1,true);
   $("mute").onclick=function(){ muted=!muted; this.classList.toggle("muted",muted); this.setAttribute("aria-pressed",muted); this.setAttribute("aria-label",muted?"소리 켜기":"소리 끄기"); ensureAudio(); if(!muted) tone(880,.5,.12); };
@@ -568,10 +581,12 @@
   // swipe on hero for tea
   let sx=0; els.hero.addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; },{passive:true});
   els.hero.addEventListener("touchend",e=>{ const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40 && (phase==="idle"||phase==="done")) selectTea(teaIdx+(dx<0?1:-1),true); },{passive:true});
+  let vsx=0; $("vesselPicker").addEventListener("touchstart",e=>{ vsx=e.touches[0].clientX; },{passive:true});
+  $("vesselPicker").addEventListener("touchend",e=>{ const dx=e.changedTouches[0].clientX-vsx; if(Math.abs(dx)>32) selectVessel(dx<0?1:-1); },{passive:true});
 
   // ---- boot ----
   function boot(){
-    buildDots(); buildSeg(); buildSegState(); paintTea();
+    buildDots(); buildSegState(); paintTea();
     gLeaves=buildLeaves("g-leaves",[{x:100,y:142,base:0},{x:87,y:138,base:70},{x:113,y:138,base:140},{x:95,y:132,base:210},{x:105,y:132,base:300}]);
     pyLeaves=buildLeaves("py-leaves",[{x:100,y:143,base:0},{x:89,y:138,base:120},{x:111,y:139,base:240}]);
     sec=tea().base; syncSlider(); setInf(); previewIdle();
