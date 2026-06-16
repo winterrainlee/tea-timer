@@ -146,16 +146,38 @@
           <stop offset="0" stop-color="#fff1a6" stop-opacity=".24"/>
           <stop offset="1" stop-color="#fff1a6" stop-opacity="0"/>
         </radialGradient>
+        <linearGradient id="liquorGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop id="liquorTop" offset="0" stop-color="#cdbf63" stop-opacity=".78"/>
+          <stop id="liquorBot" offset="1" stop-color="#cdbf63" stop-opacity="1"/>
+        </linearGradient>
+        <linearGradient id="pyLowerGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#cdbf63" stop-opacity=".80"/>
+          <stop offset=".48" stop-color="#cdbf63" stop-opacity=".42"/>
+          <stop offset="1" stop-color="#cdbf63" stop-opacity=".04"/>
+        </linearGradient>
+        <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#ffd27a" stop-opacity="1"/>
+          <stop offset=".5" stop-color="#eaa84f" stop-opacity=".45"/>
+          <stop offset="1" stop-color="#eaa84f" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="pourGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff7e0" stop-opacity="0"/>
+          <stop offset=".35" stop-color="#fff7e0" stop-opacity=".45"/>
+          <stop offset="1" stop-color="#fff7e0" stop-opacity=".82"/>
+        </linearGradient>
+        <filter id="steamBlur" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="1.8"/>
+        </filter>
         <filter id="vesselShadow" x="-30%" y="-30%" width="160%" height="170%">
           <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#000" flood-opacity=".34"/>
         </filter>
         <clipPath id="gBowl"><path d="M53 120 C61 141 78 152 100 153 C122 152 139 141 147 120 L139 135 C128 149 116 156 100 157 C84 156 72 149 61 135 Z"/></clipPath>
-        <clipPath id="pyOut"><path d="M80 139 L80 158 C80 166 90 170 100 170 C110 170 120 166 120 158 L120 139 Z"/></clipPath>
-        <clipPath id="pyIn"><path d="M75 98 L75 143 C75 151 86 156 100 156 C114 156 125 151 125 143 L125 98 Z"/></clipPath>
+        <clipPath id="pyOut"><path d="M74 149 C82 146 91 145 100 145 C109 145 118 146 126 149 L126 185 C126 191 116 193 100 193 C84 193 74 191 74 185 Z"/></clipPath>
+        <clipPath id="pyIn"><path d="M80 105 L80 130 C80 139 89 144 100 144 C111 144 120 139 120 130 L120 105 Z"/></clipPath>
       </defs>
 
       <!-- ambient glow (opaque vessels) -->
-      <ellipse id="ambient" cx="100" cy="124" rx="78" ry="78" fill="#cdbf63" opacity="0"/>
+      <ellipse id="ambient" cx="100" cy="124" rx="82" ry="76" fill="url(#ambientGlow)" opacity="0"/>
 
       <!-- ===== RASTER VESSEL LAYERS + SVG EFFECTS ===== -->
       <g id="v-teapot" class="vessel" style="display:none" filter="url(#vesselShadow)">
@@ -187,20 +209,22 @@
 
       <g id="v-piaoyibei" class="vessel" style="display:none" filter="url(#vesselShadow)">
         <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178" preserveAspectRatio="xMidYMid meet"/>
-        <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply"><rect id="py-lower" x="80" y="170" width="40" height="0" fill="#cdbf63" opacity=".92"/></g>
-        <ellipse id="py-lowerSurf" cx="100" cy="170" rx="19" ry="4.3" fill="#f3eaa8" opacity="0" style="mix-blend-mode:multiply"/>
+        <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply"><path id="py-lower" d="M100 194 Z" fill="url(#pyLowerGrad)" opacity="0"/></g>
+        <ellipse id="py-lowerSurf" cx="100" cy="194" rx="0" ry="3.8" fill="#f3eaa8" opacity="0" style="mix-blend-mode:multiply"/>
         <g clip-path="url(#pyIn)" style="mix-blend-mode:multiply"><rect id="py-chamber" x="75" y="112" width="50" height="44" fill="#cdbf63" opacity="0"/></g>
         <ellipse id="py-chSurf" cx="100" cy="112" rx="23" ry="4.8" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
-        <g id="py-leaves" style="mix-blend-mode:multiply"></g>
+        <g id="py-leaves" clip-path="url(#pyIn)" style="mix-blend-mode:multiply"></g>
         <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178" preserveAspectRatio="xMidYMid meet" opacity=".54"/>
-        <g id="py-button">
-          <rect x="95" y="57" width="10" height="15" rx="3" fill="rgba(255,250,232,.16)" stroke="rgba(255,250,232,.28)" stroke-width="1"/>
-          <ellipse cx="100" cy="55" rx="11" ry="4" fill="rgba(255,250,232,.18)" stroke="rgba(255,250,232,.4)" stroke-width="1"/>
-        </g>
+      </g>
+
+      <!-- pour stream (붓는 중) -->
+      <g id="pour" opacity="0">
+        <rect id="pour-stream" x="98.6" y="48" width="2.8" height="0" fill="url(#pourGrad)"/>
+        <ellipse id="pour-ripple" cx="100" cy="124" rx="0" ry="0" fill="none" stroke="#fff7e0" stroke-width="1" opacity="0"/>
       </g>
 
       <!-- steam -->
-      <g id="steam"></g>
+      <g id="steam" filter="url(#steamBlur)"></g>
 
       <!-- time ring (round vessels) -->
       <circle id="ring-track" cx="100" cy="118" r="92" fill="none" stroke="var(--track)" stroke-width="2" opacity="0"/>
@@ -265,6 +289,8 @@
   const mix=(c1,c2,t)=>[lerp(c1[0],c2[0],t),lerp(c1[1],c2[1],t),lerp(c1[2],c2[2],t)];
   const rgb=c=>`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;
   const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  const SAT_K=3.2, SAT_D=1-Math.exp(-SAT_K);
+  const sat=t=>(1-Math.exp(-SAT_K*t))/SAT_D;   // 추출 포화 곡선: 초반 빠르게, 후반 완만
   const cjk=["","一","二","三","四","五","六","七","八","九","十"];
   const infText=n=>`第${n<=10?cjk[n]:n}泡`;
   const koOrd=["","첫","두 번째","세 번째","네 번째","다섯 번째","여섯 번째","일곱 번째","여덟 번째","아홉 번째","열 번째"];
@@ -300,7 +326,7 @@
   let phase="idle"; // idle | pour | steep | done
   let pourStart=0, steepStart=0, steepMs=0, lastNow=performance.now();
   let level=0, curAlpha=0, strengthT=0, openEff=0, lidLift=0, lidTarget=0, glow=0, drain=0;
-  let preWarnSec=5, preWarned=false, lastTick=-1;
+  let preWarnSec=5, preWarned=false, lastTick=-1, isUrgent=false, agitate=0;
   const tea=()=>TEAS[teaIdx];
   const vessel=()=>VESSELS.find(v=>v.id===vesselId);
 
@@ -331,37 +357,68 @@
   // ---- leaves ----
   function buildLeaves(groupId, anchors){
     const g=$(groupId); g.innerHTML="";
-    return anchors.map(a=>{
+    return anchors.map((a,idx)=>{
       const leaf=document.createElementNS(SVGNS,"g");
       for(let i=0;i<4;i++){ const p=document.createElementNS(SVGNS,"path"); p.setAttribute("d","M0 0 Q6 -15 0 -30 Q-6 -15 0 0 Z"); leaf.appendChild(p); }
-      g.appendChild(leaf); return {el:leaf, ...a};
+      g.appendChild(leaf);
+      // seed: 흔들림 위상, delay: 펼침 시차, scaleVar: 잎별 크기 편차
+      return {el:leaf, seed:idx*1.7, delay:(idx%3)*0.13, scaleVar:0.88+(idx%4)*0.08, ...a};
     });
   }
   let gLeaves=[], pyLeaves=[];
   function drawLeaves(arr, open, opts={}){
-    const dry=[60,74,44], wet=[104,134,68], col=mix(dry,wet,open);
-    const alpha=(opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*open;
-    const fill=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha.toFixed(3)})`;
-    const spread=lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, open);
-    const scale=lerp(opts.minScale ?? .18, opts.maxScale ?? .48, open);
+    const t=performance.now()/1000, ag=agitate;
+    const dry=[60,74,44], wet=[104,134,68];
     arr.forEach(L=>{
+      const d=L.delay||0, lo=clamp((open-d)/(1-d),0,1);   // 잎마다 시차를 둔 펼침
+      const sd=L.seed||0;
+      const col=mix(dry,wet,lo);
+      const alpha=(opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*lo + ag*0.16;  // pour 난류로 마른 잎이 들썩이며 보임
+      const fill=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha.toFixed(3)})`;
+      const spread=lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
+      const scale=lerp(opts.minScale ?? .18, opts.maxScale ?? .48, lo)*(L.scaleVar||1);
+      const sway=reduce?0:Math.sin(t*0.9+sd)*4*lo;                  // 무리 전체의 느린 일렁임
+      const swirl=reduce?0:ag*Math.sin(t*5+sd)*15;                  // 난류 소용돌이
+      const dx=reduce?0:ag*Math.sin(t*4.3+sd*2)*5;
+      const dy=reduce?0:-ag*(4+Math.sin(t*3.7+sd)*4);              // 떠올랐다 가라앉기
       const n=L.el.children.length;
-      for(let i=0;i<n;i++){ const ang=L.base+(i-(n-1)/2)*spread; const p=L.el.children[i]; p.setAttribute("fill",fill); p.setAttribute("transform",`rotate(${ang}) scale(${scale})`); }
-      L.el.setAttribute("transform",`translate(${L.x} ${L.y})`);
+      for(let i=0;i<n;i++){
+        const flutter=reduce?0:Math.sin(t*1.6+i+sd)*1.3*(lo+ag);   // 잎장 끝 미세 떨림(난류 시 커짐)
+        const ang=L.base+(i-(n-1)/2)*spread+flutter;
+        const p=L.el.children[i]; p.setAttribute("fill",fill);
+        p.setAttribute("transform",`rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
+      }
+      L.el.setAttribute("transform",`translate(${(L.x+dx).toFixed(2)} ${(L.y+dy).toFixed(2)}) rotate(${(sway+swirl).toFixed(2)})`);
     });
   }
 
   // ---- elements ----
   const els={
     ambient:$("ambient"), gLiquid:$("g-liquid"), gSurf:$("g-surface"), gLid:$("g-lid"),
+    liquorTop:$("liquorTop"), liquorBot:$("liquorBot"),
     mugSurf:$("mug-surface"), pyChamber:$("py-chamber"), pyChSurf:$("py-chSurf"),
-    pyLower:$("py-lower"), pyLowerSurf:$("py-lowerSurf"), pyButton:$("py-button"),
+    pyLower:$("py-lower"), pyLowerSurf:$("py-lowerSurf"), pyLowerGrad:$("pyLowerGrad"),
     ringTrack:$("ring-track"), ringProg:$("ring-prog"), steam:$("steam"),
+    pour:$("pour"), pourStream:$("pour-stream"), pourRipple:$("pour-ripple"),
     hero:$("hero"), readout:$("readout"), time:$("time"), timeLabel:$("timeLabel"),
     brew:$("brew"), slider:$("slider"), secVal:$("secVal"), toast:$("toast"),
   };
-  const RING_C=2*Math.PI*92;
-  els.ringProg.setAttribute("stroke-dasharray", RING_C);
+  let ringC=2*Math.PI*92;
+  els.ringProg.setAttribute("stroke-dasharray", ringC);
+  // 둥근 도구별 링 중심·반경 (실루엣에 맞춤)
+  function ringGeom(){
+    switch(vesselId){
+      case "teapot":      return {cy:132, r:95};
+      case "eastern-pot": return {cy:130, r:85};
+      default:            return {cy:124, r:90};   // gaiwan
+    }
+  }
+  function applyRingGeom(){
+    const g=ringGeom(); ringC=2*Math.PI*g.r;
+    [els.ringTrack, els.ringProg].forEach(el=>{ el.setAttribute("cy",g.cy); el.setAttribute("r",g.r); });
+    els.ringProg.setAttribute("stroke-dasharray", ringC);
+    els.ringProg.setAttribute("transform",`rotate(-90 100 ${g.cy})`);
+  }
 
   // ---- format ----
   const fmt=ms=>{ const s=Math.max(0,Math.ceil(ms/1000)); return `${(s/60)|0}:${String(s%60).padStart(2,"0")}`; };
@@ -393,6 +450,7 @@
     const r=vessel().round;
     els.hero.style.setProperty("--readout-top", vessel().readoutTop || "31%");
     els.ringTrack.style.display = r?"":"none"; els.ringProg.style.display = r?"":"none";
+    if(r) applyRingGeom();
   }
   function showToast(msg){ els.toast.textContent=msg; els.toast.classList.add("show"); clearTimeout(showToast._t); showToast._t=setTimeout(()=>els.toast.classList.remove("show"),2600); }
 
@@ -411,13 +469,18 @@
   // ---- rendering ----
   function applyLiquor(rectEl, surfEl, alpha, strength, top, full){
     const col=mix(tea().light, tea().strong, strength);
-    if(rectEl){ rectEl.setAttribute("fill",rgb(col)); rectEl.setAttribute("opacity",alpha.toFixed(3)); rectEl.setAttribute("y",top); rectEl.setAttribute("height",Math.max(0,full-top)); }
+    if(rectEl){
+      els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .45)));   // 수면 쪽 옅음
+      els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .4)));   // 바닥 쪽 진함
+      rectEl.setAttribute("fill","url(#liquorGrad)"); rectEl.setAttribute("opacity",alpha.toFixed(3));
+      rectEl.setAttribute("y",top); rectEl.setAttribute("height",Math.max(0,full-top));
+    }
     if(surfEl){ surfEl.setAttribute("fill",rgb(mix(col,[255,248,210],.18))); surfEl.setAttribute("opacity",(alpha*1.05).toFixed(3)); surfEl.setAttribute("cy",top); }
   }
   function setRing(remaining, total, urgent){
     if(!vessel().round) return;
     const frac=clamp(remaining/total,0,1);
-    els.ringProg.setAttribute("stroke-dashoffset", (RING_C*(1-frac)).toFixed(1));
+    els.ringProg.setAttribute("stroke-dashoffset", (ringC*(1-frac)).toFixed(1));
     els.ringTrack.setAttribute("opacity",".25");
     els.ringProg.setAttribute("opacity", urgent?".9":".4");
     els.ringProg.setAttribute("stroke", urgent?"#e4d691":"#8c7f63");
@@ -425,19 +488,53 @@
   }
   function clearRing(){ els.ringProg.setAttribute("opacity","0"); els.ringTrack.setAttribute("opacity","0"); }
 
+  // 김 분출구: 주전자는 뚜껑 + 꼭지(주둥이) 두 곳, 그 외엔 입구 한 곳. dx=가로 드리프트
+  function steamPorts(){
+    switch(vesselId){
+      case "teapot":      return [{x:100,y:90,dx:0},{x:32,y:104,dx:-0.42}];   // 뚜껑 · 꼭지
+      case "eastern-pot": return [{x:100,y:95,dx:0},{x:42,y:107,dx:-0.38}];   // 뚜껑 · 꼭지
+      case "gaiwan":      return [{x:100,y:90,dx:0}];
+      case "mug":         return [{x:96,y:82,dx:0}];
+      case "piaoyibei":   return [{x:100,y:70,dx:0}];
+      default:            return [{x:100,y:100,dx:0}];
+    }
+  }
   function setSteam(intensity){
-    const g=els.steam; const want=Math.round(intensity*4);
-    while(g.children.length<want){ const e=document.createElementNS(SVGNS,"ellipse"); g.appendChild(e); e._t=Math.random(); }
+    const g=els.steam, ports=steamPorts();
+    const perPort=Math.round(intensity*3), want=ports.length*perPort;   // 포트당 최대 3가닥
+    while(g.children.length<want){ const e=document.createElementNS(SVGNS,"ellipse"); e._t=Math.random(); e._s=0.7+Math.random()*0.6; g.appendChild(e); }
     while(g.children.length>want) g.removeChild(g.lastChild);
-    const topY = vesselId==="gaiwan"?94 : vesselId==="piaoyibei"?70 : vesselId==="mug"?86 : 104;
     [...g.children].forEach((e,i)=>{
-      e._t=(e._t+0.004)%1; const t=e._t;
-      e.setAttribute("cx", 100+(i-want/2)*14+Math.sin(t*6.28+i)*6);
-      e.setAttribute("cy", topY-10-t*40);
-      e.setAttribute("rx", 6+t*10); e.setAttribute("ry", 8+t*12);
-      e.setAttribute("fill","#fff7e0"); e.setAttribute("opacity",(Math.sin(Math.PI*t)*0.06).toFixed(3));
+      const port=ports[i%ports.length], k=Math.floor(i/ports.length);
+      e._t=(e._t+0.005)%1; const t=e._t, sway=Math.sin(t*6.28+i)*5;
+      e.setAttribute("cx", (port.x + port.dx*t*22 + sway + (k-perPort/2)*5).toFixed(1));
+      e.setAttribute("cy", (port.y-6 - t*46).toFixed(1));
+      e.setAttribute("rx", (4+t*9*e._s).toFixed(1)); e.setAttribute("ry", (6+t*13*e._s).toFixed(1));
+      e.setAttribute("fill","#fff7e0"); e.setAttribute("opacity",(Math.sin(Math.PI*t)*0.21).toFixed(3));
     });
   }
+  // 수면 일렁임: 시간 기반으로 ellipse 크기를 미세 진동(임박 구간 amp↑)
+  function shimmerSurf(el, baseRx, baseRy, lvl){
+    if(!el) return;
+    const tt=performance.now()/1000, amp=reduce?0:(0.4+0.7*(isUrgent?1:0))*Math.min(1,lvl);
+    el.setAttribute("rx",(baseRx + Math.sin(tt*1.7)*amp*1.4).toFixed(2));
+    el.setAttribute("ry",(baseRy + Math.sin(tt*2.3+1)*amp).toFixed(2));
+  }
+  function pyLowerPath(top, amount){
+    const bottom=190, t=clamp(amount,0,1);
+    const topRx=lerp(5,23,t), botRx=lerp(7,16,t);
+    const topLift=lerp(0,2.3,t), bottomBulge=lerp(0,1.2,t);
+    return [
+      `M ${(100-topRx).toFixed(2)} ${top.toFixed(2)}`,
+      `C ${(100-topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(100+topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(100+topRx).toFixed(2)} ${top.toFixed(2)}`,
+      `L ${(100+botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
+      `C ${(100+botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(100+botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} 100 ${bottom.toFixed(2)}`,
+      `C ${(100-botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(100-botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(100-botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
+      "Z"
+    ].join(" ");
+  }
+  // 물줄기가 떨어지는 착지 높이(도구별 입구)
+  function pourLandY(){ return vesselId==="gaiwan"?122 : vesselId==="piaoyibei"?108 : vesselId==="mug"?82 : vesselId==="eastern-pot"?100 : 95; }
 
   function render(){
     const v=vessel();
@@ -445,41 +542,55 @@
     if(vesselId==="gaiwan"){
       const top=lerp(157,125,level), full=157;
       applyLiquor(els.gLiquid, els.gSurf, curAlpha*Math.min(1,level*1.4)*.48, strengthT, top, full);
-      els.gSurf.setAttribute("rx", lerp(15,34,level));
-      els.gSurf.setAttribute("ry", lerp(2.5,5,level));
+      shimmerSurf(els.gSurf, lerp(15,34,level), lerp(2.5,5,level), level);
       drawLeaves(gLeaves, openEff, {baseAlpha:.02, peakAlpha:.30, minSpread:6, maxSpread:28, minScale:.11, maxScale:.34});
-      els.gLid.setAttribute("opacity","0");
+      // 뚜껑: 우림 중엔 닫힘, 완료 시 림라이트가 위로 들리며 밝아짐(開蓋 암시)
+      els.gLid.setAttribute("opacity",(lidLift*0.9).toFixed(3));
+      els.gLid.setAttribute("transform",`translate(0 ${(-7*lidLift).toFixed(2)})`);
     } else if(vesselId==="piaoyibei"){
       // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
-      const chTop=lerp(156,108,level), chAlpha=curAlpha*(1-drain);
-      applyLiquor(els.pyChamber, els.pyChSurf, chAlpha*Math.min(1,level*1.4)*.82, strengthT, chTop, 156);
-      els.pyChSurf.setAttribute("rx", lerp(12,23,level));
-      const lowTop=lerp(170,148,drain);
-      els.pyLower.setAttribute("y",lowTop); els.pyLower.setAttribute("height",Math.max(0,170-lowTop));
-      els.pyLower.setAttribute("fill",rgb(mix(tea().light,tea().strong,strengthT)));
-      els.pyLower.setAttribute("opacity", drain>0?".66":"0");
-      els.pyLowerSurf.setAttribute("cy",lowTop); els.pyLowerSurf.setAttribute("opacity", drain>.05?".54":"0");
+      const chTop=lerp(144,108,level), chAlpha=curAlpha*(1-drain);
+      applyLiquor(els.pyChamber, els.pyChSurf, chAlpha*Math.min(1,level*1.4)*.82, strengthT, chTop, 144);
+      shimmerSurf(els.pyChSurf, lerp(11,21,level), 4.8, level);
+      const lowTop=lerp(190,154,drain);   // 손잡이 하단 살짝 밑까지 차오름
+      const lowCol=rgb(mix(tea().light,tea().strong,strengthT));
+      [...els.pyLowerGrad.children].forEach(s=>s.setAttribute("stop-color",lowCol)); // 깊이 그라데이션(바닥 페이드)
+      els.pyLower.setAttribute("d",pyLowerPath(lowTop, drain));
+      els.pyLower.setAttribute("opacity", drain>0?".42":"0");
+      els.pyLowerSurf.setAttribute("cy",lowTop);
+      els.pyLowerSurf.setAttribute("rx",lerp(0,23,drain).toFixed(2));
+      els.pyLowerSurf.setAttribute("opacity", drain>.05?".34":"0");
       drawLeaves(pyLeaves, openEff, {baseAlpha:.03, peakAlpha:.42, minSpread:6, maxSpread:32, minScale:.13, maxScale:.38});
-      els.pyButton.setAttribute("transform", drain>0?"translate(0 8)":"translate(0 0)");
     } else if(vesselId==="mug"){
       const col=mix(tea().light,tea().strong,strengthT);
       els.mugSurf.setAttribute("fill",rgb(col));
       els.mugSurf.setAttribute("opacity",(curAlpha*Math.min(1,level*1.4)).toFixed(3));
     }
-    // ambient glow for opaque vessels
+    // ambient glow for opaque vessels — 따뜻한 앰버 글로우, 임박 시 throb
     if(v.vis==="none" || v.vis==="top"){
-      const col=mix(tea().light,tea().strong,strengthT);
-      els.ambient.setAttribute("fill",rgb(col));
-      els.ambient.setAttribute("opacity",(glow*0.16).toFixed(3));
+      let amb=glow*0.30;
+      if(isUrgent && !reduce) amb*=0.8+0.4*(0.5+0.5*Math.sin(performance.now()/220));
+      els.ambient.setAttribute("opacity",amb.toFixed(3));
       els.ambient.setAttribute("cy", v.round?124:120);
     } else els.ambient.setAttribute("opacity","0");
+
+    // pour: 물줄기 하강 + 착지 잔물결 (붓는 중에만)
+    if(phase==="pour"){
+      const land=pourLandY();
+      els.pour.setAttribute("opacity","1");
+      els.pourStream.setAttribute("height", Math.max(0,(land-48)*clamp(level*2,0,1)).toFixed(1));
+      const rip=clamp((level-0.4)/0.6,0,1);
+      els.pourRipple.setAttribute("cy",land);
+      els.pourRipple.setAttribute("rx",(rip*22).toFixed(1)); els.pourRipple.setAttribute("ry",(rip*5).toFixed(1));
+      els.pourRipple.setAttribute("opacity",((1-rip)*0.5).toFixed(3));
+    } else els.pour.setAttribute("opacity","0");
 
     setSteam(phase==="steep"? (0.3+0.7*strengthT) : phase==="done"?0.7:0);
   }
 
   function previewIdle(){
     level=0; curAlpha=0; strengthT=0; openEff=0; glow=0; drain=0;
-    lidLift=0; lidTarget=0;
+    lidLift=0; lidTarget=0; isUrgent=false; agitate=0;
     els.time.textContent=fmt(sec*1000); els.timeLabel.textContent="남은 시간";
     els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
     clearRing(); render();
@@ -499,7 +610,7 @@
     els.brew.textContent="우리는 중…";
   }
   function finishSteep(){
-    phase="done"; curAlpha=tea().peak; strengthT=1; openEff=1; glow=1;
+    phase="done"; curAlpha=tea().peak; strengthT=1; openEff=1; glow=1; isUrgent=false; agitate=0;
     els.time.textContent="0:00";
     els.hero.classList.remove("urgent"); els.readout.classList.add("done");
     const v=vessel();
@@ -532,13 +643,18 @@
     lidLift += (lidTarget-lidLift)*(reduce?1:0.1);
     if(phase==="pour"){
       const t=clamp((now-pourStart)/900,0,1); level=ease(t); glow=Math.min(1,glow+dt*0.002);
+      agitate=clamp((now-pourStart)/250,0,1);                       // 붓는 즉시 난류 최고조
       if(t>=1) enterSteep(now);
     } else if(phase==="steep"){
       const elapsed=now-steepStart, remaining=steepMs-elapsed;
-      const e=ease(clamp(elapsed/steepMs,0,1)), ce=reduce?1:e;
-      curAlpha=lerp(0,tea().peak,ce); strengthT=Math.min(1,ce*1.1); openEff=clamp(ce*1.25,0,1); glow=Math.min(1,0.3+ce);
+      const lin=clamp(elapsed/steepMs,0,1);
+      agitate=reduce?0:clamp(1-(now-steepStart)/1500,0,1);          // 우림 시작 후 1.5초간 난류가 잦아듦
+      const col=reduce?1:sat(lin);   // 탕색/농도: 초반 빠른 추출
+      const opn=reduce?1:ease(lin);  // 찻잎 펼침: 완만한 재수화
+      curAlpha=lerp(0,tea().peak,col); strengthT=Math.min(1,col); openEff=clamp(opn*1.15,0,1); glow=Math.min(1,0.3+col);
       els.time.textContent=fmt(remaining);
       const urgent = remaining<=preWarnSec*1000+50;
+      isUrgent = urgent && !reduce;
       setRing(remaining, steepMs, urgent);
       els.hero.classList.toggle("urgent", urgent && !reduce);
       els.timeLabel.textContent = urgent ? "곧 따라낼 준비" : "남은 시간";
@@ -581,7 +697,7 @@
   function boot(){
     buildDots(); buildSegState(); paintTea();
     gLeaves=buildLeaves("g-leaves",[{x:100,y:142,base:0},{x:87,y:138,base:70},{x:113,y:138,base:140},{x:95,y:132,base:210},{x:105,y:132,base:300}]);
-    pyLeaves=buildLeaves("py-leaves",[{x:100,y:143,base:0},{x:89,y:138,base:120},{x:111,y:139,base:240}]);
+    pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
     sec=tea().base; syncSlider(); setInf(); previewIdle();
     requestAnimationFrame(frame);
   }
