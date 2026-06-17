@@ -195,8 +195,8 @@
           <rect id="g-liquid" x="54" y="124" width="92" height="33" fill="#cdbf63" opacity="0"/>
         </g>
         <ellipse id="g-surface" cx="100" cy="124" rx="34" ry="5" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
-        <g id="g-leaves" style="mix-blend-mode:multiply"></g>
-        <g id="g-lid" opacity=".58">
+        <g id="g-leaves" clip-path="url(#gBowl)" style="mix-blend-mode:multiply"></g>
+        <g id="g-lid" opacity="0" style="display:none">
           <path d="M62 97 C74 91 88 88 100 88 C112 88 126 91 138 97" fill="none" stroke="rgba(255,250,232,.28)" stroke-width="1.5" stroke-linecap="round"/>
           <ellipse cx="100" cy="96" rx="39" ry="7" fill="none" stroke="rgba(255,250,232,.18)" stroke-width="1.1"/>
         </g>
@@ -309,7 +309,7 @@
   const VESSELS=[
     {id:"teapot", name:"티팟", label:"서양 티팟 · 도자 · 탕색 안 보임", family:"closed-pot", culture:"western", material:"porcelain", silhouette:"round-large", vis:"none", round:true, readoutTop:"31%", done:"pour", completion:"따라내세요 · 出湯", asset:"assets/vessels/teapot.png", requiresSeparationAction:false},
     {id:"eastern-pot", name:"동양식 다호", shortName:"다호", label:"동양식 다호 · 자사 · 탕색 안 보임", family:"closed-pot", culture:"gongfu", material:"zisha-clay", silhouette:"compact", vis:"none", round:true, readoutTop:"31%", done:"pour", completion:"바로 따라내세요 · 出湯", asset:"assets/vessels/eastern-pot-zisha.png", requiresSeparationAction:false},
-    {id:"gaiwan", name:"개완", label:"개완 蓋碗 · 유리 · 탕색 보임", family:"lidded-bowl", culture:"gongfu", material:"glass", silhouette:"bowl", vis:"liquid", round:true, readoutTop:"31%", done:"lid", completion:"뚜껑 열고 따르세요 · 開蓋", asset:"assets/vessels/gaiwan-glass.png", requiresSeparationAction:false},
+    {id:"gaiwan", name:"개완", label:"개완 蓋碗 · 유리 · 탕색 보임", family:"lidded-bowl", culture:"gongfu", material:"glass", silhouette:"bowl", vis:"liquid", round:false, readoutTop:"31%", done:"lid", completion:"뚜껑 열고 따르세요 · 開蓋", asset:"assets/vessels/gaiwan-glass.png", requiresSeparationAction:false},
     {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"23%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
     {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"tall", vis:"chamber", round:false, readoutTop:"15%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true},
   ];
@@ -540,13 +540,11 @@
     const v=vessel();
     // gaiwan
     if(vesselId==="gaiwan"){
-      const top=lerp(157,125,level), full=157;
-      applyLiquor(els.gLiquid, els.gSurf, curAlpha*Math.min(1,level*1.4)*.48, strengthT, top, full);
-      shimmerSurf(els.gSurf, lerp(15,34,level), lerp(2.5,5,level), level);
-      drawLeaves(gLeaves, openEff, {baseAlpha:.02, peakAlpha:.30, minSpread:6, maxSpread:28, minScale:.11, maxScale:.34});
-      // 뚜껑: 우림 중엔 닫힘, 완료 시 림라이트가 위로 들리며 밝아짐(開蓋 암시)
-      els.gLid.setAttribute("opacity",(lidLift*0.9).toFixed(3));
-      els.gLid.setAttribute("transform",`translate(0 ${(-7*lidLift).toFixed(2)})`);
+      const top=lerp(158,121,level), full=158;
+      applyLiquor(els.gLiquid, els.gSurf, curAlpha*Math.min(1,level*1.4)*.76, strengthT, top, full);
+      shimmerSurf(els.gSurf, lerp(16,39,level), lerp(2.5,5.4,level), level);
+      drawLeaves(gLeaves, openEff, {baseAlpha:.02, peakAlpha:.34, minSpread:6, maxSpread:30, minScale:.12, maxScale:.36});
+      els.gLid.setAttribute("opacity","0");
     } else if(vesselId==="piaoyibei"){
       // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
       const chTop=lerp(144,108,level), chAlpha=curAlpha*(1-drain);
@@ -696,7 +694,7 @@
   // ---- boot ----
   function boot(){
     buildDots(); buildSegState(); paintTea();
-    gLeaves=buildLeaves("g-leaves",[{x:100,y:142,base:0},{x:87,y:138,base:70},{x:113,y:138,base:140},{x:95,y:132,base:210},{x:105,y:132,base:300}]);
+    gLeaves=buildLeaves("g-leaves",[{x:100,y:154,base:0},{x:87,y:150,base:70},{x:113,y:150,base:140},{x:95,y:146,base:210},{x:105,y:146,base:300}]);
     pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
     sec=tea().base; syncSlider(); setInf(); previewIdle();
     requestAnimationFrame(frame);
