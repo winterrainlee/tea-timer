@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="amb" cx="50%" cy="60%" r="48%">
+      <stop offset="0%" stop-color="#2a2210"/>
+      <stop offset="100%" stop-color="#120d09"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="#120d09"/>
+  <rect width="512" height="512" fill="url(#amb)"/>
+
+  <!-- Tea cup: shallow bowl with subtle convex belly -->
+  <g transform="translate(232,310)" stroke="#cdbf63" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Cup body -->
+    <path d="M-112,-35 C-113,8 -58,42 -44,48 Q0,58 44,48 C58,42 113,8 112,-35"
+          stroke-width="11"/>
+    <!-- Rim -->
+    <ellipse cx="0" cy="-35" rx="112" ry="12" stroke-width="6" opacity="0.35"/>
+    <!-- Foot -->
+    <line x1="-22" y1="50" x2="-22" y2="64" stroke-width="6"/>
+    <line x1="22" y1="50" x2="22" y2="64" stroke-width="6"/>
+    <line x1="-28" y1="64" x2="28" y2="64" stroke-width="7"/>
+  </g>
+
+  <!-- Steam wisps -->
+  <g stroke="#cdbf63" fill="none" stroke-linecap="round" stroke-width="7">
+    <path d="M198,258 C188,226 208,206 198,174 C188,142 208,122 198,92" opacity="0.45"/>
+    <path d="M252,250 C242,216 262,194 252,160 C242,126 262,104 252,74" opacity="0.3"/>
+  </g>
+
+  <!-- Clock icon -->
+  <g transform="translate(390,130)" stroke="#cdbf63" fill="none">
+    <circle r="50" stroke-width="7" fill="#120d09"/>
+    <line x1="0" y1="-38" x2="0" y2="-30" stroke-width="5" stroke-linecap="round"/>
+    <line x1="38" y1="0" x2="30" y2="0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="0" y1="38" x2="0" y2="30" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-38" y1="0" x2="-30" y2="0" stroke-width="5" stroke-linecap="round"/>
+    <line x1="0" y1="3" x2="-13" y2="-19" stroke-width="6" stroke-linecap="round"/>
+    <line x1="0" y1="3" x2="19" y2="-15" stroke-width="4.5" stroke-linecap="round"/>
+    <circle r="5" fill="#cdbf63"/>
+  </g>
+</svg>
