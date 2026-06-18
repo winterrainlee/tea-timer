@@ -1,43 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="차 한 잔의 시간">
   <defs>
-    <radialGradient id="amb" cx="50%" cy="60%" r="48%">
-      <stop offset="0%" stop-color="#2a2210"/>
+    <radialGradient id="bg" cx="50%" cy="44%" r="70%">
+      <stop offset="0%" stop-color="#2a2111"/>
+      <stop offset="58%" stop-color="#18110b"/>
       <stop offset="100%" stop-color="#120d09"/>
     </radialGradient>
+    <linearGradient id="smokeRing" x1="140" y1="96" x2="372" y2="418" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f1eee6"/>
+      <stop offset="52%" stop-color="#d9d4c8"/>
+      <stop offset="100%" stop-color="#aaa394"/>
+    </linearGradient>
+    <linearGradient id="matchaCup" x1="152" y1="270" x2="360" y2="418" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c4cd84"/>
+      <stop offset="55%" stop-color="#93a55d"/>
+      <stop offset="100%" stop-color="#667d42"/>
+    </linearGradient>
+    <linearGradient id="matchaLiquid" x1="158" y1="284" x2="354" y2="398" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ced894"/>
+      <stop offset="58%" stop-color="#8fa65d"/>
+      <stop offset="100%" stop-color="#5c733e"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="blur"/>
+      <feFlood flood-color="#d9d4c8" flood-opacity="0.22"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <!-- Background -->
   <rect width="512" height="512" fill="#120d09"/>
-  <rect width="512" height="512" fill="url(#amb)"/>
+  <rect width="512" height="512" fill="url(#bg)"/>
 
-  <!-- Tea cup: shallow bowl with subtle convex belly -->
-  <g transform="translate(232,310)" stroke="#cdbf63" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Cup body -->
-    <path d="M-112,-35 C-113,8 -58,42 -44,48 Q0,58 44,48 C58,42 113,8 112,-35"
-          stroke-width="11"/>
-    <!-- Rim -->
-    <ellipse cx="0" cy="-35" rx="112" ry="12" stroke-width="6" opacity="0.35"/>
-    <!-- Foot -->
-    <line x1="-22" y1="50" x2="-22" y2="64" stroke-width="6"/>
-    <line x1="22" y1="50" x2="22" y2="64" stroke-width="6"/>
-    <line x1="-28" y1="64" x2="28" y2="64" stroke-width="7"/>
+  <g filter="url(#glow)">
+    <circle cx="256" cy="256" r="172" fill="none" stroke="#6a665d" stroke-width="22" opacity="0.24"/>
+    <path
+      d="M256 66
+         C358 66 438 142 456 233
+         C480 360 384 454 256 458
+         C184 456 128 424 110 356
+         C108 352 111 349 115 350
+         C118 350 120 352 122 356
+         C154 397 203 426 256 428
+         C365 425 441 334 418 233
+         C400 154 332 103 256 104
+         C244 104 236 96 237 85
+         C238 74 245 66 256 66Z"
+      fill="url(#smokeRing)"
+    />
   </g>
 
-  <!-- Steam wisps -->
-  <g stroke="#cdbf63" fill="none" stroke-linecap="round" stroke-width="7">
-    <path d="M198,258 C188,226 208,206 198,174 C188,142 208,122 198,92" opacity="0.45"/>
-    <path d="M252,250 C242,216 262,194 252,160 C242,126 262,104 252,74" opacity="0.3"/>
-  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M225 222c-24-38 20-57-1-94" stroke="#efe6d6" stroke-width="18" opacity="0.78"/>
+    <path d="M286 216c-19-31 18-50 2-86" stroke="#efe6d6" stroke-width="14" opacity="0.5"/>
 
-  <!-- Clock icon -->
-  <g transform="translate(390,130)" stroke="#cdbf63" fill="none">
-    <circle r="50" stroke-width="7" fill="#120d09"/>
-    <line x1="0" y1="-38" x2="0" y2="-30" stroke-width="5" stroke-linecap="round"/>
-    <line x1="38" y1="0" x2="30" y2="0" stroke-width="5" stroke-linecap="round"/>
-    <line x1="0" y1="38" x2="0" y2="30" stroke-width="5" stroke-linecap="round"/>
-    <line x1="-38" y1="0" x2="-30" y2="0" stroke-width="5" stroke-linecap="round"/>
-    <line x1="0" y1="3" x2="-13" y2="-19" stroke-width="6" stroke-linecap="round"/>
-    <line x1="0" y1="3" x2="19" y2="-15" stroke-width="4.5" stroke-linecap="round"/>
-    <circle r="5" fill="#cdbf63"/>
+    <path d="M154 294c38 21 166 21 204 0c-15 62-57 104-102 104s-87-42-102-104Z" fill="url(#matchaLiquid)" opacity="0.92"/>
+    <path d="M151 286c34 22 176 22 210 0" stroke="#c7d58d" stroke-width="18" opacity="0.72"/>
+    <path d="M140 286c9 67 61 112 116 112s107-45 116-112" stroke="url(#matchaCup)" stroke-width="30"/>
   </g>
 </svg>
