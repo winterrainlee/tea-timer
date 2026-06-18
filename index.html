@@ -155,6 +155,10 @@
           <stop offset=".48" stop-color="#cdbf63" stop-opacity=".42"/>
           <stop offset="1" stop-color="#cdbf63" stop-opacity=".04"/>
         </linearGradient>
+        <radialGradient id="mugSurfGrad" cx="50%" cy="42%" r="74%">
+          <stop id="mugSurfCenter" offset="0" stop-color="#efe09a" stop-opacity=".82"/>
+          <stop id="mugSurfEdge" offset="1" stop-color="#cdbf63" stop-opacity=".86"/>
+        </radialGradient>
         <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0" stop-color="#ffd27a" stop-opacity="1"/>
           <stop offset=".5" stop-color="#eaa84f" stop-opacity=".45"/>
@@ -194,8 +198,8 @@
           <ellipse cx="100" cy="148" rx="46" ry="22" fill="url(#softTeaGlow)" opacity=".38"/>
           <path id="g-liquid" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
           <path id="g-meniscus" d="M100 166" fill="none" stroke="#f4e6a0" stroke-width="1.2" stroke-linecap="round" opacity="0"/>
-          <path id="g-wall-left" d="M100 166" fill="none" stroke="#cdbf63" stroke-width="2.6" stroke-linecap="round" opacity="0"/>
-          <path id="g-wall-right" d="M100 166" fill="none" stroke="#cdbf63" stroke-width="2.6" stroke-linecap="round" opacity="0"/>
+          <path id="g-wall-left" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
+          <path id="g-wall-right" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
         </g>
         <g id="g-leaves" clip-path="url(#gBowl)" style="mix-blend-mode:multiply"></g>
         <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172" preserveAspectRatio="xMidYMid meet" opacity=".46"/>
@@ -207,7 +211,7 @@
 
       <g id="v-mug" class="vessel" style="display:none" filter="url(#vesselShadow)">
         <image href="assets/vessels/mug.png" x="24" y="43" width="160" height="160" preserveAspectRatio="xMidYMid meet"/>
-        <ellipse id="mug-surface" cx="96" cy="83" rx="31" ry="7" fill="#cdbf63" opacity="0"/>
+        <ellipse id="mug-surface" cx="96" cy="83" rx="34" ry="7.4" fill="url(#mugSurfGrad)" opacity="0"/>
       </g>
 
       <g id="v-piaoyibei" class="vessel" style="display:none" filter="url(#vesselShadow)">
@@ -421,7 +425,8 @@
     ambient:$("ambient"), gLiquid:$("g-liquid"), gMeniscus:$("g-meniscus"), gLid:$("g-lid"),
     gWallLeft:$("g-wall-left"), gWallRight:$("g-wall-right"),
     liquorTop:$("liquorTop"), liquorBot:$("liquorBot"),
-    mugSurf:$("mug-surface"), pyChamber:$("py-chamber"), pyChSurf:$("py-chSurf"),
+    mugSurf:$("mug-surface"), mugSurfCenter:$("mugSurfCenter"), mugSurfEdge:$("mugSurfEdge"),
+    pyChamber:$("py-chamber"), pyChSurf:$("py-chSurf"),
     pyLower:$("py-lower"), pyLowerSurf:$("py-lowerSurf"), pyLowerGrad:$("pyLowerGrad"),
     ringTrack:$("ring-track"), ringProg:$("ring-prog"), steam:$("steam"),
     pour:$("pour"), pourStream:$("pour-stream"), pourRipple:$("pour-ripple"),
@@ -516,16 +521,19 @@
   }
   function gaiwanLiquidPath(top, lvl){
     const wall=gaiwanWallAt(top), bottom=165.6;
+    const contactY=lerp(top,154,0.82), contact=gaiwanWallAt(contactY);
+    const low=gaiwanWallAt(162.5);
     const surfaceLift=(reduce?0:Math.sin(performance.now()/720))*0.55*Math.min(1,lvl);
-    const sideSoft=lerp(1.8,4.5,lvl);
     const bottomRx=lerp(8,24,lvl);
     const topDip=lerp(1.1,2.6,lvl)+surfaceLift;
     return [
       `M ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
       `C ${(wall.left+14).toFixed(2)} ${(top-topDip).toFixed(2)} ${(wall.right-14).toFixed(2)} ${(top-topDip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`,
-      `C ${(wall.right-sideSoft).toFixed(2)} ${(top+12).toFixed(2)} ${(100+bottomRx).toFixed(2)} ${(bottom-2).toFixed(2)} ${(100+bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
+      `C ${(wall.right+.6).toFixed(2)} ${(top+8).toFixed(2)} ${(contact.right+.8).toFixed(2)} ${(contactY-7).toFixed(2)} ${contact.right.toFixed(2)} ${contactY.toFixed(2)}`,
+      `C ${(low.right-1.4).toFixed(2)} 159.8 ${(100+bottomRx*1.05).toFixed(2)} ${(bottom-2).toFixed(2)} ${(100+bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
       `C ${(100+bottomRx*.24).toFixed(2)} ${(bottom+1.4).toFixed(2)} ${(100-bottomRx*.24).toFixed(2)} ${(bottom+1.4).toFixed(2)} ${(100-bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
-      `C ${(100-bottomRx).toFixed(2)} ${(bottom-2).toFixed(2)} ${(wall.left+sideSoft).toFixed(2)} ${(top+12).toFixed(2)} ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
+      `C ${(100-bottomRx*1.05).toFixed(2)} ${(bottom-2).toFixed(2)} ${(low.left+1.4).toFixed(2)} 159.8 ${contact.left.toFixed(2)} ${contactY.toFixed(2)}`,
+      `C ${(contact.left-.8).toFixed(2)} ${(contactY-7).toFixed(2)} ${(wall.left-.6).toFixed(2)} ${(top+8).toFixed(2)} ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
       "Z"
     ].join(" ");
   }
@@ -536,10 +544,18 @@
     return `M ${wall.left.toFixed(2)} ${top.toFixed(2)} C ${(wall.left+14).toFixed(2)} ${(top-dip).toFixed(2)} ${(wall.right-14).toFixed(2)} ${(top-dip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`;
   }
   function gaiwanWallWashPath(top, side){
-    const w0=gaiwanWallAt(top), w1=gaiwanWallAt(lerp(top,166,.55));
-    const x0=side<0?w0.left:w0.right, x1=side<0?w1.left:w1.right;
-    const bend=side<0?5:-5;
-    return `M ${x0.toFixed(2)} ${(top+1.2).toFixed(2)} C ${(x0+bend*.25).toFixed(2)} ${(top+12).toFixed(2)} ${(x1+bend).toFixed(2)} 156.5 ${x1.toFixed(2)} 164.5`;
+    const y0=top+1.2, y1=lerp(top,154,.82), y2=164.5;
+    const w0=gaiwanWallAt(y0), w1=gaiwanWallAt(y1), w2=gaiwanWallAt(y2);
+    const outer0=side<0?w0.left:w0.right, outer1=side<0?w1.left:w1.right, outer2=side<0?w2.left:w2.right;
+    const inset0=side<0?5.8:-5.8, inset1=side<0?4.8:-4.8, inset2=side<0?2.9:-2.9;
+    return [
+      `M ${outer0.toFixed(2)} ${y0.toFixed(2)}`,
+      `C ${(outer0+side*-0.8).toFixed(2)} ${(top+11).toFixed(2)} ${(outer1+side*-0.7).toFixed(2)} ${(y1-5).toFixed(2)} ${outer1.toFixed(2)} ${y1.toFixed(2)}`,
+      `C ${(outer1+side*-0.4).toFixed(2)} ${(y1+6).toFixed(2)} ${(outer2+side*-0.4).toFixed(2)} 159.8 ${outer2.toFixed(2)} ${y2.toFixed(2)}`,
+      `L ${(outer2+inset2).toFixed(2)} ${(y2-.8).toFixed(2)}`,
+      `C ${(outer1+inset1).toFixed(2)} ${(y1+5).toFixed(2)} ${(outer0+inset0).toFixed(2)} ${(top+10).toFixed(2)} ${(outer0+inset0).toFixed(2)} ${(y0+.6).toFixed(2)}`,
+      "Z"
+    ].join(" ");
   }
   function applyGaiwanLiquor(alpha, strength, top, lvl){
     const col=mix(tea().light, tea().strong, strength);
@@ -554,8 +570,8 @@
     els.gWallLeft.setAttribute("d",gaiwanWallWashPath(top,-1));
     els.gWallRight.setAttribute("d",gaiwanWallWashPath(top,1));
     [els.gWallLeft,els.gWallRight].forEach(el=>{
-      el.setAttribute("stroke",rgb(mix(col,tea().strong,.36)));
-      el.setAttribute("opacity",(alpha*.28*Math.min(1,lvl*1.6)).toFixed(3));
+      el.setAttribute("fill",rgb(mix(col,tea().strong,.38)));
+      el.setAttribute("opacity",(alpha*.62*Math.min(1,lvl*1.6)).toFixed(3));
     });
   }
   function setRing(remaining, total, urgent){
@@ -641,8 +657,10 @@
       drawLeaves(pyLeaves, openEff, {baseAlpha:.03, peakAlpha:.42, minSpread:6, maxSpread:32, minScale:.13, maxScale:.38});
     } else if(vesselId==="mug"){
       const col=mix(tea().light,tea().strong,strengthT);
-      els.mugSurf.setAttribute("fill",rgb(col));
-      els.mugSurf.setAttribute("opacity",(curAlpha*Math.min(1,level*1.4)).toFixed(3));
+      const visible=curAlpha*Math.min(1,level*1.4);
+      els.mugSurfCenter.setAttribute("stop-color",rgb(mix(col,[255,248,218],.18)));
+      els.mugSurfEdge.setAttribute("stop-color",rgb(mix(col,tea().strong,.08)));
+      els.mugSurf.setAttribute("opacity",(visible*.78).toFixed(3));
     }
     // ambient glow for opaque vessels — 따뜻한 앰버 글로우, 임박 시 throb
     if(v.vis==="none" || v.vis==="top"){
