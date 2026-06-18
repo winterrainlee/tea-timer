@@ -1,5 +1,5 @@
-// 차 한 잔의 시간 · Time for Tea — 앱 셸 캐시 (M1 기본)
-const CACHE = "chahanjan-v16";
+// 차 한 잔의 시간 · Time for Tea — stale-while-revalidate 캐시
+const CACHE = "chahanjan-v17";
 const ASSETS = [
   "./",
   "./index.html",
@@ -29,10 +29,15 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
-      return res;
-    }).catch(() => caches.match("./index.html")))
+    caches.match(e.request).then(hit => {
+      const net = fetch(e.request).then(res => {
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        }
+        return res;
+      }).catch(() => hit || caches.match("./index.html"));
+      return hit || net;
+    })
   );
 });

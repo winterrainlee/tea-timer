@@ -171,9 +171,9 @@
         <filter id="vesselShadow" x="-30%" y="-30%" width="160%" height="170%">
           <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#000" flood-opacity=".34"/>
         </filter>
-        <clipPath id="gBowl"><path d="M53 120 C61 141 78 152 100 153 C122 152 139 141 147 120 L139 135 C128 149 116 156 100 157 C84 156 72 149 61 135 Z"/></clipPath>
-        <clipPath id="pyOut"><path d="M74 149 C82 146 91 145 100 145 C109 145 118 146 126 149 L126 185 C126 191 116 193 100 193 C84 193 74 191 74 185 Z"/></clipPath>
-        <clipPath id="pyIn"><path d="M80 105 L80 130 C80 139 89 144 100 144 C111 144 120 139 120 130 L120 105 Z"/></clipPath>
+        <clipPath id="gBowl"><path d="M57 126 C58 139 60 148 60 152 C60 157 58 160 56 162 C53 164 74 166 100 166 C126 166 147 164 144 162 C142 160 140 157 140 152 C140 148 142 139 143 126 Z"/></clipPath>
+        <clipPath id="pyOut"><path d="M71 149 C79 146 88 145 97 145 C106 145 115 146 123 149 L123 185 C123 191 113 193 97 193 C81 193 71 191 71 185 Z"/></clipPath>
+        <clipPath id="pyIn"><path d="M77 105 L77 130 C77 139 86 144 97 144 C108 144 117 139 117 130 L117 105 Z"/></clipPath>
       </defs>
 
       <!-- ambient glow (opaque vessels) -->
@@ -191,7 +191,7 @@
       <g id="v-gaiwan" class="vessel" filter="url(#vesselShadow)">
         <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172" preserveAspectRatio="xMidYMid meet"/>
         <g clip-path="url(#gBowl)" style="mix-blend-mode:multiply">
-          <ellipse cx="100" cy="139" rx="46" ry="18" fill="url(#softTeaGlow)" opacity=".38"/>
+          <ellipse cx="100" cy="148" rx="46" ry="22" fill="url(#softTeaGlow)" opacity=".38"/>
           <rect id="g-liquid" x="54" y="124" width="92" height="33" fill="#cdbf63" opacity="0"/>
         </g>
         <ellipse id="g-surface" cx="100" cy="124" rx="34" ry="5" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
@@ -209,10 +209,10 @@
 
       <g id="v-piaoyibei" class="vessel" style="display:none" filter="url(#vesselShadow)">
         <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178" preserveAspectRatio="xMidYMid meet"/>
-        <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply"><path id="py-lower" d="M100 194 Z" fill="url(#pyLowerGrad)" opacity="0"/></g>
-        <ellipse id="py-lowerSurf" cx="100" cy="194" rx="0" ry="3.8" fill="#f3eaa8" opacity="0" style="mix-blend-mode:multiply"/>
-        <g clip-path="url(#pyIn)" style="mix-blend-mode:multiply"><rect id="py-chamber" x="75" y="112" width="50" height="44" fill="#cdbf63" opacity="0"/></g>
-        <ellipse id="py-chSurf" cx="100" cy="112" rx="23" ry="4.8" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
+        <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply"><path id="py-lower" d="M97 194 Z" fill="url(#pyLowerGrad)" opacity="0"/></g>
+        <ellipse id="py-lowerSurf" cx="97" cy="194" rx="0" ry="3.8" fill="#f3eaa8" opacity="0" style="mix-blend-mode:multiply"/>
+        <g clip-path="url(#pyIn)" style="mix-blend-mode:multiply"><rect id="py-chamber" x="72" y="112" width="50" height="44" fill="#cdbf63" opacity="0"/></g>
+        <ellipse id="py-chSurf" cx="97" cy="112" rx="23" ry="4.8" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
         <g id="py-leaves" clip-path="url(#pyIn)" style="mix-blend-mode:multiply"></g>
         <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178" preserveAspectRatio="xMidYMid meet" opacity=".54"/>
       </g>
@@ -495,7 +495,7 @@
       case "eastern-pot": return [{x:100,y:95,dx:0},{x:42,y:107,dx:-0.38}];   // 뚜껑 · 꼭지
       case "gaiwan":      return [{x:100,y:90,dx:0}];
       case "mug":         return [{x:96,y:82,dx:0}];
-      case "piaoyibei":   return [{x:100,y:70,dx:0}];
+      case "piaoyibei":   return [{x:97,y:70,dx:0}];
       default:            return [{x:100,y:100,dx:0}];
     }
   }
@@ -521,15 +521,15 @@
     el.setAttribute("ry",(baseRy + Math.sin(tt*2.3+1)*amp).toFixed(2));
   }
   function pyLowerPath(top, amount){
-    const bottom=190, t=clamp(amount,0,1);
+    const cx=97, bottom=190, t=clamp(amount,0,1);
     const topRx=lerp(5,23,t), botRx=lerp(7,16,t);
     const topLift=lerp(0,2.3,t), bottomBulge=lerp(0,1.2,t);
     return [
-      `M ${(100-topRx).toFixed(2)} ${top.toFixed(2)}`,
-      `C ${(100-topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(100+topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(100+topRx).toFixed(2)} ${top.toFixed(2)}`,
-      `L ${(100+botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
-      `C ${(100+botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(100+botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} 100 ${bottom.toFixed(2)}`,
-      `C ${(100-botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(100-botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(100-botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
+      `M ${(cx-topRx).toFixed(2)} ${top.toFixed(2)}`,
+      `C ${(cx-topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(cx+topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(cx+topRx).toFixed(2)} ${top.toFixed(2)}`,
+      `L ${(cx+botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
+      `C ${(cx+botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(cx+botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${cx} ${bottom.toFixed(2)}`,
+      `C ${(cx-botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(cx-botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(cx-botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
       "Z"
     ].join(" ");
   }
@@ -540,9 +540,9 @@
     const v=vessel();
     // gaiwan
     if(vesselId==="gaiwan"){
-      const top=lerp(158,121,level), full=158;
+      const top=lerp(166,130,level), full=166;
       applyLiquor(els.gLiquid, els.gSurf, curAlpha*Math.min(1,level*1.4)*.76, strengthT, top, full);
-      shimmerSurf(els.gSurf, lerp(16,39,level), lerp(2.5,5.4,level), level);
+      shimmerSurf(els.gSurf, lerp(16,36,level), lerp(2.5,5,level), level);
       drawLeaves(gLeaves, openEff, {baseAlpha:.02, peakAlpha:.34, minSpread:6, maxSpread:30, minScale:.12, maxScale:.36});
       els.gLid.setAttribute("opacity","0");
     } else if(vesselId==="piaoyibei"){
@@ -694,7 +694,7 @@
   // ---- boot ----
   function boot(){
     buildDots(); buildSegState(); paintTea();
-    gLeaves=buildLeaves("g-leaves",[{x:100,y:154,base:0},{x:87,y:150,base:70},{x:113,y:150,base:140},{x:95,y:146,base:210},{x:105,y:146,base:300}]);
+    gLeaves=buildLeaves("g-leaves",[{x:100,y:164,base:0},{x:87,y:160,base:70},{x:113,y:160,base:140},{x:95,y:156,base:210},{x:105,y:156,base:300}]);
     pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
     sec=tea().base; syncSlider(); setInf(); previewIdle();
     requestAnimationFrame(frame);
