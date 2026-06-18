@@ -43,7 +43,7 @@
     display:inline-flex; align-items:center; justify-content:center; text-decoration:none;
   }
   .top-actions .reset-top{
-    min-width:66px; padding:0 .2rem; font-family:inherit; font-size:.72rem;
+    min-width:78px; padding:0 .2rem; font-family:inherit; font-size:1.15rem;
   }
   .top-actions .help-link{
     width:44px; font-family:"Gowun Batang",serif; font-size:1.12rem; font-weight:700;
@@ -95,21 +95,36 @@
   .carousel{ display:flex; align-items:center; gap:.25rem; }
   .carousel .chev{ background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; }
   .carousel .chev svg{ width:20px; height:20px; }
-  .carousel .track{ flex:1; display:flex; align-items:center; justify-content:center; gap:.6rem; overflow:hidden; height:38px; }
-  .carousel .ghost{ font-size:.72rem; color:var(--ink-faint); opacity:.55; white-space:nowrap; flex:none; }
-  .carousel .cur{ display:flex; align-items:center; gap:.4rem; flex:none; white-space:nowrap; padding:.36rem .95rem; border:0.5px solid var(--gold); border-radius:999px; background:rgba(205,191,99,.1); color:var(--gold-soft); font-size:.9rem; }
-  .carousel .cur .dot{ width:8px; height:8px; border-radius:50%; }
+  .carousel .track{
+    flex:1; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    align-items:center; column-gap:.72rem; overflow:hidden; height:42px;
+  }
+  .carousel .ghost{ font-size:.72rem; color:var(--ink-faint); opacity:.55; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .carousel .ghost:first-child{ text-align:right; }
+  .carousel .ghost:last-child{ text-align:left; }
+  .carousel .cur{
+    display:inline-flex; align-items:center; justify-content:center; gap:.42rem;
+    flex:none; white-space:nowrap; padding:0 .35rem; color:var(--gold-soft);
+    font-size:1.04rem; font-weight:700; letter-spacing:.02em; text-shadow:0 0 10px rgba(228,214,145,.22);
+  }
+  .carousel .cur .tea-dot{
+    width:8px; height:8px; border-radius:50%; flex:none; box-shadow:0 0 8px rgba(228,214,145,.22);
+  }
   .dots{ display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:.3rem; }
   .dots i{ width:5px; height:5px; border-radius:50%; background:var(--track); transition:width .2s,background .2s; }
   .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
 
-  .slider-row{ padding:.08rem 0 .12rem; }
-  .slider-row .top{ display:flex; justify-content:center; font-size:.74rem; color:var(--ink-dim); margin-bottom:.08rem; }
+  .slider-row{ padding:.08rem 0 .12rem; margin-top:-1.1rem; }
+  .slider-row .top{ display:flex; justify-content:center; font-size:.86rem; color:var(--ink-dim); margin-bottom:.12rem; }
   .infusion-line{
-    min-height:1rem; margin-bottom:.24rem; color:var(--ink-faint); font-size:.68rem; text-align:center;
+    min-height:1.15rem; margin-bottom:.28rem; color:var(--ink-faint); font-size:.8rem; text-align:center;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em;
   }
-  .slider-row .val{ display:block; text-align:center; font-family:"Space Mono",monospace; font-size:2rem; line-height:1; color:var(--gold-soft); margin:0 0 .42rem; text-shadow:0 1px 10px rgba(0,0,0,.45); }
+  .slider-row .val{
+    display:block; text-align:center; font-family:"Gowun Batang",serif; font-weight:700;
+    font-size:2.2rem; line-height:1; color:var(--gold-soft); margin:0 0 .42rem;
+    text-shadow:0 1px 10px rgba(0,0,0,.45);
+  }
   .slider-line{ display:flex; align-items:center; gap:.75rem; }
   .step{ width:48px; height:48px; flex:none; border-radius:50%; border:0.5px solid var(--line); background:rgba(255,255,255,.02); color:var(--ink-dim); font-size:1.35rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .step:active{ background:rgba(255,255,255,.06); }
@@ -148,10 +163,12 @@
     .hero{ min-height:160px; }
     .hero svg.stage{ max-height:35vh; }
     .controls{ gap:.42rem; }
-    .carousel .track{ height:34px; }
+    .carousel .track{ height:38px; }
     .dots{ margin-top:.2rem; }
-    .infusion-line{ font-size:.64rem; margin-bottom:.18rem; }
-    .slider-row .val{ font-size:1.7rem; margin-bottom:.3rem; }
+    .slider-row{ margin-top:-.72rem; }
+    .slider-row .top{ font-size:.78rem; }
+    .infusion-line{ font-size:.72rem; margin-bottom:.2rem; }
+    .slider-row .val{ font-size:1.9rem; margin-bottom:.3rem; }
     .step{ width:44px; height:44px; }
     input[type=range]::-webkit-slider-thumb{ width:26px; height:26px; }
     input[type=range]::-moz-range-thumb{ width:26px; height:26px; }
@@ -177,7 +194,7 @@
       <button class="chev" id="teaPrev" aria-label="이전 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="track">
         <span class="ghost" id="teaGhostL"></span>
-        <span class="cur"><span class="dot" id="teaDot"></span><span id="teaCur">청향 우롱</span></span>
+        <span class="cur"><span class="tea-dot" id="teaDot"></span><span id="teaCur">청향 우롱</span></span>
         <span class="ghost" id="teaGhostR"></span>
       </div>
       <button class="chev" id="teaNext" aria-label="다음 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
