@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tea-timer-reactions",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-18",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "ALLOWED_ORIGINS": "https://winterrainlee.github.io,http://127.0.0.1:8123,http://127.0.0.1:8124,http://localhost:8123,http://localhost:8787"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tea-timer-reactions",
+      "database_id": "4417f0ca-4ea4-4f26-a8a0-592ad06934a6"
+    }
+  ]
+}
