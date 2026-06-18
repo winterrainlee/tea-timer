@@ -47,6 +47,38 @@
   p{ color:var(--ink-dim); line-height:1.75; font-size:.94rem; }
   a{ color:var(--gold-soft); text-decoration-thickness:.08em; text-underline-offset:.18em; }
   .foot{ margin-top:auto; padding-top:1rem; color:var(--ink-faint); font-size:.78rem; line-height:1.6; }
+  .clap-button{
+    position:fixed; right:calc(1rem + env(safe-area-inset-right)); bottom:calc(.85rem + env(safe-area-inset-bottom));
+    z-index:40; min-width:44px; min-height:44px; border:0; background:none; color:var(--ink-dim);
+    cursor:pointer; font-size:1.22rem; line-height:1; display:flex; align-items:center; justify-content:center;
+    filter:drop-shadow(0 1px 5px rgba(0,0,0,.28));
+  }
+  .clap-button:active{ color:var(--gold-soft); }
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center;
+    padding:1rem; background:rgba(6,4,2,.58); backdrop-filter:blur(5px);
+  }
+  .modal-backdrop[hidden]{ display:none; }
+  .support-modal{
+    position:relative; width:min(100%,330px); border:1px solid rgba(205,191,99,.28); border-radius:8px;
+    background:linear-gradient(180deg,rgba(37,28,18,.98),rgba(20,14,9,.98)); color:var(--ink);
+    padding:1.35rem 1.2rem 1.15rem; box-shadow:0 20px 48px rgba(0,0,0,.52);
+    text-align:center;
+  }
+  .support-modal h2{ font-size:1.12rem; color:var(--gold-soft); margin-bottom:.72rem; }
+  .support-modal p{ font-size:.94rem; line-height:1.62; color:var(--ink); word-break:keep-all; }
+  .modal-close{
+    position:absolute; top:.35rem; right:.38rem; width:44px; height:44px; border:0; background:none;
+    color:var(--ink-dim); cursor:pointer; font-size:1.3rem; line-height:1;
+  }
+  .modal-actions{ display:flex; align-items:center; justify-content:center; gap:.55rem; margin-top:1.1rem; }
+  .modal-actions[hidden], .modal-actions button[hidden]{ display:none; }
+  .modal-actions button{
+    min-height:42px; border-radius:8px; border:1px solid var(--gold); padding:0 .95rem;
+    font-family:inherit; font-size:.92rem; cursor:pointer;
+  }
+  .modal-primary{ background:var(--gold-soft); color:var(--bg-0); }
+  .modal-ghost{ background:transparent; color:var(--ink-dim); }
 </style>
 </head>
 <body>
@@ -90,5 +122,67 @@
 
   <div class="foot">차 한 잔의 시간 · Time for Tea</div>
 </div>
+<button class="clap-button" id="applause" aria-label="제작자에게 응원의 박수 보내기" title="응원의 박수">👏</button>
+<div class="modal-backdrop" id="clapModal" hidden>
+  <div class="support-modal" role="dialog" aria-modal="true" aria-labelledby="clapTitle" aria-describedby="clapBody">
+    <button class="modal-close" id="clapClose" aria-label="닫기">×</button>
+    <h2 id="clapTitle">응원의 박수</h2>
+    <p id="clapBody">제작자에게 응원의 박수를 눌러주세요. 제작자의 기분이 좋아집니다.</p>
+    <div class="modal-actions" id="clapChoices">
+      <button class="modal-primary" id="clapYes">박수</button>
+      <button class="modal-ghost" id="clapNo">싫어요</button>
+    </div>
+    <div class="modal-actions" id="clapDone" hidden>
+      <button class="modal-primary" id="clapDismiss">닫기</button>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const CREATOR_REACTION_ENDPOINT = "https://tea-timer-reactions.winterrain-lee.workers.dev/reaction";
+  let lastClapFocus = null;
+
+  function postCreatorReaction(reaction){
+    try{
+      fetch(CREATOR_REACTION_ENDPOINT,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({app:"tea-timer", reaction}),
+        keepalive:true,
+      }).catch(()=>{});
+    }catch(e){}
+  }
+  function openClapModal(){
+    lastClapFocus=document.activeElement;
+    $("clapTitle").textContent="응원의 박수";
+    $("clapBody").textContent="제작자에게 응원의 박수를 눌러주세요. 제작자의 기분이 좋아집니다.";
+    $("clapChoices").hidden=false;
+    $("clapDone").hidden=true;
+    $("clapModal").hidden=false;
+    $("clapYes").focus({preventScroll:true});
+  }
+  function closeClapModal(){
+    $("clapModal").hidden=true;
+    if(lastClapFocus&&typeof lastClapFocus.focus==="function") lastClapFocus.focus({preventScroll:true});
+  }
+  function finishClapModal(title, body, reaction){
+    postCreatorReaction(reaction);
+    $("clapTitle").textContent=title;
+    $("clapBody").textContent=body;
+    $("clapChoices").hidden=true;
+    $("clapDone").hidden=false;
+    $("clapDismiss").focus({preventScroll:true});
+  }
+
+  $("applause").onclick=openClapModal;
+  $("clapClose").onclick=closeClapModal;
+  $("clapDismiss").onclick=closeClapModal;
+  $("clapYes").onclick=()=>finishClapModal("감사합니다", "감사합니다 덕분에 큰 힘이 되었습니다!", "clap");
+  $("clapNo").onclick=()=>finishClapModal("의견 고마워요", "괜찮습니다. 앞으로 더 노력해서 다음에는 박수를 받을 수 있도록 힘내보겠습니다!", "down");
+  $("clapModal").addEventListener("click",e=>{ if(e.target===$("clapModal")) closeClapModal(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("clapModal").hidden) closeClapModal(); });
+})();
+</script>
 </body>
 </html>
