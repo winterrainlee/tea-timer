@@ -1,5 +1,5 @@
 // 차 한 잔의 시간 · Time for Tea — stale-while-revalidate 캐시
-const CACHE = "chahanjan-v24";
+const CACHE = "chahanjan-v28";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./assets/vessels/gaiwan-glass.png",
   "./assets/vessels/mug.png",
   "./assets/vessels/piaoyibei-glass.png",
+  "./assets/tea-preview/chahe.svg",
 ];
 
 self.addEventListener("install", e => {

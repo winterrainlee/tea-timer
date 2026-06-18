@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 150" role="img" aria-label="straight bamboo tea presentation trough">
+  <defs>
+    <linearGradient id="outerBamboo" x1="70" y1="35" x2="710" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#805033"/>
+      <stop offset=".18" stop-color="#c49060"/>
+      <stop offset=".52" stop-color="#9e6740"/>
+      <stop offset=".78" stop-color="#d0a06b"/>
+      <stop offset="1" stop-color="#704426"/>
+    </linearGradient>
+    <linearGradient id="innerBamboo" x1="116" y1="51" x2="660" y2="102" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c89361"/>
+      <stop offset=".18" stop-color="#b57c4d"/>
+      <stop offset=".5" stop-color="#7f4d2d"/>
+      <stop offset=".8" stop-color="#b98150"/>
+      <stop offset="1" stop-color="#5c321a"/>
+    </linearGradient>
+    <linearGradient id="rimLight" x1="88" y1="30" x2="700" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f0c891" stop-opacity=".72"/>
+      <stop offset=".52" stop-color="#f8d8a5" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#f0c891" stop-opacity=".58"/>
+    </linearGradient>
+    <radialGradient id="innerShade" cx="46%" cy="45%" r="70%">
+      <stop offset="0" stop-color="#ecc18b" stop-opacity=".24"/>
+      <stop offset=".58" stop-color="#6f4024" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#2b1409" stop-opacity=".38"/>
+    </radialGradient>
+    <filter id="softShadow" x="-10%" y="-55%" width="120%" height="210%">
+      <feDropShadow dx="0" dy="11" stdDeviation="8" flood-color="#050302" flood-opacity=".38"/>
+    </filter>
+    <clipPath id="innerClip">
+      <path d="M98 76 C102 55 127 42 162 42 L634 43 C664 43 683 56 688 78 C674 98 649 109 616 109 L162 111 C126 111 102 98 98 76 Z"/>
+    </clipPath>
+  </defs>
+
+  <ellipse cx="386" cy="124" rx="260" ry="18" fill="#050302" opacity=".23"/>
+  <g filter="url(#softShadow)" transform="rotate(-3 380 75)">
+    <path d="M58 77 C64 39 103 18 154 18 L648 20 C687 20 715 43 724 77 L724 88 C704 120 670 138 624 139 L153 141 C101 141 63 117 58 82 Z" fill="url(#outerBamboo)"/>
+    <path d="M78 77 C86 49 116 32 157 32 L641 34 C673 34 695 50 702 77 L702 85 C684 108 655 122 616 123 L158 125 C117 125 87 108 78 80 Z" fill="#432311" opacity=".52"/>
+    <path d="M98 76 C102 55 127 42 162 42 L634 43 C664 43 683 56 688 78 C674 98 649 109 616 109 L162 111 C126 111 102 98 98 76 Z" fill="url(#innerBamboo)"/>
+    <path d="M98 76 C102 55 127 42 162 42 L634 43 C664 43 683 56 688 78 C674 98 649 109 616 109 L162 111 C126 111 102 98 98 76 Z" fill="url(#innerShade)"/>
+
+    <g clip-path="url(#innerClip)" fill="none" stroke-linecap="round">
+      <path d="M112 68 C230 51 407 51 661 74" stroke="#f4cc95" stroke-width="2.1" opacity=".25"/>
+      <path d="M110 89 C248 76 435 77 652 96" stroke="#512a15" stroke-width="2.1" opacity=".32"/>
+      <path d="M142 101 C300 91 457 92 618 104" stroke="#e4b178" stroke-width="1.3" opacity=".2"/>
+      <path d="M170 50 C213 76 213 82 169 110" stroke="#f1c58e" stroke-width="1.1" opacity=".15"/>
+      <path d="M626 45 C596 66 596 87 624 108" stroke="#341a0c" stroke-width="1.2" opacity=".22"/>
+      <path d="M192 59 C323 50 493 56 618 76" stroke="#f8d7a6" stroke-width="1" opacity=".17"/>
+      <path d="M190 105 C330 96 483 98 615 108" stroke="#351a0c" stroke-width="1" opacity=".18"/>
+    </g>
+
+    <path d="M65 76 C74 37 109 17 154 17 L648 19 C686 19 716 43 724 77" fill="none" stroke="url(#rimLight)" stroke-width="5" stroke-linecap="round" opacity=".68"/>
+    <path d="M82 77 C90 49 119 32 157 32 L641 34 C672 34 695 50 702 77" fill="none" stroke="#2f170b" stroke-width="4.6" stroke-linecap="round" opacity=".25"/>
+    <path d="M64 90 C84 121 114 140 154 141 L624 139 C670 138 704 120 724 88" fill="none" stroke="#2b1408" stroke-width="5" stroke-linecap="round" opacity=".24"/>
+    <path d="M642 28 C654 45 657 66 652 88 C648 105 638 121 623 133" fill="none" stroke="#f0c48b" stroke-width="3" stroke-linecap="round" opacity=".34"/>
+  </g>
+</svg>

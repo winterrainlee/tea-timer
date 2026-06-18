@@ -54,7 +54,7 @@
   .hdr .sub{ font-family:"Space Mono",monospace; font-size:.62rem; letter-spacing:.18em; color:var(--ink-dim); margin-top:.18rem; }
 
   /* tea first */
-  .tea-picker{ flex:0 0 auto; }
+  .tea-picker{ position:relative; z-index:12; flex:0 0 auto; }
 
   /* hero */
   .hero{ position:relative; flex:1 1 auto; min-height:190px; display:flex; align-items:center; justify-content:center; }
@@ -74,6 +74,20 @@
   .message{ position:absolute; top:1.5%; left:50%; transform:translateX(-50%); font-size:.9rem; letter-spacing:.08em; color:var(--ink-dim); white-space:nowrap; text-align:center; text-shadow:0 1px 6px rgba(0,0,0,.7); transition:color .3s; z-index:6; }
   .message:empty{ display:none; }
   .message.gold{ color:var(--gold-soft); text-shadow:0 0 12px rgba(228,214,145,.45); }
+  .tea-preview{
+    position:absolute; left:50%; top:4.4rem; z-index:5; width:min(70%,270px); aspect-ratio:5/1;
+    transform:translateX(-50%); pointer-events:none; opacity:.9;
+    transition:opacity .24s ease, transform .24s ease; filter:drop-shadow(0 8px 12px rgba(0,0,0,.42));
+  }
+  .tea-preview.hide{ opacity:0; transform:translateX(-50%) translateY(-6px); }
+  .tea-preview .chahe{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:.94; }
+  .tea-preview .dry-leaves{
+    position:absolute; left:24%; top:14%; width:52%; height:68%; overflow:visible;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.42));
+  }
+  .tea-picker.locked .tea-preview{ opacity:0; transform:translateX(-50%) translateY(-6px); }
+  .tea-picker.locked .dots, .tea-picker.locked .chev, .tea-picker.locked .ghost{ opacity:0; pointer-events:none; }
+  .tea-picker.locked .cur{ color:var(--ink-dim); text-shadow:none; }
   .vessel-nav{
     position:absolute; top:55%; transform:translateY(-50%); z-index:7;
     width:44px; height:44px; border:0; background:none; color:var(--ink-dim);
@@ -82,18 +96,12 @@
   .vessel-nav.prev{ left:-.25rem; }
   .vessel-nav.next{ right:-.25rem; }
   .vessel-nav svg{ width:22px; height:22px; }
-  .toast{
-    position:absolute; left:50%; top:8%; transform:translateX(-50%) translateY(-6px);
-    font-family:"Space Mono",monospace; font-size:.66rem; letter-spacing:.06em; color:var(--gold-soft);
-    background:rgba(20,16,9,.7); border:0.5px solid var(--gold-line); border-radius:999px; padding:.25rem .7rem;
-    opacity:0; transition:opacity .3s, transform .3s; pointer-events:none; white-space:nowrap;
-  }
-  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-
   /* controls */
   .controls{ flex:0 0 auto; display:flex; flex-direction:column; gap:.55rem; }
-  .carousel{ display:flex; align-items:center; gap:.25rem; }
-  .carousel .chev{ background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; }
+  .carousel{ display:flex; align-items:center; gap:.25rem; padding:0 3rem; }
+  .carousel .chev{ position:absolute; top:4.1rem; z-index:8; transform:translateY(-50%); background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; transition:opacity .2s; }
+  .carousel .chev:first-child{ left:0; }
+  .carousel .chev:last-child{ right:0; }
   .carousel .chev svg{ width:20px; height:20px; }
   .carousel .track{
     flex:1; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
@@ -110,12 +118,16 @@
   .carousel .cur .tea-dot{
     width:8px; height:8px; border-radius:50%; flex:none; box-shadow:0 0 8px rgba(228,214,145,.22);
   }
-  .dots{ display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:.3rem; }
+  .dots{ position:absolute; left:0; right:0; top:7.95rem; display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:0; transition:opacity .2s; }
   .dots i{ width:5px; height:5px; border-radius:50%; background:var(--track); transition:width .2s,background .2s; }
   .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
 
   .slider-row{ padding:.08rem 0 .12rem; margin-top:-1.1rem; }
-  .slider-row .top{ display:flex; justify-content:center; font-size:.86rem; color:var(--ink-dim); margin-bottom:.12rem; }
+  .slider-row .top{ display:flex; align-items:center; justify-content:center; gap:.45rem; font-size:.86rem; color:var(--ink-dim); margin-bottom:.12rem; }
+  .slider-row .temp-hint{
+    font-family:"Space Mono",monospace; font-size:.64rem; letter-spacing:.05em; color:var(--gold-soft);
+    opacity:.86; transform:translateY(.02rem);
+  }
   .infusion-line{
     min-height:1.15rem; margin-bottom:.28rem; color:var(--ink-faint); font-size:.8rem; text-align:center;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em;
@@ -162,11 +174,15 @@
     .hdr .sub{ margin-top:.12rem; }
     .hero{ min-height:160px; }
     .hero svg.stage{ max-height:35vh; }
+    .tea-preview{ top:3.5rem; width:min(66%,248px); opacity:.86; }
     .controls{ gap:.42rem; }
+    .carousel{ padding:0 2.7rem; }
+    .carousel .chev{ top:3.5rem; }
     .carousel .track{ height:38px; }
-    .dots{ margin-top:.2rem; }
+    .dots{ top:6.65rem; }
     .slider-row{ margin-top:-.72rem; }
-    .slider-row .top{ font-size:.78rem; }
+    .slider-row .top{ font-size:.78rem; gap:.38rem; }
+    .slider-row .temp-hint{ font-size:.58rem; }
     .infusion-line{ font-size:.72rem; margin-bottom:.2rem; }
     .slider-row .val{ font-size:1.9rem; margin-bottom:.3rem; }
     .step{ width:44px; height:44px; }
@@ -199,13 +215,16 @@
       </div>
       <button class="chev" id="teaNext" aria-label="다음 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
+    <div class="tea-preview" id="teaPreview" aria-hidden="true">
+      <img class="chahe" src="assets/tea-preview/chahe.svg" alt="">
+      <svg class="dry-leaves" id="dryLeaves" viewBox="0 0 220 82" focusable="false"></svg>
+    </div>
     <div class="dots" id="dots"></div>
   </div>
 
-  <div class="hero" id="hero">
-    <div class="message" id="timeLabel" aria-live="polite"></div>
-    <div class="toast" id="toast"></div>
-    <button class="vessel-nav prev" id="vesselPrev" aria-label="이전 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+	  <div class="hero" id="hero">
+	    <div class="message" id="timeLabel" aria-live="polite"></div>
+	    <button class="vessel-nav prev" id="vesselPrev" aria-label="이전 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
     <button class="vessel-nav next" id="vesselNext" aria-label="다음 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
     <div class="halo h1"></div>
     <div class="halo h2"></div>
@@ -315,7 +334,7 @@
 
   <div class="controls">
     <div class="slider-row">
-      <div class="top"><span>우림 시간</span></div>
+      <div class="top"><span>우림 시간</span><span class="temp-hint" id="tempHint">권장 95°C</span></div>
       <div class="infusion-line" id="infusionLine" aria-live="polite">1포 20초</div>
       <div class="val" id="secVal">20초</div>
       <div class="slider-line">
@@ -478,6 +497,72 @@
     });
   }
 
+  const dryLeafSpots=[
+    {x:45,y:49,r:-31,s:.76},{x:65,y:38,r:18,s:.9},{x:83,y:52,r:56,s:.72},{x:101,y:35,r:-9,s:.86},
+    {x:119,y:49,r:33,s:.8},{x:139,y:36,r:-42,s:.75},{x:157,y:51,r:8,s:.9},{x:174,y:41,r:62,s:.7},
+    {x:57,y:58,r:84,s:.58},{x:89,y:28,r:-67,s:.55},{x:128,y:61,r:-18,s:.6},{x:151,y:27,r:27,s:.54},
+    {x:106,y:55,r:103,s:.5},{x:71,y:50,r:-8,s:.48},{x:167,y:57,r:-58,s:.5},{x:118,y:28,r:78,s:.46}
+  ];
+  function dryLeafPreviewProfile(id){
+    switch(id){
+      case "green":
+        return {kind:"needle", count:15, colors:[[90,118,48],[125,151,65],[66,91,39]], stroke:[42,58,25]};
+      case "white":
+        return {kind:"bud", count:13, colors:[[205,196,153],[174,184,138],[225,211,166]], stroke:[119,126,92]};
+      case "oolong":
+        return {kind:"pearl", count:14, colors:[[56,78,43],[73,95,48],[93,107,54]], stroke:[35,48,25]};
+      case "nong":
+        return {kind:"pearl", count:14, colors:[[92,62,31],[119,80,36],[60,45,25]], stroke:[43,28,15]};
+      case "black":
+        return {kind:"wire", count:16, colors:[[26,20,15],[49,32,18],[71,42,21]], stroke:[17,13,10]};
+      case "sheng":
+        return {kind:"twist", count:15, colors:[[103,90,45],[139,108,45],[74,80,39]], stroke:[50,47,22]};
+      case "shou":
+        return {kind:"flake", count:15, colors:[[45,24,14],[70,38,20],[31,18,12]], stroke:[20,12,8]};
+      default:
+        return {kind:"twist", count:14, colors:[[72,84,46],[105,116,56]], stroke:[38,45,25]};
+    }
+  }
+  function svgEl(name, attrs){
+    const el=document.createElementNS(SVGNS,name);
+    Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
+    return el;
+  }
+  function dryLeafShape(kind){
+    if(kind==="needle") return "M-1 13 C1 4 1 -8 0 -20 C5 -10 6 4 1 14 Z";
+    if(kind==="wire") return "M-1 16 C5 5 -5 -6 2 -20 C-4 -10 2 2 -2 14";
+    if(kind==="bud") return "M0 14 C8 4 6 -12 0 -21 C-7 -12 -8 4 0 14 Z";
+    if(kind==="twist") return "M-8 11 C5 8 12 -1 7 -11 C4 -17 -4 -17 -8 -8 C-12 0 -8 6 5 10";
+    if(kind==="flake") return "M-8 9 C-13 0 -7 -10 2 -12 C12 -10 13 2 7 10 C1 15 -5 14 -8 9 Z";
+    return "M0 0";
+  }
+  function renderDryLeafPreview(){
+    const svg=els.dryLeaves, profile=dryLeafPreviewProfile(tea().id);
+    if(!svg) return;
+    svg.innerHTML="";
+    dryLeafSpots.slice(0,profile.count).forEach((spot,i)=>{
+      const color=profile.colors[i%profile.colors.length], fill=rgb(color), stroke=rgb(profile.stroke);
+      const g=svgEl("g",{transform:`translate(${spot.x} ${spot.y}) rotate(${spot.r}) scale(${spot.s})`});
+      if(profile.kind==="pearl"){
+        g.appendChild(svgEl("ellipse",{cx:"0",cy:"0",rx:"9",ry:"6.4",fill,stroke,"stroke-width":"1.2",opacity:".94"}));
+        g.appendChild(svgEl("path",{d:"M-5 -1 C-1 -4 5 -2 6 2",fill:"none",stroke:"rgba(255,232,168,.34)","stroke-width":"1.1","stroke-linecap":"round"}));
+      } else {
+        const path=svgEl("path",{d:dryLeafShape(profile.kind),fill,stroke,"stroke-width":profile.kind==="wire"?"2.6":"1.1","stroke-linecap":"round","stroke-linejoin":"round",opacity:profile.kind==="bud"?".9":".95"});
+        if(profile.kind==="wire") path.setAttribute("fill","none");
+        g.appendChild(path);
+        if(profile.kind==="bud"){
+          g.appendChild(svgEl("path",{d:"M0 10 C1 2 0 -7 -1 -16",fill:"none",stroke:"rgba(255,245,204,.32)","stroke-width":".8","stroke-linecap":"round"}));
+        }
+      }
+      svg.appendChild(g);
+    });
+  }
+  function setTeaPickerActive(active){
+    if(els.teaPicker) els.teaPicker.classList.toggle("locked", !active);
+    $("teaPrev").disabled=!active;
+    $("teaNext").disabled=!active;
+  }
+
   // ---- elements ----
   const els={
     ambient:$("ambient"), gLiquid:$("g-liquid"), gMeniscus:$("g-meniscus"), gLid:$("g-lid"),
@@ -489,7 +574,9 @@
     ringTrack:$("ring-track"), ringProg:$("ring-prog"), steam:$("steam"),
     pour:$("pour"), pourStream:$("pour-stream"), pourRipple:$("pour-ripple"),
     hero:$("hero"), readout:$("readout"), time:$("time"), timeLabel:$("timeLabel"),
-    brew:$("brew"), slider:$("slider"), secVal:$("secVal"), infusionLine:$("infusionLine"), toast:$("toast"),
+    brew:$("brew"), slider:$("slider"), secVal:$("secVal"), infusionLine:$("infusionLine"), tempHint:$("tempHint"),
+    teaPicker:document.querySelector(".tea-picker"),
+    teaPreview:$("teaPreview"), dryLeaves:$("dryLeaves"),
   };
   let ringC=2*Math.PI*92;
   els.ringProg.setAttribute("stroke-dasharray", ringC);
@@ -520,10 +607,12 @@
   function paintTea(){
     const t=tea();
     $("teaName").textContent=t.name; $("teaCur").textContent=t.name;
+    els.tempHint.textContent=`권장 ${t.temp}°C`;
     $("teaDot").style.background=rgb(renderedTeaColor(t));
     $("teaGhostL").textContent=TEAS[(teaIdx+TEAS.length-1)%TEAS.length].name;
     $("teaGhostR").textContent=TEAS[(teaIdx+1)%TEAS.length].name;
     [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===teaIdx));
+    renderDryLeafPreview();
   }
   function buildDots(){ const d=$("dots"); d.innerHTML=""; TEAS.forEach(()=>d.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml","i"))); }
   function vesselIndex(){ return VESSELS.findIndex(v=>v.id===vesselId); }
@@ -545,13 +634,10 @@
     els.ringTrack.style.display = r?"":"none"; els.ringProg.style.display = r?"":"none";
     if(r) applyRingGeom();
   }
-  function showToast(msg){ els.toast.textContent=msg; els.toast.classList.add("show"); clearTimeout(showToast._t); showToast._t=setTimeout(()=>els.toast.classList.remove("show"),2600); }
-
-  function selectTea(i, toast){
+  function selectTea(i){
     if(phase==="pour"||phase==="steep") return;
     teaIdx=(i+TEAS.length)%TEAS.length; paintTea();
     if(phase==="idle"||phase==="done") reset();
-    if(toast) showToast(`권장 ${tea().temp}°C`);
   }
 
   // ---- slider ----
@@ -758,12 +844,14 @@
     lidLift=0; lidTarget=0; isUrgent=false; agitate=0;
     els.time.textContent=fmt(sec*1000); els.timeLabel.textContent="";
     els.timeLabel.setAttribute('aria-live','polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
+    setTeaPickerActive(true);
     clearRing(); render();
   }
 
   // ---- phases ----
   function startBrew(){
     ensureAudio(); reqWake();
+    setTeaPickerActive(false);
     activeBrew={n:infusion, sec};
     updateInfusionLine();
     preWarnSec=clamp(Math.round(sec*0.2),3,5); preWarned=false; lastTick=-1; drain=0;
@@ -778,6 +866,7 @@
   }
   function finishSteep(){
     phase="done"; curAlpha=tea().peak; strengthT=1; openEff=1; glow=1; isUrgent=false; agitate=0;
+    setTeaPickerActive(vesselId!=="piaoyibei");
     els.time.textContent="0:00";
     els.hero.classList.remove("urgent"); els.readout.classList.add("done");
     const v=vessel();
@@ -857,7 +946,7 @@
     if(phase==="done"){
       if(vesselId==="piaoyibei" && !pyDrained){
         pyDrained=true; els.brew.disabled=true; els.brew.textContent="내리는 중…";
-        drainPiao(()=>{ prepareNextInfusion(); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
+        drainPiao(()=>{ prepareNextInfusion(); setTeaPickerActive(true); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
         return;
       }
       startBrew();
@@ -866,8 +955,8 @@
   $("reset").onclick=reset;
   $("vesselPrev").onclick=()=>selectVessel(-1);
   $("vesselNext").onclick=()=>selectVessel(1);
-  $("teaPrev").onclick=()=>selectTea(teaIdx-1,true);
-  $("teaNext").onclick=()=>selectTea(teaIdx+1,true);
+  $("teaPrev").onclick=()=>selectTea(teaIdx-1);
+  $("teaNext").onclick=()=>selectTea(teaIdx+1);
   $("mute").onclick=function(){ muted=!muted; this.classList.toggle("muted",muted); this.setAttribute("aria-pressed",muted); this.setAttribute("aria-label",muted?"소리 켜기":"소리 끄기"); ensureAudio(); if(!muted) tone(880,.5,.12); };
 
   // swipe on hero for vessel
