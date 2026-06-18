@@ -192,10 +192,13 @@
         <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172" preserveAspectRatio="xMidYMid meet"/>
         <g clip-path="url(#gBowl)" style="mix-blend-mode:multiply">
           <ellipse cx="100" cy="148" rx="46" ry="22" fill="url(#softTeaGlow)" opacity=".38"/>
-          <rect id="g-liquid" x="54" y="124" width="92" height="33" fill="#cdbf63" opacity="0"/>
+          <path id="g-liquid" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
+          <path id="g-meniscus" d="M100 166" fill="none" stroke="#f4e6a0" stroke-width="1.2" stroke-linecap="round" opacity="0"/>
+          <path id="g-wall-left" d="M100 166" fill="none" stroke="#cdbf63" stroke-width="2.6" stroke-linecap="round" opacity="0"/>
+          <path id="g-wall-right" d="M100 166" fill="none" stroke="#cdbf63" stroke-width="2.6" stroke-linecap="round" opacity="0"/>
         </g>
-        <ellipse id="g-surface" cx="100" cy="124" rx="34" ry="5" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
         <g id="g-leaves" clip-path="url(#gBowl)" style="mix-blend-mode:multiply"></g>
+        <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172" preserveAspectRatio="xMidYMid meet" opacity=".46"/>
         <g id="g-lid" opacity="0" style="display:none">
           <path d="M62 97 C74 91 88 88 100 88 C112 88 126 91 138 97" fill="none" stroke="rgba(255,250,232,.28)" stroke-width="1.5" stroke-linecap="round"/>
           <ellipse cx="100" cy="96" rx="39" ry="7" fill="none" stroke="rgba(255,250,232,.18)" stroke-width="1.1"/>
@@ -366,17 +369,37 @@
     });
   }
   let gLeaves=[], pyLeaves=[];
+  function leafProfile(id){
+    switch(id){
+      case "green":
+        return {kind:"long", dry:[76,91,47], wet:[116,148,70], w0:2.8, w1:4.2, len0:24, len1:52, scaleBoost:1.22, alphaBoost:1.38, alphaCap:.72};
+      case "black":
+        return {kind:"long", dry:[15,13,10], wet:[28,20,14], w0:2.6, w1:3.8, len0:23, len1:50, scaleBoost:1.18, alphaBoost:2.35, alphaCap:.86};
+      default:
+        return {kind:"broad", dry:[60,74,44], wet:[104,134,68], scaleBoost:1, alphaBoost:1, alphaCap:1};
+    }
+  }
+  function leafPath(profile, open){
+    if(profile.kind!=="long") return "M0 0 Q6 -15 0 -30 Q-6 -15 0 0 Z";
+    const len=lerp(profile.len0,profile.len1,open), w=lerp(profile.w0,profile.w1,open);
+    return [
+      "M 0 0",
+      `C ${w.toFixed(2)} ${(-len*.28).toFixed(2)} ${(w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} 0 ${(-len).toFixed(2)}`,
+      `C ${(-w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.28).toFixed(2)} 0 0`,
+      "Z"
+    ].join(" ");
+  }
   function drawLeaves(arr, open, opts={}){
     const t=performance.now()/1000, ag=agitate;
-    const dry=[60,74,44], wet=[104,134,68];
+    const profile=leafProfile(tea().id), dry=profile.dry, wet=profile.wet;
     arr.forEach(L=>{
       const d=L.delay||0, lo=clamp((open-d)/(1-d),0,1);   // 잎마다 시차를 둔 펼침
       const sd=L.seed||0;
       const col=mix(dry,wet,lo);
-      const alpha=(opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*lo + ag*0.16;  // pour 난류로 마른 잎이 들썩이며 보임
+      const alpha=clamp(((opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*lo + ag*0.16)*profile.alphaBoost,0,profile.alphaCap);  // pour 난류로 마른 잎이 들썩이며 보임
       const fill=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha.toFixed(3)})`;
-      const spread=lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
-      const scale=lerp(opts.minScale ?? .18, opts.maxScale ?? .48, lo)*(L.scaleVar||1);
+      const spread=profile.kind==="long" ? lerp(opts.minSpread ?? 7, opts.maxSpread ?? 24, lo) : lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
+      const scale=lerp(opts.minScale ?? .18, opts.maxScale ?? .48, lo)*(L.scaleVar||1)*profile.scaleBoost;
       const sway=reduce?0:Math.sin(t*0.9+sd)*4*lo;                  // 무리 전체의 느린 일렁임
       const swirl=reduce?0:ag*Math.sin(t*5+sd)*15;                  // 난류 소용돌이
       const dx=reduce?0:ag*Math.sin(t*4.3+sd*2)*5;
@@ -386,6 +409,7 @@
         const flutter=reduce?0:Math.sin(t*1.6+i+sd)*1.3*(lo+ag);   // 잎장 끝 미세 떨림(난류 시 커짐)
         const ang=L.base+(i-(n-1)/2)*spread+flutter;
         const p=L.el.children[i]; p.setAttribute("fill",fill);
+        p.setAttribute("d",leafPath(profile,lo));
         p.setAttribute("transform",`rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
       }
       L.el.setAttribute("transform",`translate(${(L.x+dx).toFixed(2)} ${(L.y+dy).toFixed(2)}) rotate(${(sway+swirl).toFixed(2)})`);
@@ -394,7 +418,8 @@
 
   // ---- elements ----
   const els={
-    ambient:$("ambient"), gLiquid:$("g-liquid"), gSurf:$("g-surface"), gLid:$("g-lid"),
+    ambient:$("ambient"), gLiquid:$("g-liquid"), gMeniscus:$("g-meniscus"), gLid:$("g-lid"),
+    gWallLeft:$("g-wall-left"), gWallRight:$("g-wall-right"),
     liquorTop:$("liquorTop"), liquorBot:$("liquorBot"),
     mugSurf:$("mug-surface"), pyChamber:$("py-chamber"), pyChSurf:$("py-chSurf"),
     pyLower:$("py-lower"), pyLowerSurf:$("py-lowerSurf"), pyLowerGrad:$("pyLowerGrad"),
@@ -424,10 +449,14 @@
   const fmt=ms=>{ const s=Math.max(0,Math.ceil(ms/1000)); return `${(s/60)|0}:${String(s%60).padStart(2,"0")}`; };
 
   // ---- tea / vessel UI ----
+  function renderedTeaColor(t){
+    const body=mix(t.light,t.strong,Math.min(1,t.peak*.78));
+    return mix(body,[255,248,210],.22);
+  }
   function paintTea(){
     const t=tea();
     $("teaName").textContent=t.name; $("teaCur").textContent=t.name;
-    $("teaDot").style.background=rgb(t.strong);
+    $("teaDot").style.background=rgb(renderedTeaColor(t));
     $("teaGhostL").textContent=TEAS[(teaIdx+TEAS.length-1)%TEAS.length].name;
     $("teaGhostR").textContent=TEAS[(teaIdx+1)%TEAS.length].name;
     [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===teaIdx));
@@ -476,6 +505,58 @@
       rectEl.setAttribute("y",top); rectEl.setAttribute("height",Math.max(0,full-top));
     }
     if(surfEl){ surfEl.setAttribute("fill",rgb(mix(col,[255,248,210],.18))); surfEl.setAttribute("opacity",(alpha*1.05).toFixed(3)); surfEl.setAttribute("cy",top); }
+  }
+  function gaiwanWallAt(y){
+    if(y<=152){
+      const t=clamp((y-126)/26,0,1);
+      return {left:lerp(58,60,t), right:lerp(142,140,t)};
+    }
+    const t=clamp((y-152)/14,0,1);
+    return {left:lerp(60,74,t), right:lerp(140,126,t)};
+  }
+  function gaiwanLiquidPath(top, lvl){
+    const wall=gaiwanWallAt(top), bottom=165.6;
+    const surfaceLift=(reduce?0:Math.sin(performance.now()/720))*0.55*Math.min(1,lvl);
+    const sideSoft=lerp(1.8,4.5,lvl);
+    const bottomRx=lerp(8,24,lvl);
+    const topDip=lerp(1.1,2.6,lvl)+surfaceLift;
+    return [
+      `M ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
+      `C ${(wall.left+14).toFixed(2)} ${(top-topDip).toFixed(2)} ${(wall.right-14).toFixed(2)} ${(top-topDip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`,
+      `C ${(wall.right-sideSoft).toFixed(2)} ${(top+12).toFixed(2)} ${(100+bottomRx).toFixed(2)} ${(bottom-2).toFixed(2)} ${(100+bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
+      `C ${(100+bottomRx*.24).toFixed(2)} ${(bottom+1.4).toFixed(2)} ${(100-bottomRx*.24).toFixed(2)} ${(bottom+1.4).toFixed(2)} ${(100-bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
+      `C ${(100-bottomRx).toFixed(2)} ${(bottom-2).toFixed(2)} ${(wall.left+sideSoft).toFixed(2)} ${(top+12).toFixed(2)} ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
+      "Z"
+    ].join(" ");
+  }
+  function gaiwanMeniscusPath(top, lvl){
+    const wall=gaiwanWallAt(top);
+    const lift=(reduce?0:Math.sin(performance.now()/720))*0.55*Math.min(1,lvl);
+    const dip=lerp(1.1,2.6,lvl)+lift;
+    return `M ${wall.left.toFixed(2)} ${top.toFixed(2)} C ${(wall.left+14).toFixed(2)} ${(top-dip).toFixed(2)} ${(wall.right-14).toFixed(2)} ${(top-dip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`;
+  }
+  function gaiwanWallWashPath(top, side){
+    const w0=gaiwanWallAt(top), w1=gaiwanWallAt(lerp(top,166,.55));
+    const x0=side<0?w0.left:w0.right, x1=side<0?w1.left:w1.right;
+    const bend=side<0?5:-5;
+    return `M ${x0.toFixed(2)} ${(top+1.2).toFixed(2)} C ${(x0+bend*.25).toFixed(2)} ${(top+12).toFixed(2)} ${(x1+bend).toFixed(2)} 156.5 ${x1.toFixed(2)} 164.5`;
+  }
+  function applyGaiwanLiquor(alpha, strength, top, lvl){
+    const col=mix(tea().light, tea().strong, strength);
+    els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .48)));
+    els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .35)));
+    els.gLiquid.setAttribute("fill","url(#liquorGrad)");
+    els.gLiquid.setAttribute("opacity",alpha.toFixed(3));
+    els.gLiquid.setAttribute("d",gaiwanLiquidPath(top,lvl));
+    els.gMeniscus.setAttribute("d",gaiwanMeniscusPath(top,lvl));
+    els.gMeniscus.setAttribute("stroke",rgb(mix(col,[255,248,210],.35)));
+    els.gMeniscus.setAttribute("opacity",(alpha*.42).toFixed(3));
+    els.gWallLeft.setAttribute("d",gaiwanWallWashPath(top,-1));
+    els.gWallRight.setAttribute("d",gaiwanWallWashPath(top,1));
+    [els.gWallLeft,els.gWallRight].forEach(el=>{
+      el.setAttribute("stroke",rgb(mix(col,tea().strong,.36)));
+      el.setAttribute("opacity",(alpha*.28*Math.min(1,lvl*1.6)).toFixed(3));
+    });
   }
   function setRing(remaining, total, urgent){
     if(!vessel().round) return;
@@ -540,9 +621,8 @@
     const v=vessel();
     // gaiwan
     if(vesselId==="gaiwan"){
-      const top=lerp(166,130,level), full=166;
-      applyLiquor(els.gLiquid, els.gSurf, curAlpha*Math.min(1,level*1.4)*.76, strengthT, top, full);
-      shimmerSurf(els.gSurf, lerp(16,36,level), lerp(2.5,5,level), level);
+      const top=lerp(166,130,level);
+      applyGaiwanLiquor(curAlpha*Math.min(1,level*1.4)*.92, strengthT, top, level);
       drawLeaves(gLeaves, openEff, {baseAlpha:.02, peakAlpha:.34, minSpread:6, maxSpread:30, minScale:.12, maxScale:.36});
       els.gLid.setAttribute("opacity","0");
     } else if(vesselId==="piaoyibei"){
