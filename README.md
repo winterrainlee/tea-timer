@@ -1,8 +1,18 @@
 # 차 한 잔의 시간 · Time for Tea
 
+[English](README.en.md)
+
 차 우릴 때 타이머로 쓸 수 있는 모바일 웹앱입니다.
 일반 스톱워치 앱으로도 시간을 잴 수는 있지만, 안 예뻐서 싫었습니다. 거기다 알람이나 예고 신호가 없어 잠깐 딴생각을 하면 놓치는 게 짜증났습니다. 그렇다고 15초, 20초짜리 우림을 위해 매번 휴대폰 타이머 앱을 열고 시간을 맞추는 것도 번거로워요.
 그래서 만들었습니다.
+
+## 스크린샷
+
+<p align="center">
+  <img src="assets/screenshots/before-brew.png" alt="차 우리기 전 화면" width="30%">
+  <img src="assets/screenshots/brewing-3s.png" alt="우림 완료 3초 전 화면" width="30%">
+  <img src="assets/screenshots/after-brew.png" alt="차 우림 완료 후 화면" width="30%">
+</p>
 
 ## 아주 간략한 사용법
 
@@ -39,10 +49,14 @@
 혹시 나만의 사이트에서 실행시키고 싶다면 아래 과정을 참고하세요.
 
 ```bash
+git clone https://github.com/winterrainlee/tea-timer.git
+cd tea-timer
 python3 -m http.server 8123
 ```
 
 그다음 브라우저에서 `http://localhost:8123`을 엽니다.
+
+GitHub에서 직접 수정해 보고 싶다면 먼저 이 저장소를 포크한 뒤, 포크한 저장소를 클론해서 실행하면 됩니다.
 
 
 ## 프로젝트 노트

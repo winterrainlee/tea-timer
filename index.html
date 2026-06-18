@@ -624,8 +624,10 @@
       svg.appendChild(g);
     });
   }
-  function setTeaPickerActive(active){
+  function setTeaPickerActive(active, options = {}){
+    const {showPreview = active} = options;
     if(els.teaPicker) els.teaPicker.classList.toggle("locked", !active);
+    if(active && els.teaPreview) els.teaPreview.classList.toggle("hide", !showPreview);
     $("teaPrev").disabled=!active;
     $("teaNext").disabled=!active;
   }
@@ -967,7 +969,7 @@
   }
   function finishSteep(){
     phase="done"; curAlpha=tea().peak; strengthT=1; openEff=1; glow=1; isUrgent=false; agitate=0;
-    setTeaPickerActive(vesselId!=="piaoyibei");
+    setTeaPickerActive(vesselId!=="piaoyibei", {showPreview:false});
     els.time.textContent="0:00";
     els.hero.classList.remove("urgent"); els.readout.classList.add("done");
     const v=vessel();
@@ -1047,7 +1049,7 @@
     if(phase==="done"){
       if(vesselId==="piaoyibei" && !pyDrained){
         pyDrained=true; els.brew.disabled=true; els.brew.textContent="내리는 중…";
-        drainPiao(()=>{ prepareNextInfusion(); setTeaPickerActive(true); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
+        drainPiao(()=>{ prepareNextInfusion(); setTeaPickerActive(true, {showPreview:false}); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
         return;
       }
       startBrew();
