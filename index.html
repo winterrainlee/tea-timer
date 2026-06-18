@@ -352,7 +352,7 @@
       <!-- steam -->
       <g id="steam" filter="url(#steamBlur)"></g>
 
-      <!-- time ring (round vessels) -->
+      <!-- time ring -->
       <circle id="ring-track" cx="100" cy="118" r="92" fill="none" stroke="var(--track)" stroke-width="2" opacity="0"/>
       <circle id="ring-prog" cx="100" cy="118" r="92" fill="none" stroke="#8c7f63" stroke-width="2" stroke-linecap="round" opacity="0" transform="rotate(-90 100 118)"/>
     </svg>
@@ -681,12 +681,14 @@
   };
   let ringC=2*Math.PI*92;
   els.ringProg.setAttribute("stroke-dasharray", ringC);
-  // 둥근 도구별 링 중심·반경 (실루엣에 맞춤)
+  // 도구별 링 중심·반경 (실루엣에 맞춤)
   function ringGeom(){
     switch(vesselId){
       case "teapot":      return {cy:132, r:95};
       case "eastern-pot": return {cy:130, r:85};
-      default:            return {cy:124, r:90};   // gaiwan
+      case "mug":         return {cy:120, r:84};
+      case "piaoyibei":   return {cy:124, r:88};
+      default:            return {cy:124, r:90};
     }
   }
   function applyRingGeom(){
@@ -730,10 +732,9 @@
   function buildSegState(){
     paintVesselPicker();
     VESSELS.forEach(v=>{ const g=$("v-"+v.id); if(g) g.style.display = v.id===vesselId?"":"none"; });
-    const r=vessel().round;
     els.hero.style.setProperty("--readout-top", vessel().readoutTop || "31%");
-    els.ringTrack.style.display = r?"":"none"; els.ringProg.style.display = r?"":"none";
-    if(r) applyRingGeom();
+    els.ringTrack.style.display = ""; els.ringProg.style.display = "";
+    applyRingGeom();
   }
   function selectTea(i){
     if(phase==="pour"||phase==="steep") return;
@@ -831,7 +832,6 @@
     });
   }
   function setRing(remaining, total, urgent){
-    if(!vessel().round) return;
     const frac=clamp(remaining/total,0,1);
     els.ringProg.setAttribute("stroke-dashoffset", (ringC*(1-frac)).toFixed(1));
     els.ringTrack.setAttribute("opacity",".25");
