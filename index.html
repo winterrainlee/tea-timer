@@ -54,7 +54,7 @@
   .hdr .sub{ font-family:"Space Mono",monospace; font-size:.62rem; letter-spacing:.18em; color:var(--ink-dim); margin-top:.18rem; }
 
   /* tea first */
-  .tea-picker{ position:relative; z-index:12; flex:0 0 auto; }
+  .tea-picker{ position:relative; z-index:12; flex:0 0 auto; margin-top:.45rem; }
 
   /* hero */
   .hero{ position:relative; flex:1 1 auto; min-height:190px; display:flex; align-items:center; justify-content:center; }
@@ -75,7 +75,7 @@
   .message:empty{ display:none; }
   .message.gold{ color:var(--gold-soft); text-shadow:0 0 12px rgba(228,214,145,.45); }
   .tea-preview{
-    position:absolute; left:50%; top:4.4rem; z-index:5; width:min(70%,270px); aspect-ratio:5/1;
+    position:absolute; left:50%; top:4.05rem; z-index:5; width:min(70%,270px); aspect-ratio:5/1;
     transform:translateX(-50%); pointer-events:none; opacity:.9;
     transition:opacity .24s ease, transform .24s ease; filter:drop-shadow(0 8px 12px rgba(0,0,0,.42));
   }
@@ -122,19 +122,19 @@
   .dots i{ width:5px; height:5px; border-radius:50%; background:var(--track); transition:width .2s,background .2s; }
   .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
 
-  .slider-row{ padding:.08rem 0 .12rem; margin-top:-1.1rem; }
-  .slider-row .top{ display:flex; align-items:center; justify-content:center; gap:.45rem; font-size:.86rem; color:var(--ink-dim); margin-bottom:.12rem; }
+  .slider-row{ padding:.08rem 0 .12rem; margin-top:-2rem; }
+  .slider-row .top{ display:flex; align-items:center; justify-content:center; gap:.45rem; font-size:1.032rem; color:var(--ink-dim); margin-bottom:.12rem; }
   .slider-row .temp-hint{
-    font-family:"Space Mono",monospace; font-size:.64rem; letter-spacing:.05em; color:var(--gold-soft);
+    font-family:"Space Mono",monospace; font-size:.768rem; letter-spacing:.05em; color:var(--gold-soft);
     opacity:.86; transform:translateY(.02rem);
   }
   .infusion-line{
-    min-height:1.15rem; margin-bottom:.28rem; color:var(--ink-faint); font-size:.8rem; text-align:center;
+    min-height:1.15rem; margin-bottom:.28rem; color:var(--ink-faint); font-size:.96rem; text-align:center;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em;
   }
   .slider-row .val{
     display:block; text-align:center; font-family:"Gowun Batang",serif; font-weight:700;
-    font-size:2.2rem; line-height:1; color:var(--gold-soft); margin:0 0 .42rem;
+    font-size:2.64rem; line-height:1; color:var(--gold-soft); margin:0 0 .42rem;
     text-shadow:0 1px 10px rgba(0,0,0,.45);
   }
   .slider-line{ display:flex; align-items:center; gap:.75rem; }
@@ -201,17 +201,18 @@
     .hdr .sub{ margin-top:.12rem; }
     .hero{ min-height:160px; }
     .hero svg.stage{ max-height:35vh; }
-    .tea-preview{ top:3.5rem; width:min(66%,248px); opacity:.86; }
+    .tea-picker{ margin-top:.32rem; }
+    .tea-preview{ top:3.25rem; width:min(66%,248px); opacity:.86; }
     .controls{ gap:.42rem; }
     .carousel{ padding:0 2.7rem; }
     .carousel .chev{ top:3.5rem; }
     .carousel .track{ height:38px; }
     .dots{ top:6.65rem; }
     .slider-row{ margin-top:-.72rem; }
-    .slider-row .top{ font-size:.78rem; gap:.38rem; }
-    .slider-row .temp-hint{ font-size:.58rem; }
-    .infusion-line{ font-size:.72rem; margin-bottom:.2rem; }
-    .slider-row .val{ font-size:1.9rem; margin-bottom:.3rem; }
+    .slider-row .top{ font-size:.936rem; gap:.38rem; }
+    .slider-row .temp-hint{ font-size:.696rem; }
+    .infusion-line{ font-size:.864rem; margin-bottom:.2rem; }
+    .slider-row .val{ font-size:2.28rem; margin-bottom:.3rem; }
     .step{ width:44px; height:44px; }
     input[type=range]::-webkit-slider-thumb{ width:26px; height:26px; }
     input[type=range]::-moz-range-thumb{ width:26px; height:26px; }
@@ -433,8 +434,8 @@
     {id:"teapot", name:"티팟", label:"서양 티팟 · 도자 · 탕색 안 보임", family:"closed-pot", culture:"western", material:"porcelain", silhouette:"round-large", vis:"none", round:true, readoutTop:"31%", done:"pour", completion:"따라내세요 · 出湯", asset:"assets/vessels/teapot.png", requiresSeparationAction:false},
     {id:"eastern-pot", name:"동양식 다호", shortName:"다호", label:"동양식 다호 · 자사 · 탕색 안 보임", family:"closed-pot", culture:"gongfu", material:"zisha-clay", silhouette:"compact", vis:"none", round:true, readoutTop:"31%", done:"pour", completion:"바로 따라내세요 · 出湯", asset:"assets/vessels/eastern-pot-zisha.png", requiresSeparationAction:false},
     {id:"gaiwan", name:"개완", label:"개완 蓋碗 · 유리 · 탕색 보임", family:"lidded-bowl", culture:"gongfu", material:"glass", silhouette:"bowl", vis:"liquid", round:false, readoutTop:"31%", done:"lid", completion:"뚜껑 열고 따르세요 · 開蓋", asset:"assets/vessels/gaiwan-glass.png", requiresSeparationAction:false},
-    {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"23%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
-    {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"tall", vis:"chamber", round:false, readoutTop:"15%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true},
+    {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"31%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
+    {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"tall", vis:"chamber", round:false, readoutTop:"31%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true, steepOffset:5},
   ];
   const VICONS={
     teapot:'<ellipse cx="20" cy="27" rx="12" ry="9"/><path d="M8 24 L2 21 L4 25 L10 28"/><path d="M32 24 C37 24 37 31 32 32"/><path d="M13 18 Q20 14 27 18"/><circle cx="20" cy="15" r="1.6"/>',
@@ -452,9 +453,30 @@
   let level=0, curAlpha=0, strengthT=0, openEff=0, lidLift=0, lidTarget=0, glow=0, drain=0;
   let preWarnSec=5, preWarned=false, lastTick=-1, isUrgent=false, agitate=0;
   let lastClapFocus=null;
+  // Alpha-margin fit: keeps mug/piaoyibei visible tops aligned with the gaiwan readout lane.
+  const VESSEL_FITS={
+    mug:{scale:.96,x:4,y:8.7},
+    piaoyibei:{scale:.88,x:11.6,y:24.5},
+  };
   const CREATOR_REACTION_ENDPOINT = "https://tea-timer-reactions.winterrain-lee.workers.dev/reaction";
   const tea=()=>TEAS[teaIdx];
   const vessel=()=>VESSELS.find(v=>v.id===vesselId);
+  const vesselSteepOffset=()=>vessel().steepOffset||0;
+  const recommendedSecFor=n=>clamp(tea().base+tea().add*(n-1)+vesselSteepOffset(),5,120);
+  function fitPoint(id,x,y){
+    const t=VESSEL_FITS[id];
+    return t ? {x:t.x+x*t.scale, y:t.y+y*t.scale} : {x,y};
+  }
+  function fitY(id,y){
+    const t=VESSEL_FITS[id];
+    return t ? t.y+y*t.scale : y;
+  }
+  function applyVesselFits(){
+    Object.entries(VESSEL_FITS).forEach(([id,t])=>{
+      const g=$("v-"+id);
+      if(g) g.setAttribute("transform",`matrix(${t.scale} 0 0 ${t.scale} ${t.x} ${t.y})`);
+    });
+  }
 
   // ---- audio ----
   let actx=null, muted=false;
@@ -822,8 +844,8 @@
       case "teapot":      return [{x:100,y:90,dx:0},{x:32,y:104,dx:-0.42}];   // 뚜껑 · 꼭지
       case "eastern-pot": return [{x:100,y:95,dx:0},{x:42,y:107,dx:-0.38}];   // 뚜껑 · 꼭지
       case "gaiwan":      return [{x:100,y:90,dx:0}];
-      case "mug":         return [{x:96,y:82,dx:0}];
-      case "piaoyibei":   return [{x:97,y:70,dx:0}];
+      case "mug":         return [{...fitPoint("mug",96,82),dx:0}];
+      case "piaoyibei":   return [{...fitPoint("piaoyibei",97,70),dx:0}];
       default:            return [{x:100,y:100,dx:0}];
     }
   }
@@ -862,7 +884,7 @@
     ].join(" ");
   }
   // 물줄기가 떨어지는 착지 높이(도구별 입구)
-  function pourLandY(){ return vesselId==="gaiwan"?122 : vesselId==="piaoyibei"?108 : vesselId==="mug"?82 : vesselId==="eastern-pot"?100 : 95; }
+  function pourLandY(){ return vesselId==="gaiwan"?122 : vesselId==="piaoyibei"?fitY("piaoyibei",108) : vesselId==="mug"?fitY("mug",82) : vesselId==="eastern-pot"?100 : 95; }
 
   function render(){
     const v=vessel();
@@ -964,7 +986,7 @@
     (function step(now){ drain=clamp((now-t0)/dur,0,1); render(); if(drain<1) requestAnimationFrame(step); else cb&&cb(); })(t0);
   }
   function reset(){
-    phase="idle"; infusion=1; sec=tea().base; pyDrained=false; infusionHistory=[]; activeBrew=null;
+    phase="idle"; infusion=1; sec=recommendedSecFor(infusion); pyDrained=false; infusionHistory=[]; activeBrew=null;
     setInf(); syncSlider(); previewIdle();
     els.brew.disabled=false; els.slider.disabled=false; els.brew.textContent="우리기 시작";
     relWake();
@@ -979,7 +1001,7 @@
   function prepareNextInfusion(){
     const last=infusionHistory[infusionHistory.length-1];
     infusion=(last?.n || infusion)+1;
-    sec=clamp(tea().base+tea().add*(infusion-1),5,120);
+    sec=recommendedSecFor(infusion);
     setInf(); syncSlider();
   }
 
@@ -1048,10 +1070,11 @@
 
   // ---- boot ----
   function boot(){
+    applyVesselFits();
     buildDots(); buildSegState(); paintTea();
     gLeaves=buildLeaves("g-leaves",[{x:100,y:164,base:0},{x:87,y:160,base:70},{x:113,y:160,base:140},{x:95,y:156,base:210},{x:105,y:156,base:300}]);
     pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
-    sec=tea().base; syncSlider(); setInf(); previewIdle();
+    sec=recommendedSecFor(infusion); syncSlider(); setInf(); previewIdle();
     requestAnimationFrame(frame);
   }
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(boot); else boot();
