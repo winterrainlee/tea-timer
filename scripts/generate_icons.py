@@ -7,27 +7,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "icons"
-ICON_SVG = OUT / "icon.svg"
-MASKABLE_SVG = OUT / "icon-maskable.svg"
+SOURCE = OUT / "icon-source.jpeg"
 
 
-def render(svg: Path, output: Path, size: int) -> None:
-    rsvg = shutil.which("rsvg-convert")
-    if not rsvg:
-        raise SystemExit("rsvg-convert is required to generate PNG icons.")
+def render(output: Path, size: int) -> None:
+    sips = shutil.which("sips")
+    if not sips:
+        raise SystemExit("sips is required to generate PNG icons.")
 
     subprocess.run(
         [
-            rsvg,
-            "--format",
+            sips,
+            "-s",
+            "format",
             "png",
-            "--width",
+            "-z",
             str(size),
-            "--height",
             str(size),
-            "--output",
+            str(SOURCE),
+            "--out",
             str(output),
-            str(svg),
         ],
         check=True,
     )
@@ -35,16 +34,18 @@ def render(svg: Path, output: Path, size: int) -> None:
 
 def main() -> None:
     OUT.mkdir(exist_ok=True)
+    if not SOURCE.exists():
+        raise SystemExit(f"Missing icon source: {SOURCE}")
 
-    for name, source, size in [
-        ("favicon-16.png", ICON_SVG, 16),
-        ("favicon-32.png", ICON_SVG, 32),
-        ("icon-192.png", ICON_SVG, 192),
-        ("icon-512.png", ICON_SVG, 512),
-        ("apple-touch-icon.png", ICON_SVG, 180),
-        ("icon-maskable.png", MASKABLE_SVG, 512),
+    for name, size in [
+        ("favicon-16.png", 16),
+        ("favicon-32.png", 32),
+        ("icon-192.png", 192),
+        ("icon-512.png", 512),
+        ("apple-touch-icon.png", 180),
+        ("icon-maskable.png", 512),
     ]:
-        render(source, OUT / name, size)
+        render(OUT / name, size)
 
 
 if __name__ == "__main__":
