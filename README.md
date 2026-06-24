@@ -63,8 +63,9 @@ GitHub에서 직접 수정해 보고 싶다면 먼저 이 저장소를 포크한
 
 - 앱 본체: `index.html`
 - 설계 문서: [DESIGN.md](DESIGN.md)
+- 로드맵: [ROADMAP.md](ROADMAP.md)
 - 오래된 설계 스냅샷: [docs/archieves](docs/archieves)
 - 도구 이미지 자산: `assets/vessels/*.png`
 - 차 선택 미리보기 자산: `assets/tea-preview/chahe.svg`
 
-아직 다듬는 중인 개인 프로젝트입니다. 남은 일은 선택값 저장, 폰트 셀프호스팅, 차 캐러셀 스와이프, 회차별 탕색 점감, 개완 뚜껑 열림 연출 복구 등입니다.
+아직 다듬는 중인 개인 프로젝트입니다. 남은 일은 [ROADMAP.md](ROADMAP.md)에 정리합니다.
