@@ -939,7 +939,7 @@
     if(vesselId==="gaiwan"){
       const top=lerp(166,130,level);
       applyGaiwanLiquor(curAlpha*Math.min(1,level*1.4)*.92, strengthT, top, level);
-      drawLeaves(gLeaves, openEff, {baseAlpha:.02, peakAlpha:.34, minSpread:6, maxSpread:30, minScale:.12, maxScale:.36});
+      drawLeaves(gLeaves, openEff, {baseAlpha:.55, peakAlpha:.24, minSpread:6, maxSpread:30, minScale:.38, maxScale:.42});
       els.gLid.setAttribute("opacity","0");
     } else if(vesselId==="piaoyibei"){
       // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
@@ -954,7 +954,7 @@
       els.pyLowerSurf.setAttribute("cy",lowTop);
       els.pyLowerSurf.setAttribute("rx",lerp(0,23,drain).toFixed(2));
       els.pyLowerSurf.setAttribute("opacity", drain>.05?".34":"0");
-      drawLeaves(pyLeaves, openEff, {baseAlpha:.03, peakAlpha:.42, minSpread:6, maxSpread:32, minScale:.13, maxScale:.38});
+      drawLeaves(pyLeaves, openEff, {baseAlpha:.55, peakAlpha:.24, minSpread:6, maxSpread:32, minScale:.38, maxScale:.42});
     } else if(vesselId==="mug"){
       const col=mix(tea().light,tea().strong,strengthT);
       const visible=curAlpha*Math.min(1,level*1.4);
