@@ -21,7 +21,7 @@
 - **렌더 훅(도구별)**: `render()`가 분기 — 개완=찻물(`applyLiquor` + `#g-liquid/#g-surface`)·찻잎(`drawLeaves`/`#g-leaves`)·뚜껑 하이라이트(`#g-lid`, `lidTarget`→`lidLift` 스무딩), 표일배=윗챔버(`#py-chamber`)→버튼 배수(`drainPiao`, `#py-lower`/`drain`), 머그=수면색(`#mug-surface`), 불투명(티팟·동양식 다호)=`#ambient` 글로우. 김은 `setSteam`.
 - **시간 링**: `#ring-prog`(둥근 도구만; `vessel().round`). 평소 가는 헤어라인, 막바지 `urgent`에 밝기·굵기↑(`setRing`). **세로 도구(표일배·머그)는 링 생략, 숫자 중심.**
 - **신호**: 예고음 `preWarnSec = clamp(round(sec*0.2),3,5)`, 이후 매초 `tick()`, 완료 `chime()`(E5+B5 합성) + `.flash` + Wake Lock. 메시지(`#timeLabel`)는 **시간 숫자 위, 도구 위쪽**(`.message`)에 표시.
-- **SVG 좌표계**: `viewBox 0 0 200 224`. 도구 그룹 `#v-<id>`(보일 것만 `display`), clipPath `gBowl/pyOut/pyIn/mugClip`, 찻잎 path는 `buildLeaves`에서 생성.
+- **SVG 좌표계**: `viewBox 0 0 200 224`. 도구 그룹 `#v-<id>`(보일 것만 `display`), clipPath `gBowl/pyOut/pyIn/mugClip`, 찻잎 path는 `buildLeaves`에서 생성. 차 종류별 7가지 잎 형태(`leafProfile`→`leafPath`): needle·bud-leaf·ball-broad·ball-crinkle·mid-strip·serrated·broken. 차 전환 시 `rebuildWetLeaves()`로 잎 요소 재생성.
 
 ## 확정된 제품 결정 (바꾸지 말 것, 근거는 DESIGN.md)
 - 이름 **차 한 잔의 시간 / Time for Tea**. 한국어 UI, 글씨체 **Gowun Batang**(고운바탕), 숫자 **Space Mono**.

@@ -507,11 +507,11 @@
   // ---- leaves ----
   function buildLeaves(groupId, anchors){
     const g=$(groupId); g.innerHTML="";
+    const profile=leafProfile(tea().id), n=profile.leaves||4;
     return anchors.map((a,idx)=>{
       const leaf=document.createElementNS(SVGNS,"g");
-      for(let i=0;i<4;i++){ const p=document.createElementNS(SVGNS,"path"); p.setAttribute("d","M0 0 Q6 -15 0 -30 Q-6 -15 0 0 Z"); leaf.appendChild(p); }
+      for(let i=0;i<n;i++){ const p=document.createElementNS(SVGNS,"path"); p.setAttribute("d","M0 0"); leaf.appendChild(p); }
       g.appendChild(leaf);
-      // seed: 흔들림 위상, delay: 펼침 시차, scaleVar: 잎별 크기 편차
       return {el:leaf, seed:idx*1.7, delay:(idx%3)*0.13, scaleVar:0.88+(idx%4)*0.08, ...a};
     });
   }
@@ -519,44 +519,82 @@
   function leafProfile(id){
     switch(id){
       case "green":
-        return {kind:"long", dry:[76,91,47], wet:[116,148,70], w0:2.8, w1:4.2, len0:24, len1:52, scaleBoost:1.22, alphaBoost:1.38, alphaCap:.72};
+        return {kind:"needle", dry:[76,91,47], wet:[116,148,70], w0:2.8, w1:4.2, len0:24, len1:52, scaleBoost:1.22, alphaBoost:1.38, alphaCap:.72, leaves:4};
+      case "white":
+        return {kind:"bud-leaf", dry:[180,170,140], wet:[168,180,130], budDry:[205,196,153], budWet:[190,180,140], w0:2, w1:3, len0:18, len1:28, leafW0:4, leafW1:8, leafLen0:18, leafLen1:36, scaleBoost:1.15, alphaBoost:1.1, alphaCap:.68, leaves:3};
+      case "oolong":
+        return {kind:"ball-broad", dry:[60,74,44], wet:[104,134,68], w0:5, w1:9, len0:8, len1:44, scaleBoost:1.30, alphaBoost:1, alphaCap:.72, leaves:3};
+      case "nong":
+        return {kind:"ball-crinkle", dry:[90,65,35], wet:[140,100,55], w0:5, w1:8.5, len0:8, len1:42, scaleBoost:1.25, alphaBoost:1.15, alphaCap:.76, leaves:3};
       case "black":
-        return {kind:"long", dry:[15,13,10], wet:[28,20,14], w0:2.6, w1:3.8, len0:23, len1:50, scaleBoost:1.18, alphaBoost:2.35, alphaCap:.86};
+        return {kind:"mid-strip", dry:[15,13,10], wet:[28,20,14], w0:2.6, w1:5, len0:23, len1:42, scaleBoost:1.18, alphaBoost:2.35, alphaCap:.86, leaves:4};
+      case "sheng":
+        return {kind:"serrated", dry:[80,72,40], wet:[144,128,58], w0:4, w1:8, len0:10, len1:40, scaleBoost:1.20, alphaBoost:1.2, alphaCap:.74, leaves:3};
+      case "shou":
+        return {kind:"broken", dry:[50,28,15], wet:[74,31,14], w0:2, w1:4, len0:8, len1:22, scaleBoost:.85, alphaBoost:2.0, alphaCap:.82, leaves:5};
       default:
-        return {kind:"broad", dry:[60,74,44], wet:[104,134,68], scaleBoost:1, alphaBoost:1, alphaCap:1};
+        return {kind:"ball-broad", dry:[60,74,44], wet:[104,134,68], w0:5, w1:8, len0:8, len1:38, scaleBoost:1, alphaBoost:1, alphaCap:1, leaves:3};
     }
   }
-  function leafPath(profile, open){
-    if(profile.kind!=="long") return "M0 0 Q6 -15 0 -30 Q-6 -15 0 0 Z";
-    const len=lerp(profile.len0,profile.len1,open), w=lerp(profile.w0,profile.w1,open);
-    return [
-      "M 0 0",
-      `C ${w.toFixed(2)} ${(-len*.28).toFixed(2)} ${(w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} 0 ${(-len).toFixed(2)}`,
-      `C ${(-w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.28).toFixed(2)} 0 0`,
-      "Z"
-    ].join(" ");
+  function leafPath(profile, open, childIdx){
+    const k=profile.kind, len=lerp(profile.len0,profile.len1,open), w=lerp(profile.w0,profile.w1,open);
+    if(k==="needle" || k==="mid-strip"){
+      return `M 0 0 C ${w.toFixed(2)} ${(-len*.28).toFixed(2)} ${(w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.28).toFixed(2)} 0 0 Z`;
+    }
+    if(k==="bud-leaf"){
+      if(childIdx===0){
+        const bw=lerp(profile.w0,profile.w1,open), bl=lerp(profile.len0,profile.len1,open);
+        return `M 0 0 C ${bw.toFixed(2)} ${(-bl*.3).toFixed(2)} ${(bw*.6).toFixed(2)} ${(-bl*.8).toFixed(2)} 0 ${(-bl).toFixed(2)} C ${(-bw*.6).toFixed(2)} ${(-bl*.8).toFixed(2)} ${(-bw).toFixed(2)} ${(-bl*.3).toFixed(2)} 0 0 Z`;
+      }
+      const lw=lerp(profile.leafW0,profile.leafW1,open), ll=lerp(profile.leafLen0,profile.leafLen1,open);
+      return `M 0 0 C ${lw.toFixed(2)} ${(-ll*.22).toFixed(2)} ${(lw*.9).toFixed(2)} ${(-ll*.55).toFixed(2)} ${(lw*.3).toFixed(2)} ${(-ll).toFixed(2)} C ${(-lw*.1).toFixed(2)} ${(-ll*.7).toFixed(2)} ${(-lw).toFixed(2)} ${(-ll*.22).toFixed(2)} 0 0 Z`;
+    }
+    if(k==="ball-broad"){
+      return `M 0 0 C ${w.toFixed(2)} ${(-len*.2).toFixed(2)} ${(w*.85).toFixed(2)} ${(-len*.65).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.85).toFixed(2)} ${(-len*.65).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.2).toFixed(2)} 0 0 Z`;
+    }
+    if(k==="ball-crinkle"){
+      const cr=w*.18*open;
+      return `M 0 0 C ${(w+cr).toFixed(2)} ${(-len*.18).toFixed(2)} ${(w*.7-cr).toFixed(2)} ${(-len*.4).toFixed(2)} ${(w*.9+cr).toFixed(2)} ${(-len*.6).toFixed(2)} C ${(w*.5).toFixed(2)} ${(-len*.82).toFixed(2)} ${(w*.15).toFixed(2)} ${(-len*.95).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.15).toFixed(2)} ${(-len*.95).toFixed(2)} ${(-w*.5).toFixed(2)} ${(-len*.82).toFixed(2)} ${(-w*.9-cr).toFixed(2)} ${(-len*.6).toFixed(2)} C ${(-w*.7+cr).toFixed(2)} ${(-len*.4).toFixed(2)} ${(-w-cr).toFixed(2)} ${(-len*.18).toFixed(2)} 0 0 Z`;
+    }
+    if(k==="serrated"){
+      const s=w*.2*open, n=len;
+      return `M 0 0 C ${(w*.6).toFixed(2)} ${(-n*.1).toFixed(2)} ${(w+s).toFixed(2)} ${(-n*.25).toFixed(2)} ${(w*.8).toFixed(2)} ${(-n*.38).toFixed(2)} C ${(w*.6-s).toFixed(2)} ${(-n*.48).toFixed(2)} ${(w*.9+s).toFixed(2)} ${(-n*.62).toFixed(2)} ${(w*.5).toFixed(2)} ${(-n*.78).toFixed(2)} C ${(w*.2).toFixed(2)} ${(-n*.92).toFixed(2)} 0 ${(-n).toFixed(2)} 0 ${(-n).toFixed(2)} C 0 ${(-n).toFixed(2)} ${(-w*.2).toFixed(2)} ${(-n*.92).toFixed(2)} ${(-w*.5).toFixed(2)} ${(-n*.78).toFixed(2)} C ${(-w*.9-s).toFixed(2)} ${(-n*.62).toFixed(2)} ${(-w*.6+s).toFixed(2)} ${(-n*.48).toFixed(2)} ${(-w*.8).toFixed(2)} ${(-n*.38).toFixed(2)} C ${(-w-s).toFixed(2)} ${(-n*.25).toFixed(2)} ${(-w*.6).toFixed(2)} ${(-n*.1).toFixed(2)} 0 0 Z`;
+    }
+    if(k==="broken"){
+      if(childIdx>=3){
+        const sz=lerp(5,8,open);
+        const shapes=[
+          `M0 0 L${sz*.4} ${-sz} L${sz} ${-sz*.6} L${sz*.7} 0 Z`,
+          `M0 0 L${-sz*.3} ${-sz*.9} L${sz*.5} ${-sz} L${sz*.4} ${-sz*.2} Z`,
+        ];
+        return shapes[childIdx%2];
+      }
+      return `M 0 0 C ${w.toFixed(2)} ${(-len*.28).toFixed(2)} ${(w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.28).toFixed(2)} 0 0 Z`;
+    }
+    return `M0 0 Q${w} ${-len*.5} 0 ${-len} Q${-w} ${-len*.5} 0 0 Z`;
   }
   function drawLeaves(arr, open, opts={}){
     const t=performance.now()/1000, ag=agitate;
     const profile=leafProfile(tea().id), dry=profile.dry, wet=profile.wet;
+    const isNarrow=profile.kind==="needle"||profile.kind==="mid-strip";
     arr.forEach(L=>{
-      const d=L.delay||0, lo=clamp((open-d)/(1-d),0,1);   // 잎마다 시차를 둔 펼침
+      const d=L.delay||0, lo=clamp((open-d)/(1-d),0,1);
       const sd=L.seed||0;
-      const col=mix(dry,wet,lo);
-      const alpha=clamp(((opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*lo + ag*0.16)*profile.alphaBoost,0,profile.alphaCap);  // pour 난류로 마른 잎이 들썩이며 보임
-      const fill=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha.toFixed(3)})`;
-      const spread=profile.kind==="long" ? lerp(opts.minSpread ?? 7, opts.maxSpread ?? 24, lo) : lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
+      const alpha=clamp(((opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*lo + ag*0.16)*profile.alphaBoost,0,profile.alphaCap);
+      const spread=isNarrow ? lerp(opts.minSpread ?? 7, opts.maxSpread ?? 24, lo) : lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
       const scale=lerp(opts.minScale ?? .18, opts.maxScale ?? .48, lo)*(L.scaleVar||1)*profile.scaleBoost;
-      const sway=reduce?0:Math.sin(t*0.9+sd)*4*lo;                  // 무리 전체의 느린 일렁임
-      const swirl=reduce?0:ag*Math.sin(t*5+sd)*15;                  // 난류 소용돌이
+      const sway=reduce?0:Math.sin(t*0.9+sd)*4*lo;
+      const swirl=reduce?0:ag*Math.sin(t*5+sd)*15;
       const dx=reduce?0:ag*Math.sin(t*4.3+sd*2)*5;
-      const dy=reduce?0:-ag*(4+Math.sin(t*3.7+sd)*4);              // 떠올랐다 가라앉기
+      const dy=reduce?0:-ag*(4+Math.sin(t*3.7+sd)*4);
       const n=L.el.children.length;
       for(let i=0;i<n;i++){
-        const flutter=reduce?0:Math.sin(t*1.6+i+sd)*1.3*(lo+ag);   // 잎장 끝 미세 떨림(난류 시 커짐)
+        const flutter=reduce?0:Math.sin(t*1.6+i+sd)*1.3*(lo+ag);
         const ang=L.base+(i-(n-1)/2)*spread+flutter;
-        const p=L.el.children[i]; p.setAttribute("fill",fill);
-        p.setAttribute("d",leafPath(profile,lo));
+        const p=L.el.children[i];
+        const col = (profile.kind==="bud-leaf" && i===0) ? mix(profile.budDry,profile.budWet,lo) : mix(dry,wet,lo);
+        p.setAttribute("fill",`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha.toFixed(3)})`);
+        p.setAttribute("d",leafPath(profile,lo,i));
         p.setAttribute("transform",`rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
       }
       L.el.setAttribute("transform",`translate(${(L.x+dx).toFixed(2)} ${(L.y+dy).toFixed(2)}) rotate(${(sway+swirl).toFixed(2)})`);
@@ -717,6 +755,11 @@
     $("teaGhostR").textContent=TEAS[(teaIdx+1)%TEAS.length].name;
     [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===teaIdx));
     renderDryLeafPreview();
+    rebuildWetLeaves();
+  }
+  function rebuildWetLeaves(){
+    gLeaves=buildLeaves("g-leaves",[{x:100,y:164,base:0},{x:87,y:160,base:70},{x:113,y:160,base:140},{x:95,y:156,base:210},{x:105,y:156,base:300}]);
+    pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
   }
   function buildDots(){ const d=$("dots"); d.innerHTML=""; TEAS.forEach(()=>d.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml","i"))); }
   function vesselIndex(){ return VESSELS.findIndex(v=>v.id===vesselId); }
@@ -1076,8 +1119,6 @@
   function boot(){
     applyVesselFits();
     buildDots(); buildSegState(); paintTea();
-    gLeaves=buildLeaves("g-leaves",[{x:100,y:164,base:0},{x:87,y:160,base:70},{x:113,y:160,base:140},{x:95,y:156,base:210},{x:105,y:156,base:300}]);
-    pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
     sec=recommendedSecFor(infusion); syncSlider(); setInf(); previewIdle();
     requestAnimationFrame(frame);
   }

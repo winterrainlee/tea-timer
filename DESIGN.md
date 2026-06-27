@@ -237,7 +237,7 @@ stage
 - 색 곡선은 `easeInOut` 대신 추출 포화형 `sat(t)`를 쓴다.
 - 개완 액체는 path 기반 형태, 세로 그라데이션, meniscus, 벽면 wash를 쓴다.
 - 표일배 아래 잔은 `rect + clip`에서 파라메트릭 `path`로 바뀌었다.
-- 찻잎은 차종별 프로필, 잎별 delay, sway, flutter, pour 난류를 가진다.
+- 찻잎은 차종별 프로필(`leafProfile`), 잎별 delay, sway, flutter, pour 난류를 가진다. 7종 차마다 고유한 잎 형태(`kind`)를 사용한다: 녹차 needle(가는 바늘), 백차 bud-leaf(싹+넓은 어린잎), 청향 우롱 ball-broad(넓은 타원), 농향 우롱 ball-crinkle(주름진 넓은 잎), 홍차 mid-strip(중폭 긴 잎), 보이 생차 serrated(톱니 가장자리), 보이 숙차 broken(작은 잎+파편 혼합).
 - 수면은 `shimmerSurf()`로 미세하게 일렁이며 임박 구간에서 진폭이 커진다.
 - 불투명 도구는 `ambientGlow`와 `steamPorts()`로 진행감을 만든다.
 - pour 구간은 0.9초이며 물줄기와 착지 잔물결이 표시된다.
