@@ -295,7 +295,7 @@
         </filter>
         <clipPath id="gBowl"><path d="M57 126 C58 139 60 148 60 152 C60 157 58 160 56 162 C53 164 74 166 100 166 C126 166 147 164 144 162 C142 160 140 157 140 152 C140 148 142 139 143 126 Z"/></clipPath>
         <clipPath id="pyOut"><path d="M71 149 C79 146 88 145 97 145 C106 145 115 146 123 149 L123 185 C123 191 113 193 97 193 C81 193 71 191 71 185 Z"/></clipPath>
-        <clipPath id="pyIn"><path d="M77 105 L77 130 C77 139 86 144 97 144 C108 144 117 139 117 130 L117 105 Z"/></clipPath>
+        <clipPath id="pyIn"><path d="M77 105 L77 128 C77 133 86 136 97 136 C108 136 117 133 117 128 L117 105 Z"/></clipPath>
       </defs>
 
       <!-- ambient glow (opaque vessels) -->
@@ -759,7 +759,7 @@
   }
   function rebuildWetLeaves(){
     gLeaves=buildLeaves("g-leaves",[{x:100,y:164,base:0},{x:87,y:160,base:70},{x:113,y:160,base:140},{x:95,y:156,base:210},{x:105,y:156,base:300}]);
-    pyLeaves=buildLeaves("py-leaves",[{x:100,y:139,base:0},{x:90,y:135,base:120},{x:110,y:136,base:240}]);
+    pyLeaves=buildLeaves("py-leaves",[{x:100,y:124,base:0},{x:90,y:119,base:120},{x:110,y:121,base:240}]);
   }
   function buildDots(){ const d=$("dots"); d.innerHTML=""; TEAS.forEach(()=>d.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml","i"))); }
   function vesselIndex(){ return VESSELS.findIndex(v=>v.id===vesselId); }
@@ -943,8 +943,8 @@
       els.gLid.setAttribute("opacity","0");
     } else if(vesselId==="piaoyibei"){
       // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
-      const chTop=lerp(144,108,level), chAlpha=curAlpha*(1-drain);
-      applyLiquor(els.pyChamber, els.pyChSurf, chAlpha*Math.min(1,level*1.4)*.82, strengthT, chTop, 144);
+      const chTop=lerp(136,108,level), chAlpha=curAlpha*(1-drain);
+      applyLiquor(els.pyChamber, els.pyChSurf, chAlpha*Math.min(1,level*1.4)*.82, strengthT, chTop, 136);
       shimmerSurf(els.pyChSurf, lerp(11,21,level), 4.8, level);
       const lowTop=lerp(190,154,drain);   // 손잡이 하단 살짝 밑까지 차오름
       const lowCol=rgb(mix(tea().light,tea().strong,strengthT));
