@@ -140,10 +140,18 @@
     text-shadow:0 1px 10px rgba(0,0,0,.45);
   }
   .slider-line{ display:flex; align-items:center; gap:.75rem; }
+  .range-wrap{ position:relative; flex:1; display:flex; align-items:center; }
+  .recommended-mark{
+    position:absolute; left:var(--recommended-p,13%); top:50%; z-index:2;
+    width:2px; height:14px; border-radius:2px; background:rgba(239,230,214,.5);
+    box-shadow:0 0 0 1px rgba(18,13,9,.45);
+    transform:translate(-50%,-50%); pointer-events:none;
+  }
   .step{ width:48px; height:48px; flex:none; border-radius:50%; border:0.5px solid var(--line); background:rgba(255,255,255,.02); color:var(--ink-dim); font-size:1.35rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .step:active{ background:rgba(255,255,255,.06); }
+  .step:disabled{ opacity:.45; cursor:default; }
   input[type=range]{
-    -webkit-appearance:none; appearance:none; flex:1; height:8px; border-radius:999px; outline:none;
+    -webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:999px; outline:none;
     background:linear-gradient(90deg,var(--gold) 0%,var(--gold) var(--p,20%),var(--track) var(--p,20%),var(--track) 100%);
   }
   input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:30px; height:30px; border-radius:50%; background:var(--gold-soft); border:2px solid #2a2414; box-shadow:0 0 10px rgba(205,191,99,.55); cursor:pointer; }
@@ -369,7 +377,10 @@
       <div class="val" id="secVal">20초</div>
       <div class="slider-line">
         <button class="step" id="dec" aria-label="1초 줄이기">−</button>
-        <input type="range" id="slider" min="5" max="120" step="1" value="20" aria-label="우림 시간(초)">
+        <div class="range-wrap" id="rangeWrap">
+          <span class="recommended-mark" aria-hidden="true"></span>
+          <input type="range" id="slider" min="5" max="120" step="1" value="20" aria-label="우림 시간(초)">
+        </div>
         <button class="step" id="inc" aria-label="1초 늘리기">+</button>
       </div>
     </div>
@@ -439,6 +450,31 @@
     {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"31%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
     {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"tall", vis:"chamber", round:false, readoutTop:"31%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true, steepOffset:5},
   ];
+  const PREF_KEY="teaTimer.preferences.v1", PREF_VERSION=1;
+  function loadPreferences(){
+    const fallback={lastVesselId:"gaiwan",lastTeaId:"oolong",secDeltaByTea:{},muted:false};
+    try{
+      const parsed=JSON.parse(localStorage.getItem(PREF_KEY));
+      if(!parsed||parsed.version!==PREF_VERSION) return fallback;
+      const vesselOk=VESSELS.some(v=>v.id===parsed.lastVesselId);
+      const teaOk=TEAS.some(t=>t.id===parsed.lastTeaId);
+      const deltas={};
+      if(parsed.secDeltaByTea&&typeof parsed.secDeltaByTea==="object"){
+        TEAS.forEach(t=>{
+          const value=parsed.secDeltaByTea[t.id];
+          if(Number.isInteger(value)&&Math.abs(value)<=115) deltas[t.id]=value;
+        });
+      }
+      return {
+        lastVesselId:vesselOk?parsed.lastVesselId:fallback.lastVesselId,
+        lastTeaId:teaOk?parsed.lastTeaId:fallback.lastTeaId,
+        secDeltaByTea:deltas,
+        muted:typeof parsed.muted==="boolean"?parsed.muted:fallback.muted,
+      };
+    }catch(e){ return fallback; }
+  }
+  const preferences=loadPreferences();
+  const secDeltaByTea={...preferences.secDeltaByTea};
   const VICONS={
     teapot:'<ellipse cx="20" cy="27" rx="12" ry="9"/><path d="M8 24 L2 21 L4 25 L10 28"/><path d="M32 24 C37 24 37 31 32 32"/><path d="M13 18 Q20 14 27 18"/><circle cx="20" cy="15" r="1.6"/>',
     "eastern-pot":'<ellipse cx="20" cy="28" rx="12" ry="8"/><path d="M8 26 L2 24 L4 28 L9 29"/><path d="M32 25 C37 24 37 32 32 33"/><path d="M14 21 Q20 18 26 21"/><circle cx="20" cy="18" r="1.4"/>',
@@ -448,7 +484,8 @@
   };
 
   // ---- state ----
-  let teaIdx=2, vesselId="gaiwan", infusion=1, sec=20, pyDrained=false;
+  let teaIdx=Math.max(0,TEAS.findIndex(t=>t.id===preferences.lastTeaId));
+  let vesselId=preferences.lastVesselId, infusion=1, sec=20, pyDrained=false;
   let infusionHistory=[], activeBrew=null;
   let phase="idle"; // idle | pour | steep | done
   let pourStart=0, steepStart=0, steepMs=0, lastNow=performance.now();
@@ -465,6 +502,19 @@
   const vessel=()=>VESSELS.find(v=>v.id===vesselId);
   const vesselSteepOffset=()=>vessel().steepOffset||0;
   const recommendedSecFor=n=>clamp(tea().base+tea().add*(n-1)+vesselSteepOffset(),5,120);
+  const adjustedSecFor=n=>clamp(recommendedSecFor(n)+(secDeltaByTea[tea().id]||0),5,120);
+  function savePreferences(){
+    try{
+      localStorage.setItem(PREF_KEY,JSON.stringify({
+        version:PREF_VERSION,lastVesselId:vesselId,lastTeaId:tea().id,
+        secDeltaByTea,muted,
+      }));
+    }catch(e){}
+  }
+  function rememberTimeAdjustment(){
+    secDeltaByTea[tea().id]=sec-recommendedSecFor(infusion);
+    savePreferences();
+  }
   function fitPoint(id,x,y){
     const t=VESSEL_FITS[id];
     return t ? {x:t.x+x*t.scale, y:t.y+y*t.scale} : {x,y};
@@ -481,7 +531,7 @@
   }
 
   // ---- audio ----
-  let actx=null, muted=false;
+  let actx=null, muted=preferences.muted;
   function ensureAudio(){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} if(actx&&actx.state==="suspended") actx.resume(); }
   function bell(freq,t0,dur,gain){
     if(!actx) return;
@@ -712,7 +762,7 @@
     ringTrack:$("ring-track"), ringProg:$("ring-prog"), steam:$("steam"),
     pour:$("pour"), pourStream:$("pour-stream"), pourRipple:$("pour-ripple"),
     hero:$("hero"), readout:$("readout"), time:$("time"), timeLabel:$("timeLabel"),
-    brew:$("brew"), slider:$("slider"), secVal:$("secVal"), infusionLine:$("infusionLine"), tempHint:$("tempHint"),
+    brew:$("brew"), slider:$("slider"), rangeWrap:$("rangeWrap"), dec:$("dec"), inc:$("inc"), secVal:$("secVal"), infusionLine:$("infusionLine"), tempHint:$("tempHint"),
     teaPicker:document.querySelector(".tea-picker"),
     teaPreview:$("teaPreview"), dryLeaves:$("dryLeaves"),
     clapModal:$("clapModal"), clapTitle:$("clapTitle"), clapBody:$("clapBody"),
@@ -771,6 +821,7 @@
     if(phase==="pour"||phase==="steep") return;
     const idx=vesselIndex();
     vesselId=VESSELS[(idx+delta+VESSELS.length)%VESSELS.length].id;
+    savePreferences();
     reset(); buildSegState();
   }
   function buildSegState(){
@@ -783,6 +834,7 @@
   function selectTea(i){
     if(phase==="pour"||phase==="steep") return;
     teaIdx=(i+TEAS.length)%TEAS.length; paintTea();
+    savePreferences();
     if(phase==="idle"||phase==="done") reset();
   }
 
@@ -794,12 +846,17 @@
     els.infusionLine.textContent=items.join(" | ");
   }
   function syncSlider(){
-    els.slider.value=sec; const p=((sec-5)/115)*100; els.slider.style.setProperty("--p",p+"%"); els.secVal.textContent=sec+"초";
+    els.slider.value=sec;
+    const p=((sec-5)/115)*100, recommendedP=((recommendedSecFor(infusion)-5)/115)*100;
+    els.slider.style.setProperty("--p",p+"%");
+    els.rangeWrap.style.setProperty("--recommended-p",recommendedP+"%");
+    els.slider.setAttribute("aria-valuetext",`${sec}초, 권장 ${recommendedSecFor(infusion)}초`);
+    els.secVal.textContent=sec+"초";
     updateInfusionLine();
   }
-  els.slider.addEventListener("input",()=>{ sec=clamp(Math.round(+els.slider.value/5)*5,5,120); syncSlider(); if(phase==="idle"||phase==="done") previewIdle(); });
-  $("dec").onclick=()=>{ sec=clamp(sec-1,5,120); syncSlider(); if(phase==="idle"||phase==="done") previewIdle(); };
-  $("inc").onclick=()=>{ sec=clamp(sec+1,5,120); syncSlider(); if(phase==="idle"||phase==="done") previewIdle(); };
+  els.slider.addEventListener("input",()=>{ sec=clamp(Math.round(+els.slider.value/5)*5,5,120); rememberTimeAdjustment(); syncSlider(); if(phase==="idle"||phase==="done") previewIdle(); });
+  els.dec.onclick=()=>{ if(phase!=="idle"&&phase!=="done") return; sec=clamp(sec-1,5,120); rememberTimeAdjustment(); syncSlider(); previewIdle(); };
+  els.inc.onclick=()=>{ if(phase!=="idle"&&phase!=="done") return; sec=clamp(sec+1,5,120); rememberTimeAdjustment(); syncSlider(); previewIdle(); };
 
   // ---- rendering ----
   function applyLiquor(rectEl, surfEl, alpha, strength, top, full){
@@ -1000,7 +1057,7 @@
     activeBrew={n:infusion, sec};
     updateInfusionLine();
     preWarnSec=clamp(Math.round(sec*0.2),3,5); preWarned=false; lastTick=-1; drain=0;
-    els.brew.disabled=true; els.slider.disabled=true;
+    els.brew.disabled=true; els.slider.disabled=true; els.dec.disabled=true; els.inc.disabled=true;
     els.timeLabel.setAttribute('aria-live','polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done");
     if(reduce){ level=1; enterSteep(performance.now()); return; }
     phase="pour"; pourStart=performance.now(); level=0; els.brew.textContent="물 붓는 중…";
@@ -1023,7 +1080,7 @@
     $("flash").classList.remove("go"); void $("flash").offsetWidth; $("flash").classList.add("go");
     chime();
     clearRing();
-    els.slider.disabled=false; els.brew.disabled=false;
+    els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.disabled=false;
     if(vesselId==="piaoyibei"){ pyDrained=false; els.brew.textContent="버튼 눌러 내리기"; }
     else { prepareNextInfusion(); els.brew.textContent="다음 泡 우리기"; }
     relWake(); render();
@@ -1033,9 +1090,9 @@
     (function step(now){ drain=clamp((now-t0)/dur,0,1); render(); if(drain<1) requestAnimationFrame(step); else cb&&cb(); })(t0);
   }
   function reset(){
-    phase="idle"; infusion=1; sec=recommendedSecFor(infusion); pyDrained=false; infusionHistory=[]; activeBrew=null;
+    phase="idle"; infusion=1; sec=adjustedSecFor(infusion); pyDrained=false; infusionHistory=[]; activeBrew=null;
     setInf(); syncSlider(); previewIdle();
-    els.brew.disabled=false; els.slider.disabled=false; els.brew.textContent="우리기 시작";
+    els.brew.disabled=false; els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.textContent="우리기 시작";
     relWake();
   }
   function setInf(){ $("infLabel").textContent=infText(infusion); $("infKo").textContent=koInf(infusion); }
@@ -1048,7 +1105,7 @@
   function prepareNextInfusion(){
     const last=infusionHistory[infusionHistory.length-1];
     infusion=(last?.n || infusion)+1;
-    sec=recommendedSecFor(infusion);
+    sec=adjustedSecFor(infusion);
     setInf(); syncSlider();
   }
 
@@ -1102,7 +1159,7 @@
   $("vesselNext").onclick=()=>selectVessel(1);
   $("teaPrev").onclick=()=>selectTea(teaIdx-1);
   $("teaNext").onclick=()=>selectTea(teaIdx+1);
-  $("mute").onclick=function(){ muted=!muted; this.classList.toggle("muted",muted); this.setAttribute("aria-pressed",muted); this.setAttribute("aria-label",muted?"소리 켜기":"소리 끄기"); ensureAudio(); if(!muted) tone(880,.5,.12); };
+  $("mute").onclick=function(){ muted=!muted; this.classList.toggle("muted",muted); this.setAttribute("aria-pressed",muted); this.setAttribute("aria-label",muted?"소리 켜기":"소리 끄기"); savePreferences(); ensureAudio(); if(!muted) tone(880,.5,.12); };
   $("applause").onclick=openClapModal;
   $("clapClose").onclick=closeClapModal;
   $("clapDismiss").onclick=closeClapModal;
@@ -1119,7 +1176,10 @@
   function boot(){
     applyVesselFits();
     buildDots(); buildSegState(); paintTea();
-    sec=recommendedSecFor(infusion); syncSlider(); setInf(); previewIdle();
+    sec=adjustedSecFor(infusion); syncSlider(); setInf(); previewIdle();
+    $("mute").classList.toggle("muted",muted);
+    $("mute").setAttribute("aria-pressed",muted);
+    $("mute").setAttribute("aria-label",muted?"소리 켜기":"소리 끄기");
     requestAnimationFrame(frame);
   }
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(boot); else boot();

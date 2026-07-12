@@ -47,6 +47,11 @@
   p{ color:var(--ink-dim); line-height:1.75; font-size:.94rem; }
   a{ color:var(--gold-soft); text-decoration-thickness:.08em; text-underline-offset:.18em; }
   .foot{ margin-top:auto; padding-top:1rem; color:var(--ink-faint); font-size:.78rem; line-height:1.6; }
+  .preference-reset{
+    min-height:44px; margin-top:.75rem; padding:0 .85rem; border:1px solid var(--line); border-radius:8px;
+    background:transparent; color:var(--ink-dim); font-family:inherit; font-size:.88rem; cursor:pointer;
+  }
+  .preference-reset:active{ color:var(--gold-soft); border-color:var(--gold); }
   .clap-button{
     position:fixed; right:calc(1rem + env(safe-area-inset-right)); bottom:calc(.85rem + env(safe-area-inset-bottom));
     z-index:40; min-width:44px; min-height:44px; border:0; background:none; color:var(--ink-dim);
@@ -98,26 +103,33 @@
       <h2>사용법</h2>
       <ol>
         <li>차와 다구를 고릅니다.</li>
-        <li>우림 시간을 원하는 만큼 조정하고 시작합니다. 2포 이상일 때는 지난 포 우림 기록을 참고하면서 시간을 조정하면 편합니다.</li>
-        <li>완료 수 초 전 예고음이 나오며, 완료음 및 플래시 신호를 확인하면 바로 따라냅니다.</li>
+        <li>우림 시간을 원하는 만큼 조정하고 시작합니다. 2포부터는 지난 포의 우림 기록을 참고해 시간을 조정하면 편합니다.</li>
+        <li>완료 수 초 전에 예고음이 나오며, 완료음과 플래시 신호를 확인하면 바로 따라냅니다.</li>
       </ol>
     </section>
 
     <section>
       <h2>저작권</h2>
-      <p>이 앱은 오픈소스로 공개되어 있으며, github repostirory를 포크하여 <b>오픈소스로 공개하는 조건으로</b> 자유롭게 사용할 수 있습니다.</p>
+      <p>이 앱은 오픈소스로 공개되어 있으며, GitHub 저장소를 포크하여 <b>오픈소스로 공개하는 조건으로</b> 자유롭게 사용할 수 있습니다.</p>
     </section>
 
     <section>
-      <h2>제작자| 겨울비</h2>
-      <p><i>문의점이나 건의사항은 아래로 연락 주세요.</i></p>
+      <h2>기억한 설정</h2>
+      <p>마지막으로 고른 차와 다구, 차별 우림 시간 조정, 음소거 상태를 이 기기에 기억합니다.</p>
+      <button class="preference-reset" id="preferenceReset">기억한 설정 지우기</button>
+      <p id="preferenceResetStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <section>
+      <h2>제작자 | 겨울비</h2>
+      <p><i>문의 사항이나 건의 사항은 아래로 연락해 주세요.</i></p>
       <p>오른쪽 아래 👏 박수는 운영자만 집계 횟수를 확인합니다. 아무 수익도 발생하지 않고, 그냥 제작자의 기분이 좋아집니다.</p>
       <ul>
         <li><p><a href="https://twitter.com/winterrain_lee">Twitter</a></p></li>
         <li><p><a href="https://github.com/winterrainlee/tea-timer">깃허브 저장소</a></p></li>
-        <li><p>mail: <a href="mailto:winterrain.lee@icloud.com">winterrain.lee@icloud.com</a></p></li>
+        <li><p>이메일: <a href="mailto:winterrain.lee@icloud.com">winterrain.lee@icloud.com</a></p></li>
       </ul>
-      </section>
+    </section>
   </main>
 
   <div class="foot">차 한 잔의 시간 · Time for Tea</div>
@@ -140,6 +152,7 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
+  const PREF_KEY = "teaTimer.preferences.v1";
   const CREATOR_REACTION_ENDPOINT = "https://tea-timer-reactions.winterrain-lee.workers.dev/reaction";
   let lastClapFocus = null;
 
@@ -180,6 +193,14 @@
   $("clapDismiss").onclick=closeClapModal;
   $("clapYes").onclick=()=>finishClapModal("감사합니다", "감사합니다 덕분에 큰 힘이 되었습니다!", "clap");
   $("clapNo").onclick=()=>finishClapModal("의견 고마워요", "괜찮습니다. 앞으로 더 노력해서 다음에는 박수를 받을 수 있도록 힘내보겠습니다!", "down");
+  $("preferenceReset").onclick=()=>{
+    try{
+      localStorage.removeItem(PREF_KEY);
+      location.href="index.html";
+    }catch(e){
+      $("preferenceResetStatus").textContent="이 브라우저에서는 설정을 지울 수 없어요.";
+    }
+  };
   $("clapModal").addEventListener("click",e=>{ if(e.target===$("clapModal")) closeClapModal(); });
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("clapModal").hidden) closeClapModal(); });
 })();
