@@ -139,10 +139,13 @@
     font-size:2.64rem; line-height:1; color:var(--gold-soft); margin:0 0 .42rem;
     text-shadow:0 1px 10px rgba(0,0,0,.45);
   }
+  .slider-row .val .val-suffix{
+    font-size:1.1rem; font-weight:400; color:var(--ink-dim); margin-left:.45rem; letter-spacing:.06em;
+  }
   .slider-line{ display:flex; align-items:center; gap:.75rem; }
   .range-wrap{ position:relative; flex:1; display:flex; align-items:center; }
   .recommended-mark{
-    position:absolute; left:var(--recommended-p,13%); top:50%; z-index:2;
+    position:absolute; left:calc(15px + (100% - 30px)*var(--recommended-f,.13)); top:50%; z-index:2;
     width:2px; height:14px; border-radius:2px; background:rgba(239,230,214,.5);
     box-shadow:0 0 0 1px rgba(18,13,9,.45);
     transform:translate(-50%,-50%); pointer-events:none;
@@ -372,9 +375,9 @@
 
   <div class="controls">
     <div class="slider-row">
-      <div class="top"><span>우림 시간</span><span class="temp-hint" id="tempHint">권장 95°C</span></div>
-      <div class="infusion-line" id="infusionLine" aria-live="polite">1포 20초</div>
-      <div class="val" id="secVal">20초</div>
+      <div class="top"><span>권장 우림</span><span class="temp-hint" id="tempHint">95°C / 20초</span></div>
+      <div class="infusion-line" id="infusionLine" aria-live="polite"></div>
+      <div class="val"><span id="secVal">1포 20초</span><span class="val-suffix">우리기</span></div>
       <div class="slider-line">
         <button class="step" id="dec" aria-label="1초 줄이기">−</button>
         <div class="range-wrap" id="rangeWrap">
@@ -799,7 +802,6 @@
   function paintTea(){
     const t=tea();
     $("teaName").textContent=t.name; $("teaCur").textContent=t.name;
-    els.tempHint.textContent=`권장 ${t.temp}°C`;
     $("teaDot").style.background=rgb(renderedTeaColor(t));
     $("teaGhostL").textContent=TEAS[(teaIdx+TEAS.length-1)%TEAS.length].name;
     $("teaGhostR").textContent=TEAS[(teaIdx+1)%TEAS.length].name;
@@ -840,18 +842,19 @@
 
   // ---- slider ----
   function updateInfusionLine(){
-    const items=infusionHistory.map(h=>brewLabel(h.n,h.sec));
-    const currentRecorded=infusionHistory.some(h=>h.n===infusion);
-    if(!currentRecorded) items.push(brewLabel(infusion,sec));
-    els.infusionLine.textContent=items.join(" | ");
+    els.infusionLine.textContent=infusionHistory.length
+      ? "우림 기록 "+infusionHistory.map(h=>brewLabel(h.n,h.sec)).join(" / ")
+      : "";
   }
   function syncSlider(){
     els.slider.value=sec;
-    const p=((sec-5)/115)*100, recommendedP=((recommendedSecFor(infusion)-5)/115)*100;
+    const rec=recommendedSecFor(infusion);
+    const p=((sec-5)/115)*100, recF=(rec-5)/115;
     els.slider.style.setProperty("--p",p+"%");
-    els.rangeWrap.style.setProperty("--recommended-p",recommendedP+"%");
-    els.slider.setAttribute("aria-valuetext",`${sec}초, 권장 ${recommendedSecFor(infusion)}초`);
-    els.secVal.textContent=sec+"초";
+    els.rangeWrap.style.setProperty("--recommended-f",recF);
+    els.slider.setAttribute("aria-valuetext",`${sec}초, 권장 ${rec}초`);
+    els.tempHint.textContent=`${tea().temp}°C / ${rec}초`;
+    els.secVal.textContent=brewLabel(infusion,sec);
     updateInfusionLine();
   }
   els.slider.addEventListener("input",()=>{ sec=clamp(Math.round(+els.slider.value/5)*5,5,120); rememberTimeAdjustment(); syncSlider(); if(phase==="idle"||phase==="done") previewIdle(); });
