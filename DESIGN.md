@@ -373,7 +373,7 @@ stage
 ### 7.3 타이머 정확도
 - 우림 종료는 `performance.now()` 기반 절대 종료 시각으로 계산한다.
 - `visibilitychange`로 포그라운드 복귀 시 Wake Lock을 재획득한다.
-- 사운드는 현재 rAF 흐름에서 호출된다. 백그라운드 정확도를 높이려면 WebAudio clock 예약 또는 Worker tick이 다음 단계다.
+- 사운드는 현재 rAF 흐름에서 호출되지만, 앱 복귀·다음 포 시작·재생 직전에 `AudioContext`가 `running`이 아니면 다시 활성화한다. 백그라운드 정확도를 높이려면 WebAudio clock 예약 또는 Worker tick이 다음 단계다.
 
 ### 7.4 상태 머신
 
