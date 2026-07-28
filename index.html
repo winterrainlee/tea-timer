@@ -953,7 +953,7 @@
   function selectVessel(delta){
     if(phase==="pour"||phase==="steep") return;
     if(infusionHistory.length > 0){
-      showToast("진행 중인 세션이 있습니다. 다구를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
+      showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
       return;
     }
     const idx=vesselIndex();
@@ -971,7 +971,7 @@
   function selectTea(i){
     if(phase==="pour"||phase==="steep") return;
     if(infusionHistory.length > 0){
-      showToast("진행 중인 세션이 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
+      showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
       return;
     }
     teaIdx=(i+TEAS.length)%TEAS.length; paintTea();
