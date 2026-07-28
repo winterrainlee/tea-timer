@@ -52,6 +52,18 @@
     background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px;
     padding: 1rem 1.05rem; margin-bottom: 1rem;
   }
+  .storage-notice {
+    background: rgba(205,191,99,0.08); border: 1px solid var(--gold-line); border-radius: 12px;
+    padding: 0.9rem 1rem;
+  }
+  .storage-notice-title {
+    display: flex; align-items: center; gap: 0.38rem; color: var(--gold-soft); font-size: 0.94rem; font-weight: 700; margin-bottom: 0.32rem;
+  }
+  .storage-notice-title svg { width: 16px; height: 16px; flex: none; }
+  .storage-notice p {
+    margin: 0; font-size: 0.82rem; line-height: 1.7;
+  }
+  .storage-notice strong { color: var(--ink); font-weight: 700; }
   .pref-title { font-size: 0.95rem; font-weight: 700; color: var(--gold-soft); margin-bottom: 0.85rem; display: block; }
   .tea-time-list { display: flex; flex-direction: column; gap: 0.6rem; }
   .tea-time-row {
@@ -118,6 +130,11 @@
   </header>
 
   <main>
+    <section class="storage-notice" aria-labelledby="storageNoticeTitle">
+      <span class="storage-notice-title" id="storageNoticeTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2h4l5 4V7l-5 4H3z" /><path d="M16 9a4 4 0 0 1 0 6" /><path d="M18.5 6.5a7 7 0 0 1 0 11" /></svg>주의해 주세요</span>
+      <p>이 설정은 현재 기기의 브라우저에만 저장됩니다. 사이트 데이터 삭제, 시크릿 모드 사용, 브라우저·앱 재설치 또는 기기 변경 시 초기화될 수 있습니다. <strong>일반적인 앱 업데이트에서는 유지됩니다.</strong></p>
+    </section>
+
     <!-- 차별 시간 보정 설정 -->
     <div class="pref-card">
       <span class="pref-title">🍵 차별 권장 우림 시간 보정 (1포 기준)</span>
