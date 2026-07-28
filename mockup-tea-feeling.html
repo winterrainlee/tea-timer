@@ -41,11 +41,21 @@
   .demo-timer { font-family: "Space Mono", monospace; font-size: 2.2rem; color: var(--gold-soft); font-weight: 700; margin: 1rem 0; }
   .demo-hint { font-size: 0.9rem; color: var(--ink-dim); line-height: 1.6; }
 
+  .top-actions {
+    display: flex; align-items: center; justify-content: space-between; z-index: 10;
+  }
+  .top-actions button, .top-actions a {
+    min-height: 44px; border: 0; background: none; color: var(--ink-dim); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    font-family: inherit; font-size: 1.15rem; padding: 0 0.2rem; transition: color 0.15s;
+  }
+  .top-actions button:active, .top-actions a:active { color: var(--gold-soft); }
+
   .app-footer { display: flex; justify-content: space-between; align-items: center; }
   .btn-icon {
     min-height: 44px; min-width: 44px; background: none; border: none; color: var(--ink-dim);
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem;
-    font-family: inherit; font-size: 0.74rem; padding: 0; transition: color 0.15s;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+    font-family: inherit; font-size: 0.85rem; padding: 0; transition: color 0.15s;
   }
   .btn-icon:active { color: var(--gold-soft); }
   .btn-icon svg { width: 20px; height: 20px; }
@@ -167,6 +177,11 @@
 
 <!-- Mobile Frame Container -->
 <div class="app-frame">
+  <div class="top-actions">
+    <button class="reset-top" id="resetMock">우림 끝</button>
+    <a class="help-link" href="#" id="helpMock">사용법</a>
+  </div>
+
   <div class="demo-content">
     <div class="demo-timer">0:00</div>
     <img src="assets/vessels/gaiwan.png" class="vessel-img" alt="개완">
