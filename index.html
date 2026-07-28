@@ -2215,7 +2215,7 @@
       function finishSteep() {
         phase = "done"; curAlpha = tea().peak; strengthT = 1; openEff = 1; glow = 1; isUrgent = false; agitate = 0;
         isDrained = false; drain = 0;
-        setTeaPickerActive(true, { showPreview: false });
+        setTeaPickerActive(true);
         els.time.textContent = "0:00";
         els.hero.classList.remove("urgent"); els.readout.classList.add("done");
         const v = vessel();
