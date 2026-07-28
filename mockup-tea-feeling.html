@@ -45,11 +45,10 @@
   .btn-icon {
     min-height: 44px; min-width: 44px; background: none; border: none; color: var(--ink-dim);
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem;
-    font-family: inherit; font-size: 0.85rem; border-radius: 999px; padding: 0 0.8rem;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--line); transition: all 0.2s;
+    font-family: inherit; font-size: 0.74rem; padding: 0; transition: color 0.15s;
   }
-  .btn-icon:active { color: var(--gold-soft); border-color: var(--gold-line); }
-  .btn-icon svg { width: 18px; height: 18px; }
+  .btn-icon:active { color: var(--gold-soft); }
+  .btn-icon svg { width: 20px; height: 20px; }
 
   /* Bottom Sheet Modal */
   .sheet-backdrop {
@@ -97,16 +96,16 @@
   .section-label { font-size: 0.92rem; font-weight: 700; color: var(--ink-dim); margin-bottom: 0.6rem; display: block; }
   
   /* Tag Chips Grid */
-  .tags-grid { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.25rem; }
+  .tags-grid { display: flex; flex-wrap: wrap; gap: 0.35rem 0.4rem; margin-bottom: 1.25rem; }
   .tag-chip {
-    min-height: 38px; padding: 0 0.85rem; border-radius: 999px; border: 1px solid var(--line);
-    background: rgba(255,255,255,0.02); color: var(--ink-dim); font-family: inherit; font-size: 0.86rem;
-    cursor: pointer; display: inline-flex; align-items: center; transition: all 0.15s;
+    min-height: 30px; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02); color: var(--ink-dim); font-family: inherit; font-size: 0.84rem;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
     user-select: none;
   }
   .tag-chip.active {
     border-color: var(--gold-soft); color: var(--gold-soft); background: rgba(205, 191, 99, 0.15);
-    box-shadow: 0 0 10px rgba(205, 191, 99, 0.2); font-weight: 700;
+    box-shadow: 0 0 8px rgba(205, 191, 99, 0.2); font-weight: 700;
   }
 
   /* Note Textarea */
