@@ -1126,10 +1126,13 @@
 
   function render(){
     const v=vessel();
+    const activeLevel = (phase === "done" && vesselId !== "piaoyibei") ? level * (1 - drain) : level;
+    const activeAlpha = (phase === "done" && vesselId !== "piaoyibei") ? curAlpha * (1 - drain) : curAlpha;
+
     // gaiwan
     if(vesselId==="gaiwan"){
-      const top=lerp(166,130,level);
-      applyGaiwanLiquor(curAlpha*Math.min(1,level*1.4)*.92, strengthT, top, level);
+      const top=lerp(166,130,activeLevel);
+      applyGaiwanLiquor(activeAlpha*Math.min(1,activeLevel*1.4)*.92, strengthT, top, activeLevel);
       drawLeaves(gLeaves, openEff, {baseAlpha:.55, peakAlpha:.24, minSpread:6, maxSpread:30, minScale:.38, maxScale:.42});
       els.gLid.setAttribute("opacity","0");
     } else if(vesselId==="piaoyibei"){
@@ -1148,14 +1151,14 @@
       drawLeaves(pyLeaves, openEff, {baseAlpha:.55, peakAlpha:.24, minSpread:6, maxSpread:32, minScale:.38, maxScale:.42});
     } else if(vesselId==="mug"){
       const col=mix(tea().light,tea().strong,strengthT);
-      const visible=curAlpha*Math.min(1,level*1.4);
+      const visible=activeAlpha*Math.min(1,activeLevel*1.4);
       els.mugSurfCenter.setAttribute("stop-color",rgb(mix(col,[255,248,218],.18)));
       els.mugSurfEdge.setAttribute("stop-color",rgb(mix(col,tea().strong,.08)));
       els.mugSurf.setAttribute("opacity",(visible*.78).toFixed(3));
     }
-    // ambient glow for opaque vessels — 따뜻한 앰버 글로우, 임박 시 throb
+    // ambient glow for opaque vessels — 따뜻한 앰버 글로우
     if(v.vis==="none" || v.vis==="top"){
-      let amb=glow*0.30;
+      let amb=glow*0.30*(phase === "done" ? (1 - drain) : 1);
       if(isUrgent && !reduce) amb*=0.8+0.4*(0.5+0.5*Math.sin(performance.now()/220));
       els.ambient.setAttribute("opacity",amb.toFixed(3));
       els.ambient.setAttribute("cy", v.round?124:120);
@@ -1172,7 +1175,8 @@
       els.pourRipple.setAttribute("opacity",((1-rip)*0.5).toFixed(3));
     } else els.pour.setAttribute("opacity","0");
 
-    setSteam(phase==="steep"? (0.3+0.7*strengthT) : phase==="done"?0.7:0);
+    const steamFactor = (phase==="steep"? (0.3+0.7*strengthT) : phase==="done"? 0.7 * (1 - drain) : 0);
+    setSteam(steamFactor);
   }
 
   function previewIdle(){
@@ -1200,9 +1204,12 @@
     phase="steep"; steepStart=now; steepMs=sec*1000; level=1; lidTarget=0;
     els.brew.textContent="우리는 중…";
   }
+  let isDrained = false;
+
   function finishSteep(){
     phase="done"; curAlpha=tea().peak; strengthT=1; openEff=1; glow=1; isUrgent=false; agitate=0;
-    setTeaPickerActive(vesselId!=="piaoyibei", {showPreview:false});
+    isDrained = false; drain = 0;
+    setTeaPickerActive(true, {showPreview:false});
     els.time.textContent="0:00";
     els.hero.classList.remove("urgent"); els.readout.classList.add("done");
     const v=vessel();
@@ -1214,16 +1221,28 @@
     void chime();
     clearRing();
     els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.disabled=false;
-    if(vesselId==="piaoyibei"){ pyDrained=false; els.brew.textContent="버튼 눌러 내리기"; }
-    else { prepareNextInfusion(); els.brew.textContent="다음 泡 우리기"; }
+    els.brew.textContent = (vesselId === "piaoyibei") ? "버튼 눌러 내리기" : "버튼 눌러 따라내기";
     relWake(); render();
   }
-  function drainPiao(cb){
+
+  function drainVessel(cb){
     const t0=performance.now(), dur=reduce?1:1400;
-    (function step(now){ drain=clamp((now-t0)/dur,0,1); render(); if(drain<1) requestAnimationFrame(step); else cb&&cb(); })(t0);
+    (function step(now){
+      drain = clamp((now-t0)/dur, 0, 1);
+      render();
+      if(drain < 1) requestAnimationFrame(step);
+      else {
+        isDrained = true;
+        prepareNextInfusion();
+        els.timeLabel.textContent = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
+        els.brew.textContent = "다음 泡 우리기";
+        cb && cb();
+      }
+    })(t0);
   }
+
   function reset(){
-    phase="idle"; infusion=1; sec=adjustedSecFor(infusion); pyDrained=false; infusionHistory=[]; activeBrew=null;
+    phase="idle"; infusion=1; sec=adjustedSecFor(infusion); pyDrained=false; isDrained=false; drain=0; infusionHistory=[]; activeBrew=null;
     setInf(); syncSlider(); previewIdle();
     els.brew.disabled=false; els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.textContent="우리기 시작";
     relWake();
@@ -1642,9 +1661,12 @@ ${emoji} ${rawName}
   els.brew.onclick=()=>{
     if(phase==="idle"){ startBrew(); return; }
     if(phase==="done"){
-      if(vesselId==="piaoyibei" && !pyDrained){
-        pyDrained=true; els.brew.disabled=true; els.brew.textContent="내리는 중…";
-        drainPiao(()=>{ prepareNextInfusion(); setTeaPickerActive(true, {showPreview:false}); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
+      if(!isDrained){
+        els.brew.disabled=true;
+        els.brew.textContent = (vesselId === "piaoyibei") ? "내리는 중…" : "따라내는 중…";
+        drainVessel(()=>{
+          els.brew.disabled=false;
+        });
         return;
       }
       startBrew();
