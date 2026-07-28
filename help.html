@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#120d09">
-<title>사용법 및 설정 · 차 한 잔의 시간</title>
+<title>사용법 · 차 한 잔의 시간</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,14 +31,15 @@
   .back{
     min-height:44px; padding:0 .2rem; border:0;
     color:var(--ink-dim); text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
-    background:none; font-size:1.05rem;
+    background:none; font-size:1.05rem; font-family:inherit;
   }
   .back:active{ color:var(--gold-soft); }
-  .mark{
-    width:44px; height:44px; border:0;
+  .mark-link{
+    min-width:44px; min-height:44px; border:0; text-decoration:none;
     display:flex; align-items:center; justify-content:center; color:var(--gold-soft);
-    font-family:"Gowun Batang",serif; font-size:1.12rem; font-weight:700; background:none;
+    font-family:inherit; font-size:1.2rem; background:none;
   }
+  .mark-link:active{ color:var(--ink); }
   header{ text-align:center; padding:.6rem 0 1rem; }
   h1{ font-size:1.45rem; color:var(--gold-soft); letter-spacing:.04em; }
   .sub{ margin-top:.35rem; font-family:"Space Mono",monospace; font-size:.68rem; letter-spacing:.16em; color:var(--ink-dim); }
@@ -50,61 +51,6 @@
   p{ color:var(--ink-dim); line-height:1.75; font-size:.94rem; margin-bottom:0.6rem; }
   a{ color:var(--gold-soft); text-decoration-thickness:.08em; text-underline-offset:.18em; }
   .foot{ margin-top:auto; padding-top:1rem; color:var(--ink-faint); font-size:.78rem; line-height:1.6; text-align:center; }
-
-  /* Preferences Item UI */
-  .pref-card {
-    background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px;
-    padding: 0.95rem 1rem; margin-bottom: 1rem;
-  }
-  .pref-title { font-size: 0.92rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; display: block; }
-  .tea-time-list { display: flex; flex-direction: column; gap: 0.55rem; }
-  .tea-time-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.3rem 0; border-bottom: 1px dashed rgba(255,255,255,0.05);
-  }
-  .tea-time-row:last-child { border-bottom: none; }
-  .tea-label { font-size: 0.9rem; color: var(--ink); display: flex; align-items: center; gap: 0.3rem; }
-  .tea-controls { display: flex; align-items: center; gap: 0.4rem; }
-  .btn-step {
-    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line);
-    background: rgba(255,255,255,0.04); color: var(--ink); font-family: inherit; font-size: 1rem;
-    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-  }
-  .btn-step:active { background: rgba(205,191,99,0.2); border-color: var(--gold); }
-  .time-disp { font-family: "Space Mono", monospace; font-size: 0.92rem; color: var(--gold-soft); min-width: 44px; text-align: center; }
-  .delta-hint { font-size: 0.75rem; color: var(--ink-dim); }
-  .btn-restore-single {
-    font-size: 0.72rem; color: var(--gold-soft); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0 0.2rem;
-  }
-
-  /* Custom Tags UI */
-  .tag-edit-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem; }
-  .tag-edit-chip {
-    padding: 0.22rem 0.6rem; border-radius: 4px; background: rgba(205,191,99,0.16); color: var(--gold-soft);
-    font-size: 0.84rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;
-  }
-  .btn-del-tag {
-    background: none; border: none; color: var(--ink-dim); cursor: pointer; font-size: 0.85rem; line-height: 1; padding: 0 2px;
-  }
-  .btn-del-tag:hover { color: #ff8888; }
-  
-  .add-tag-row { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
-  .input-new-tag {
-    flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 6px;
-    padding: 0.45rem 0.65rem; color: var(--ink); font-family: inherit; font-size: 0.88rem; outline: none;
-  }
-  .input-new-tag:focus { border-color: var(--gold-line); }
-  .btn-add-tag {
-    padding: 0.45rem 0.85rem; border-radius: 6px; border: 1px solid var(--gold-line);
-    background: rgba(205,191,99,0.15); color: var(--gold-soft); font-family: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
-  }
-
-  .preference-reset{
-    width: 100%; min-height:44px; margin-top:.4rem; padding:0 .85rem; border:1px solid var(--line); border-radius:8px;
-    background:transparent; color:var(--ink-dim); font-family:inherit; font-size:.88rem; cursor:pointer;
-    display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.15s;
-  }
-  .preference-reset:active{ color:var(--gold-soft); border-color:var(--gold); }
 
   .clap-button{
     position:fixed; right:calc(1rem + env(safe-area-inset-right)); bottom:calc(.85rem + env(safe-area-inset-bottom));
@@ -143,19 +89,19 @@
 <body>
 <div class="page">
   <div class="top">
-    <a class="back" href="index.html">← 사용법 & 설정</a>
-    <div class="mark" aria-hidden="true">ⓘ</div>
+    <a class="back" href="index.html">← 처음으로</a>
+    <a class="mark-link" href="settings.html" title="개인 설정" aria-label="개인 설정 열기">⚙️</a>
   </div>
 
   <header>
-    <h1>사용법 & 개인 설정</h1>
+    <h1>사용법</h1>
     <div class="sub">Time for Tea</div>
   </header>
 
   <main>
     <!-- Section 1: 사용법 -->
     <section>
-      <h2>📖 1. 사용법</h2>
+      <h2>📖 사용법</h2>
       <p>끓인 물을 붓고 나서 "지금 따라낼 때"를 놓치지 않게 도와주는 정갈한 타이머입니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 건네주세요. (광고·회원가입 없음, 오픈소스)</p>
       <ol>
         <li><strong>차와 다구 고르기</strong>: 차 이름이 헷갈리면 이름 아래 나무 접시(다하) 위의 마른 찻잎 모양과 색을 보고 내 찻잎과 닮은 것을 눈으로 고르면 됩니다.</li>
@@ -166,44 +112,17 @@
       </ol>
     </section>
 
-    <!-- Section 2: 개인 설정 -->
+    <!-- Section 2: 자유롭게 쓰세요 -->
     <section>
-      <h2>⚙️ 2. 개인 설정</h2>
-      
-      <!-- 차별 시간 보정 설정 -->
-      <div class="pref-card">
-        <span class="pref-title">🍵 차별 권장 우림 시간 보정 (1포 기준)</span>
-        <div class="tea-time-list" id="teaTimeList">
-          <!-- JS 렌더링 -->
-        </div>
-      </div>
-
-      <!-- 단어 태그 커스텀 설정 -->
-      <div class="pref-card">
-        <span class="pref-title">🏷️ 오늘 떠오른 단어 태그 관리</span>
-        <div class="tag-edit-grid" id="tagEditGrid">
-          <!-- JS 렌더링 -->
-        </div>
-        <div class="add-tag-row">
-          <input type="text" class="input-new-tag" id="newTagInput" placeholder="새 단어 입력 (예: 빙탕, 훈연향)" maxlength="10">
-          <button type="button" class="btn-add-tag" id="addTagBtn">+ 추가</button>
-        </div>
-        <button type="button" class="preference-reset" id="restoreTagsBtn">🔄 기본 14종 단어로 복원</button>
-      </div>
-
-      <!-- 로컬 설정 전체 초기화 -->
-      <div class="pref-card">
-        <span class="pref-title">🗑️ 데이터 초기화</span>
-        <p style="margin-bottom:0.5rem; font-size:0.86rem;">마지막으로 고른 차와 다구, 차별 시간 보정, 커스텀 태그를 모두 지우고 초기 상태로 돌아갑니다.</p>
-        <button class="preference-reset" id="preferenceReset">기억한 설정 지우기</button>
-        <p id="preferenceResetStatus" role="status" aria-live="polite" style="margin-top:0.4rem; font-size:0.8rem; color:var(--gold-soft);"></p>
-      </div>
+      <h2>🍃 자유롭게 쓰세요</h2>
+      <p>이 앱은 무료이고 광고도 회원가입도 없습니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 그대로 건네주세요.</p>
+      <p>코드가 궁금한 분을 위해 오픈소스로 공개되어 있습니다. 가져다 쓰실 때는 결과물도 오픈소스로 공개해 주세요.</p>
     </section>
 
     <!-- Section 3: 제작자 이야기 & 👏 응원 박수 -->
     <section>
-      <h2>🌱 3. 제작자 이야기 & 👏 응원 박수</h2>
-      <p style="white-space: pre-line; line-height: 1.7; color: var(--ink);">
+      <h2>🌱 제작자 이야기 & 👏 응원 박수</h2>
+      <p style="white-space: pre-line; line-height: 1.75; color: var(--ink);">
         "제가 차 마시려고 만든 이 앱이 당신의 차 마시는 시간을 조금이라도 더 즐겁게 만들어 드렸다면 오른쪽 하단의 박수 버튼을 눌러주세요. 
         깃허브 스타나 회원가입 같은 건 아무것도 요구하지 않지만, 순수하게 제작자 기분이 매우 좋아집니다. 
         덧붙여 이 앱은 오픈소스이며, 오픈소스로 공개된다는 조건 하에 누구나 편하게 수정하실 수 있습니다."
@@ -242,162 +161,7 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const PREF_KEY = "teaTimer.preferences.v1";
   const CREATOR_REACTION_ENDPOINT = "https://tea-timer-reactions.winterrain-lee.workers.dev/reaction";
-  
-  const DEFAULT_TAGS = ["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"];
-  const TEAS_DATA = [
-    { id: "green", name: "녹차", base: 15, emoji: "🌱" },
-    { id: "white", name: "백차", base: 30, emoji: "🤍" },
-    { id: "oolong", name: "청향 우롱", base: 20, emoji: "🍃" },
-    { id: "dark-oolong", name: "농향 우롱", base: 20, emoji: "🍂" },
-    { id: "black", name: "홍차", base: 12, emoji: "☕" },
-    { id: "sheng-puer", name: "보이 생차", base: 15, emoji: "🍵" },
-    { id: "shou-puer", name: "보이 숙차", base: 20, emoji: "🤎" }
-  ];
-
-  let prefs = {
-    version: 1,
-    secDeltaByTea: {},
-    customTags: [...DEFAULT_TAGS]
-  };
-
-  function loadPrefs() {
-    try {
-      const raw = localStorage.getItem(PREF_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        prefs = { ...prefs, ...parsed };
-        if (!prefs.secDeltaByTea) prefs.secDeltaByTea = {};
-        if (!Array.isArray(prefs.customTags) || prefs.customTags.length === 0) {
-          prefs.customTags = [...DEFAULT_TAGS];
-        }
-      }
-    } catch(e) {}
-  }
-
-  function savePrefs() {
-    try {
-      localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-    } catch(e) {}
-  }
-
-  loadPrefs();
-
-  // Render Tea Times List
-  function renderTeaTimes() {
-    const list = $("teaTimeList");
-    list.innerHTML = "";
-    TEAS_DATA.forEach(tea => {
-      const delta = prefs.secDeltaByTea[tea.id] || 0;
-      const currentSec = tea.base + delta;
-
-      const row = document.createElement("div");
-      row.className = "tea-time-row";
-
-      const label = document.createElement("div");
-      label.className = "tea-label";
-      label.innerHTML = `<span>${tea.emoji} ${tea.name}</span>`;
-
-      const controls = document.createElement("div");
-      controls.className = "tea-controls";
-
-      const decBtn = document.createElement("button");
-      decBtn.className = "btn-step";
-      decBtn.textContent = "−";
-      decBtn.onclick = () => {
-        prefs.secDeltaByTea[tea.id] = delta - 1;
-        savePrefs();
-        renderTeaTimes();
-      };
-
-      const timeDisp = document.createElement("span");
-      timeDisp.className = "time-disp";
-      timeDisp.textContent = `${currentSec}초`;
-
-      const incBtn = document.createElement("button");
-      incBtn.className = "btn-step";
-      incBtn.textContent = "+";
-      incBtn.onclick = () => {
-        prefs.secDeltaByTea[tea.id] = delta + 1;
-        savePrefs();
-        renderTeaTimes();
-      };
-
-      controls.appendChild(decBtn);
-      controls.appendChild(timeDisp);
-      controls.appendChild(incBtn);
-
-      if (delta !== 0) {
-        const hint = document.createElement("span");
-        hint.className = "delta-hint";
-        hint.textContent = `(${delta > 0 ? '+' : ''}${delta}초)`;
-
-        const restoreSingleBtn = document.createElement("button");
-        restoreSingleBtn.className = "btn-restore-single";
-        restoreSingleBtn.textContent = "기본값";
-        restoreSingleBtn.onclick = () => {
-          delete prefs.secDeltaByTea[tea.id];
-          savePrefs();
-          renderTeaTimes();
-        };
-
-        controls.appendChild(hint);
-        controls.appendChild(restoreSingleBtn);
-      }
-
-      row.appendChild(label);
-      row.appendChild(controls);
-      list.appendChild(row);
-    });
-  }
-
-  // Render Tag Edits
-  function renderTagEdits() {
-    const grid = $("tagEditGrid");
-    grid.innerHTML = "";
-    prefs.customTags.forEach(tag => {
-      const chip = document.createElement("span");
-      chip.className = "tag-edit-chip";
-      chip.textContent = "#" + tag;
-
-      const delBtn = document.createElement("button");
-      delBtn.className = "btn-del-tag";
-      delBtn.textContent = "✕";
-      delBtn.title = "삭제";
-      delBtn.onclick = () => {
-        prefs.customTags = prefs.customTags.filter(t => t !== tag);
-        savePrefs();
-        renderTagEdits();
-      };
-
-      chip.appendChild(delBtn);
-      grid.appendChild(chip);
-    });
-  }
-
-  $("addTagBtn").onclick = () => {
-    const input = $("newTagInput");
-    const val = input.value.trim().replace(/^#/, '');
-    if (val && !prefs.customTags.includes(val)) {
-      prefs.customTags.push(val);
-      savePrefs();
-      renderTagEdits();
-      input.value = "";
-    }
-  };
-  $("newTagInput").onkeydown = (e) => {
-    if (e.key === "Enter") $("addTagBtn").click();
-  };
-
-  $("restoreTagsBtn").onclick = () => {
-    prefs.customTags = [...DEFAULT_TAGS];
-    savePrefs();
-    renderTagEdits();
-  };
-
-  renderTeaTimes();
-  renderTagEdits();
 
   // Applause API & Modal logic
   let lastClapFocus = null;
@@ -438,15 +202,6 @@
   $("clapDismiss").onclick=closeClapModal;
   $("clapYes").onclick=()=>finishClapModal("감사합니다", "박수 잘 받았습니다. 덕분에 다음 찻자리가 더 즐거워졌습니다!", "clap");
   $("clapNo").onclick=()=>finishClapModal("네, 알겠습니다", "괜찮습니다. 다음에 더 좋은 앱이 되도록 조용히 힘내 보겠습니다.", "down");
-  $("preferenceReset").onclick=()=>{
-    try{
-      localStorage.removeItem(PREF_KEY);
-      $("preferenceResetStatus").textContent="모든 개인 설정이 초기화되었습니다.";
-      setTimeout(() => location.href="index.html", 1000);
-    }catch(e){
-      $("preferenceResetStatus").textContent="설정을 지울 수 없습니다.";
-    }
-  };
   $("clapModal").addEventListener("click",e=>{ if(e.target===$("clapModal")) closeClapModal(); });
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("clapModal").hidden) closeClapModal(); });
 })();
