@@ -150,8 +150,9 @@
   .card-header-badge { font-family: "Space Mono", monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 1rem; }
   .card-tea-name { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-bottom: 0.3rem; }
   .card-infusions { font-size: 0.85rem; color: var(--gold-soft); margin-bottom: 1rem; }
-  .card-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-bottom: 1rem; }
-  .card-tag { font-size: 0.78rem; background: rgba(205,191,99,0.15); color: var(--gold-soft); border: 1px solid var(--gold-line); padding: 0.15rem 0.5rem; border-radius: 999px; }
+  .card-tags { display: flex; flex-direction: column; gap: 0.35rem; align-items: center; margin-bottom: 1rem; }
+  .card-tags-row { display: flex; gap: 0.35rem; justify-content: center; width: 100%; }
+  .card-tag { font-size: 0.78rem; background: rgba(205,191,99,0.15); color: var(--gold-soft); border: 1px solid var(--gold-line); padding: 0.18rem 0.55rem; border-radius: 4px; }
   .card-note-quote { font-size: 0.9rem; font-style: italic; color: var(--ink); line-height: 1.5; border-left: 2px solid var(--gold); padding-left: 0.8rem; margin: 1rem 0; text-align: left; }
   .card-footer-date { font-size: 0.72rem; color: var(--ink-faint); margin-top: 1.2rem; }
   .btn-close-card { margin-top: 1.2rem; width: 100%; padding: 0.7rem 0; border-radius: 8px; border: none; background: var(--gold-soft); color: var(--bg-0); font-family: inherit; font-weight: 700; cursor: pointer; }
@@ -328,7 +329,7 @@
     });
   };
 
-  // Open Card Preview Modal
+  // Open Card Preview Modal (Balanced Tag Distribution)
   cardBtn.onclick = () => {
     const titleText = document.getElementById('teaTitleDisplay').textContent.replace('🍃 ', '');
     const noteText = document.getElementById('noteInput').value;
@@ -339,12 +340,30 @@
 
     const container = document.getElementById('cardTagsContainer');
     container.innerHTML = '';
-    activeTags.forEach(tag => {
-      const span = document.createElement('span');
-      span.className = 'card-tag';
-      span.textContent = tag.textContent;
-      container.appendChild(span);
-    });
+
+    const N = activeTags.length;
+    if (N > 0) {
+      // Calculate balanced number of lines (max ~4 tags per line)
+      const linesCount = N <= 4 ? 1 : (N <= 8 ? 2 : Math.ceil(N / 4));
+      const baseCount = Math.floor(N / linesCount);
+      const extra = N % linesCount;
+
+      let tagIdx = 0;
+      for (let i = 0; i < linesCount; i++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'card-tags-row';
+        const countInRow = baseCount + (i < extra ? 1 : 0);
+
+        for (let j = 0; j < countInRow && tagIdx < N; j++) {
+          const span = document.createElement('span');
+          span.className = 'card-tag';
+          span.textContent = activeTags[tagIdx].textContent;
+          rowDiv.appendChild(span);
+          tagIdx++;
+        }
+        container.appendChild(rowDiv);
+      }
+    }
 
     cardModalBackdrop.classList.add('active');
   };
