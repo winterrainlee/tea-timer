@@ -705,32 +705,6 @@
   const tick=()=>tone(1320,.06,.12);
   const preWarn=()=>tone(784,.5,.16);              // G5
   async function chime(){ if(muted||!await ensureAudio()) return; const t=actx.currentTime; bell(659.25,t,2.6,.26); bell(987.77,t+.17,2.9,.2); }
-  
-  // Authentic Real Water Pouring Sound Effect (High Quality MP3 Asset)
-  let pourAudio = null;
-  function playPourSound(durSec = 0.9) {
-    if (muted) return;
-    try {
-      if (!pourAudio) {
-        pourAudio = new Audio("assets/audio/pour.mp3");
-      }
-      pourAudio.currentTime = 0;
-      pourAudio.volume = 0.7;
-      const playPromise = pourAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {});
-      }
-      
-      // Stop after pouring duration
-      const stopMs = Math.max(900, Math.floor(durSec * 1000 + 200));
-      setTimeout(() => {
-        if (pourAudio && !pourAudio.paused) {
-          pourAudio.pause();
-          pourAudio.currentTime = 0;
-        }
-      }, stopMs);
-    } catch(e) {}
-  }
 
   // ---- wake lock ----
   let wakeLock=null;
@@ -1221,7 +1195,6 @@
     els.timeLabel.setAttribute('aria-live','polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done");
     if(reduce){ level=1; enterSteep(performance.now()); return; }
     phase="pour"; pourStart=performance.now(); level=0; els.brew.textContent="물 붓는 중…";
-    void playPourSound(0.9);
   }
   function enterSteep(now){
     phase="steep"; steepStart=now; steepMs=sec*1000; level=1; lidTarget=0;
@@ -1246,7 +1219,6 @@
     relWake(); render();
   }
   function drainPiao(cb){
-    void playPourSound(1.3);
     const t0=performance.now(), dur=reduce?1:1400;
     (function step(now){ drain=clamp((now-t0)/dur,0,1); render(); if(drain<1) requestAnimationFrame(step); else cb&&cb(); })(t0);
   }

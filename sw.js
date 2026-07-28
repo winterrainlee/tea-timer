@@ -1,12 +1,11 @@
 // 차 한 잔의 시간 · Time for Tea — stale-while-revalidate 캐시
-const CACHE = "chahanjan-v52";
+const CACHE = "chahanjan-v53";
 const ASSETS = [
   "./",
   "./index.html",
   "./help.html",
   "./settings.html",
   "./manifest.webmanifest",
-  "./assets/audio/pour.mp3",
   "./icons/favicon-16.png",
   "./icons/favicon-32.png",
   "./icons/icon-192.png",
