@@ -84,16 +84,18 @@
   }
   .btn-del-tag:hover { color: #ff8888; }
   
-  .add-tag-row { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .add-tag-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; margin-bottom: 0.85rem; width: 100%; }
   .input-new-tag {
-    flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 6px;
-    padding: 0.5rem 0.7rem; color: var(--ink); font-family: inherit; font-size: 0.9rem; outline: none;
+    flex: 1; min-width: 0; height: 44px; background: rgba(0,0,0,0.3); border: 1px solid var(--line);
+    border-radius: 8px; padding: 0 0.75rem; color: var(--ink); font-family: inherit; font-size: 0.88rem; outline: none; transition: border-color 0.2s;
   }
-  .input-new-tag:focus { border-color: var(--gold-line); }
+  .input-new-tag:focus { border-color: var(--gold); }
   .btn-add-tag {
-    padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--gold-line);
-    background: rgba(205,191,99,0.15); color: var(--gold-soft); font-family: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+    flex: none; white-space: nowrap; height: 44px; padding: 0 1rem; border-radius: 8px; border: 1px solid var(--gold-line);
+    background: rgba(205,191,99,0.18); color: var(--gold-soft); font-family: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
   }
+  .btn-add-tag:active { background: rgba(205,191,99,0.32); border-color: var(--gold); }
 
   .preference-reset{
     width: 100%; min-height:44px; margin-top:.4rem; padding:0 .85rem; border:1px solid var(--line); border-radius:8px;
