@@ -1638,6 +1638,19 @@ ${emoji} ${rawName}
     }
   }
 
+  // Brew Button Handler
+  els.brew.onclick=()=>{
+    if(phase==="idle"){ startBrew(); return; }
+    if(phase==="done"){
+      if(vesselId==="piaoyibei" && !pyDrained){
+        pyDrained=true; els.brew.disabled=true; els.brew.textContent="내리는 중…";
+        drainPiao(()=>{ prepareNextInfusion(); setTeaPickerActive(true, {showPreview:false}); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
+        return;
+      }
+      startBrew();
+    }
+  };
+
   // Session Reset ("우림 끝" Button)
   $("reset").onclick = () => {
     if(infusionHistory.length > 0){
