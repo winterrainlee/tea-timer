@@ -230,6 +230,106 @@
     input[type=range]::-moz-range-thumb{ width:26px; height:26px; }
     .brew{ padding:.78rem 0; }
   }
+
+  /* Bottom Sheet Modal for Tea Feeling Notes */
+  .sheet-backdrop {
+    position: fixed; inset: 0; z-index: 100; background: rgba(6, 4, 2, 0.72); backdrop-filter: blur(8px);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.28s ease;
+  }
+  .sheet-backdrop.active { opacity: 1; pointer-events: auto; }
+  .sheet-container {
+    width: min(100vw, 440px); max-height: 88vh; background: #1a140d; border: 1px solid var(--line);
+    border-radius: 20px 20px 0 0; padding: 1.25rem 1.15rem 1.4rem; overflow-y: auto;
+    transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.6); color: var(--ink);
+  }
+  .sheet-backdrop.active .sheet-container { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 1rem; }
+  .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; }
+  .sheet-title { font-size: 1.12rem; font-weight: 700; color: var(--gold-soft); letter-spacing: 0.04em; }
+  .btn-close-sheet { background: none; border: none; color: var(--ink-dim); font-size: 1.4rem; cursor: pointer; padding: 0.2rem 0.5rem; }
+
+  /* Summary Card */
+  .summary-card {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px;
+    padding: 0.85rem 1rem; margin-bottom: 1.2rem;
+  }
+  .summary-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+  .tea-info-group { display: flex; align-items: center; gap: 0.4rem; }
+  .tea-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+  .btn-edit-title { background: none; border: none; color: var(--ink-dim); cursor: pointer; padding: 2px 4px; font-size: 0.85rem; }
+  .btn-edit-title:hover { color: var(--gold-soft); }
+  .session-date { font-family: "Space Mono", monospace; font-size: 0.78rem; color: var(--ink-dim); }
+  .infusion-history { font-size: 0.88rem; color: var(--gold-soft); letter-spacing: 0.02em; }
+  .edit-input-inline {
+    background: #120d09; border: 1px solid var(--gold-line); color: var(--gold-soft);
+    font-family: inherit; font-size: 0.95rem; padding: 0.2rem 0.4rem; border-radius: 4px; width: 180px;
+  }
+
+  /* Section Styles */
+  .section-label { font-size: 0.92rem; font-weight: 700; color: var(--ink-dim); margin-bottom: 0.6rem; display: block; }
+  
+  /* Tag Chips Grid (Option 3: Borderless Soft Fill Badge) */
+  .tags-grid { display: flex; flex-wrap: wrap; gap: 0.35rem 0.4rem; margin-bottom: 1.25rem; }
+  .tag-chip {
+    min-height: 30px; padding: 0.22rem 0.55rem; border-radius: 4px; border: none;
+    background: rgba(255,255,255,0.05); color: var(--ink-dim); font-family: inherit; font-size: 0.84rem;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
+    user-select: none;
+  }
+  .tag-chip.active {
+    color: var(--gold-soft); background: rgba(205, 191, 99, 0.22);
+    box-shadow: 0 0 10px rgba(205, 191, 99, 0.25); font-weight: 700;
+  }
+
+  /* Note Textarea */
+  .note-textarea {
+    width: 100%; min-height: 72px; background: rgba(0,0,0,0.25); border: 1px solid var(--line);
+    border-radius: 10px; padding: 0.75rem; color: var(--ink); font-family: inherit; font-size: 0.92rem;
+    line-height: 1.5; resize: none; outline: none; transition: border-color 0.2s;
+  }
+  .note-textarea:focus { border-color: var(--gold-line); }
+  .note-guide { font-size: 0.76rem; color: var(--ink-faint); margin-top: 0.4rem; margin-bottom: 1.3rem; line-height: 1.4; display: flex; gap: 0.3rem; }
+
+  /* Action Buttons */
+  .action-grid { display: grid; grid-template-columns: 1fr 1.1fr 1.3fr; gap: 0.45rem; }
+  .btn-action {
+    min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.04);
+    color: var(--ink); font-family: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 0.25rem; transition: all 0.15s;
+  }
+  .btn-action:active { background: rgba(205, 191, 99, 0.15); border-color: var(--gold-soft); color: var(--gold-soft); }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%) translateY(-20px);
+    background: rgba(37, 28, 18, 0.95); border: 1px solid var(--gold); color: var(--gold-soft);
+    padding: 0.6rem 1.2rem; border-radius: 999px; font-size: 0.88rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Generated Card Preview Overlay */
+  .card-modal-backdrop {
+    position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center; padding: 1rem;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .card-modal-backdrop.active { opacity: 1; pointer-events: auto; }
+  .card-preview-box {
+    width: min(100%, 340px); background: #18120b; border: 1px solid var(--gold-line); border-radius: 16px;
+    padding: 1.4rem; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); position: relative;
+  }
+  .card-header-badge { font-family: "Space Mono", monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 1rem; }
+  .card-tea-name { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-bottom: 0.3rem; }
+  .card-infusions { font-size: 0.85rem; color: var(--gold-soft); margin-bottom: 1rem; }
+  .card-tags { display: flex; flex-direction: column; gap: 0.35rem; align-items: center; margin-bottom: 1rem; }
+  .card-tags-row { display: flex; gap: 0.35rem; justify-content: center; width: 100%; }
+  .card-tag { font-size: 0.78rem; background: rgba(205,191,99,0.14); color: var(--gold-soft); border: none; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 700; }
+  .card-note-quote { font-size: 0.9rem; font-style: italic; color: var(--ink); line-height: 1.5; border-left: 2px solid var(--gold); padding-left: 0.8rem; margin: 1rem 0; text-align: left; }
+  .card-footer-date { font-size: 0.72rem; color: var(--ink-faint); margin-top: 1.2rem; }
+  .btn-close-card { margin-top: 1.2rem; width: 100%; padding: 0.7rem 0; border-radius: 8px; border: none; background: var(--gold-soft); color: var(--bg-0); font-family: inherit; font-weight: 700; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -407,15 +507,64 @@
     </div>
   </div>
 </div>
-<div class="flash" id="flash"></div>
-<div class="modal-backdrop" id="noteModal" hidden>
-  <div class="support-modal" role="dialog" aria-modal="true" aria-labelledby="noteTitle" aria-describedby="noteBody">
-    <button class="modal-close" id="noteClose" aria-label="닫기">×</button>
-    <h2 id="noteTitle">이번 차의 느낌</h2>
-    <p id="noteBody">한 잔의 느낌을 남기는 기능을 준비하고 있습니다. 조금만 기다려 주세요.</p>
-    <div class="modal-actions">
-      <button class="modal-primary" id="noteDismiss">닫기</button>
+<div class="toast" id="toast">복사되었습니다</div>
+
+<!-- Bottom Sheet Component for Tea Feeling Note -->
+<div class="sheet-backdrop" id="sheetBackdrop">
+  <div class="sheet-container">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h2 class="sheet-title">이번 차의 느낌</h2>
+      <button class="btn-close-sheet" id="closeSheetBtn" aria-label="닫기">✕</button>
     </div>
+
+    <!-- Summary Card -->
+    <div class="summary-card">
+      <div class="summary-top">
+        <div class="tea-info-group">
+          <span class="tea-title" id="teaTitleDisplay">🍃 청향 우롱 · 개완</span>
+          <button class="btn-edit-title" id="editTitleBtn" aria-label="차 이름 수정">✏️</button>
+        </div>
+        <span class="session-date" id="sessionDateDisplay">2026-07-28</span>
+      </div>
+      <div class="infusion-history" id="infusionHistoryDisplay">
+        1포 20초 · 2포 25초 (총 2포)
+      </div>
+    </div>
+
+    <!-- Tag Chips Grid -->
+    <label class="section-label">오늘 떠오른 단어</label>
+    <div class="tags-grid" id="tagsGrid">
+      <!-- js에서 render -->
+    </div>
+
+    <!-- Note Textarea -->
+    <label class="section-label">조금 더 자세히 적는다면</label>
+    <textarea class="note-textarea" id="noteInput" placeholder="차를 마시며 느낀 점을 자유롭게 적어보세요..."></textarea>
+    <div class="note-guide">
+      <span>💡</span>
+      <span>나만의 비유를 넣거나, 차 마실 때의 분위기나 장소를 간단히 적어보세요.</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-grid">
+      <button class="btn-action" id="draftBtn">💾 임시 저장</button>
+      <button class="btn-action" id="copyBtn">📋 텍스트 복사</button>
+      <button class="btn-action" id="cardBtn">🖼️ 카드 이미지 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generated Card Preview Modal -->
+<div class="card-modal-backdrop" id="cardModalBackdrop">
+  <div class="card-preview-box">
+    <div class="card-header-badge">TIME FOR TEA · TASTING NOTE</div>
+    <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
+    <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
+    <div class="card-tags" id="cardTagsContainer"></div>
+    <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
+    <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
+    <button class="btn-close-card" id="closeCardModalBtn">닫기 및 이미지 저장</button>
   </div>
 </div>
 
@@ -1126,29 +1275,385 @@
     requestAnimationFrame(frame);
   }
 
-  // ---- events ----
-  els.brew.onclick=()=>{
-    if(phase==="idle"){ startBrew(); return; }
-    if(phase==="done"){
-      if(vesselId==="piaoyibei" && !pyDrained){
-        pyDrained=true; els.brew.disabled=true; els.brew.textContent="내리는 중…";
-        drainPiao(()=>{ prepareNextInfusion(); setTeaPickerActive(true, {showPreview:false}); els.brew.disabled=false; els.brew.textContent="다음 泡 우리기"; els.timeLabel.textContent="出湯 · 아래 잔에 차"; });
-        return;
+  // ---- Tea Feeling Notes & Preferences ----
+  const DEFAULT_TAGS = ["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"];
+  let customTags = [...DEFAULT_TAGS];
+  let customTitle = "";
+  let sessionDraftNote = "";
+  let sessionDraftTags = [];
+
+  function loadPreferencesExt(){
+    try{
+      const raw = localStorage.getItem(PREF_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed.customTags) && parsed.customTags.length > 0){
+          customTags = parsed.customTags;
+        }
       }
-      startBrew();
+    }catch(e){}
+  }
+  function savePreferencesExt(){
+    try{
+      const raw = localStorage.getItem(PREF_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      parsed.customTags = customTags;
+      localStorage.setItem(PREF_KEY, JSON.stringify(parsed));
+    }catch(e){}
+  }
+  loadPreferencesExt();
+
+  function getTeaEmoji(name) {
+    if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
+    return '🍃';
+  }
+
+  function showToast(msg) {
+    const toast = $("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+
+  // Render Tags Grid
+  function renderTagsGrid() {
+    const grid = $("tagsGrid");
+    grid.innerHTML = "";
+    customTags.forEach(tag => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "tag-chip" + (sessionDraftTags.includes(tag) ? " active" : "");
+      chip.textContent = "#" + tag;
+      chip.onclick = () => {
+        if(sessionDraftTags.includes(tag)){
+          sessionDraftTags = sessionDraftTags.filter(t => t !== tag);
+          chip.classList.remove("active");
+        } else {
+          sessionDraftTags.push(tag);
+          chip.classList.add("active");
+        }
+      };
+      grid.appendChild(chip);
+    });
+  }
+
+  function updateSummaryCard() {
+    const rawName = customTitle || (tea().name + " · " + vessel().name);
+    const emoji = getTeaEmoji(rawName);
+    $("teaTitleDisplay").textContent = emoji + " " + rawName;
+
+    const today = new Date();
+    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
+    $("sessionDateDisplay").textContent = dateStr;
+
+    if(infusionHistory.length > 0){
+      const historyStr = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" · ");
+      $("infusionHistoryDisplay").textContent = `${historyStr} (총 ${infusionHistory.length}포)`;
+    } else {
+      $("infusionHistoryDisplay").textContent = `우림 완료 기록 없음 (첫 우림 전)`;
+    }
+  }
+
+  // Inline Title Edit
+  $("editTitleBtn").onclick = () => {
+    const display = $("teaTitleDisplay");
+    const currentText = display.textContent.replace(/^[🍃🍂]\s*/, '');
+    const input = document.createElement("input");
+    input.className = "edit-input-inline";
+    input.value = currentText;
+    display.replaceWith(input);
+    input.focus();
+
+    function finishEdit() {
+      const val = input.value.trim() || (tea().name + " · " + vessel().name);
+      customTitle = val;
+      const emoji = getTeaEmoji(val);
+      const newSpan = document.createElement("span");
+      newSpan.className = "tea-title";
+      newSpan.id = "teaTitleDisplay";
+      newSpan.textContent = emoji + " " + val;
+      input.replaceWith(newSpan);
+    }
+    input.onblur = finishEdit;
+    input.onkeydown = (e) => { if(e.key === "Enter") finishEdit(); };
+  };
+
+  // Open & Close Bottom Sheet
+  function openNoteSheet() {
+    renderTagsGrid();
+    updateSummaryCard();
+    $("noteInput").value = sessionDraftNote;
+    $("sheetBackdrop").classList.add("active");
+  }
+  function closeNoteSheet() {
+    sessionDraftNote = $("noteInput").value;
+    $("sheetBackdrop").classList.remove("active");
+  }
+
+  $("note").onclick = openNoteSheet;
+  $("closeSheetBtn").onclick = closeNoteSheet;
+  $("sheetBackdrop").onclick = (e) => { if(e.target === $("sheetBackdrop")) closeNoteSheet(); };
+
+  // Draft Save
+  $("draftBtn").onclick = () => {
+    sessionDraftNote = $("noteInput").value;
+    showToast("임시 저장되었습니다 💾");
+  };
+
+  // Copy Plain Text
+  $("copyBtn").onclick = () => {
+    sessionDraftNote = $("noteInput").value;
+    const rawName = customTitle || (tea().name + " · " + vessel().name);
+    const emoji = getTeaEmoji(rawName);
+    const today = new Date();
+    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
+    
+    let historyLines = "우림 기록이 없습니다.";
+    if(infusionHistory.length > 0){
+      historyLines = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" / ");
+    }
+
+    const tagsLine = sessionDraftTags.length > 0 ? sessionDraftTags.map(t => `#${t}`).join(" ") : "(선택 단어 없음)";
+    const noteLine = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : "(노트 없음)";
+
+    const textToCopy = `[차 한 잔의 시간 시음 노트]
+${emoji} ${rawName}
+📅 ${dateStr} (${infusionHistory.length}포 우림)
+⏱️ ${historyLines}
+🏷️ ${tagsLine}
+💬 ${noteLine}`;
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(textToCopy).then(() => showToast("클립보드에 텍스트가 복사되었습니다 📋")).catch(() => showToast("복사 실패"));
+    } else {
+      showToast("클립보드 미지원 환경");
     }
   };
-  $("reset").onclick=reset;
+
+  // Balanced Tag Rows for Card Image & Preview
+  function getBalancedTagRows(tags) {
+    if (!tags || tags.length === 0) return [];
+    const N = tags.length;
+    let L = 1;
+    if (N <= 4) L = 1;
+    else if (N <= 8) L = 2;
+    else L = 3;
+
+    const baseCount = Math.floor(N / L);
+    const remainder = N % L;
+    const rows = [];
+    let idx = 0;
+    for (let r = 0; r < L; r++) {
+      const count = baseCount + (r < remainder ? 1 : 0);
+      rows.push(tags.slice(idx, idx + count));
+      idx += count;
+    }
+    return rows;
+  }
+
+  // Card Image Generation (Canvas 680x900) & Preview
+  $("cardBtn").onclick = () => {
+    sessionDraftNote = $("noteInput").value;
+    const rawName = customTitle || (tea().name + " · " + vessel().name);
+    const emoji = getTeaEmoji(rawName);
+    const today = new Date();
+    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
+
+    // Update DOM preview modal
+    $("cardTeaName").textContent = emoji + " " + rawName;
+    $("cardInfusions").textContent = `${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`;
+    $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"차 한 잔의 평화로운 순간"`;
+    $("cardFooterDate").textContent = `${dateStr} · 차 한 잔의 시간`;
+
+    const cardTagsContainer = $("cardTagsContainer");
+    cardTagsContainer.innerHTML = "";
+    const tagRows = getBalancedTagRows(sessionDraftTags);
+    if(tagRows.length === 0){
+      cardTagsContainer.style.display = "none";
+    } else {
+      cardTagsContainer.style.display = "flex";
+      tagRows.forEach(row => {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "card-tags-row";
+        row.forEach(t => {
+          const span = document.createElement("span");
+          span.className = "card-tag";
+          span.textContent = "#" + t;
+          rowDiv.appendChild(span);
+        });
+        cardTagsContainer.appendChild(rowDiv);
+      });
+    }
+
+    $("cardModalBackdrop").classList.add("active");
+  };
+
+  $("closeCardModalBtn").onclick = () => {
+    // Generate Canvas PNG Image Download
+    renderAndDownloadCanvasCard();
+    $("cardModalBackdrop").classList.remove("active");
+  };
+  $("cardModalBackdrop").onclick = (e) => {
+    if(e.target === $("cardModalBackdrop")) $("cardModalBackdrop").classList.remove("active");
+  };
+
+  function renderAndDownloadCanvasCard() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 680;
+    canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+
+    // Background Gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, 900);
+    grad.addColorStop(0, "#1c150c");
+    grad.addColorStop(1, "#100b07");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 680, 900);
+
+    // Outer Border
+    ctx.strokeStyle = "#4a3e20";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(30, 30, 620, 840);
+
+    // Inner Line
+    ctx.strokeStyle = "rgba(205,191,99,0.3)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(40, 40, 600, 820);
+
+    // Header Badge
+    ctx.fillStyle = "#cdbf63";
+    ctx.font = "bold 16px 'Space Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("TIME FOR TEA · TASTING NOTE", 340, 110);
+
+    // Tea Name
+    const rawName = customTitle || (tea().name + " · " + vessel().name);
+    const emoji = getTeaEmoji(rawName);
+    ctx.fillStyle = "#efe6d6";
+    ctx.font = "bold 38px 'Gowun Batang', serif";
+    ctx.fillText(emoji + " " + rawName, 340, 185);
+
+    // Infusion Info
+    ctx.fillStyle = "#e4d691";
+    ctx.font = "22px 'Gowun Batang', serif";
+    ctx.fillText(`${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`, 340, 235);
+
+    // History times
+    if(infusionHistory.length > 0){
+      ctx.fillStyle = "#9c8f78";
+      ctx.font = "17px 'Space Mono', monospace";
+      const hStr = infusionHistory.map(h => `${h.n}포:${h.sec}초`).join("  ");
+      ctx.fillText(hStr, 340, 275);
+    }
+
+    // Divider Line
+    ctx.strokeStyle = "rgba(205,191,99,0.2)";
+    ctx.beginPath();
+    ctx.moveTo(120, 310);
+    ctx.lineTo(560, 310);
+    ctx.stroke();
+
+    // Balanced Tag Rows (Canvas)
+    const tagRows = getBalancedTagRows(sessionDraftTags);
+    let startY = 370;
+    ctx.font = "bold 20px 'Gowun Batang', serif";
+
+    tagRows.forEach(row => {
+      let rowWidth = 0;
+      const chipWidths = row.map(t => ctx.measureText("#" + t).width + 30);
+      const gap = 12;
+      rowWidth = chipWidths.reduce((a, b) => a + b, 0) + (row.length - 1) * gap;
+      let startX = (680 - rowWidth) / 2;
+
+      row.forEach((t, i) => {
+        const w = chipWidths[i];
+        const h = 38;
+        // Option 3: Soft Fill Badge (No Border)
+        ctx.fillStyle = "rgba(205,191,99,0.16)";
+        ctx.beginPath();
+        ctx.roundRect(startX, startY - 26, w, h, 6);
+        ctx.fill();
+
+        ctx.fillStyle = "#e4d691";
+        ctx.textAlign = "center";
+        ctx.fillText("#" + t, startX + w / 2, startY);
+
+        startX += w + gap;
+      });
+      startY += 52;
+    });
+
+    // Note Quote Box
+    const noteText = sessionDraftNote.trim() || "차 한 잔의 평화로운 순간";
+    const quoteY = Math.max(startY + 30, 560);
+
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillRect(80, quoteY, 520, 140);
+    ctx.strokeStyle = "#cdbf63";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(80, quoteY);
+    ctx.lineTo(80, quoteY + 140);
+    ctx.stroke();
+
+    ctx.fillStyle = "#efe6d6";
+    ctx.font = "italic 22px 'Gowun Batang', serif";
+    ctx.textAlign = "left";
+    
+    // Multi-line note text wrapping
+    const words = noteText.split("");
+    let line = "";
+    let lineY = quoteY + 45;
+    for(let n = 0; n < words.length; n++){
+      const testLine = line + words[n];
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > 460 && n > 0) {
+        ctx.fillText(line, 110, lineY);
+        line = words[n];
+        lineY += 36;
+        if(lineY > quoteY + 120) break;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, 110, lineY);
+
+    // Footer Date & Brand
+    const today = new Date();
+    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
+    ctx.fillStyle = "#7d715c";
+    ctx.font = "18px 'Gowun Batang', serif";
+    ctx.textAlign = "center";
+    ctx.fillText(`${dateStr} · 차 한 잔의 시간`, 340, 830);
+
+    // Download PNG
+    try {
+      const link = document.createElement("a");
+      link.download = `tea-feeling-${dateStr}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      showToast("카드 이미지가 저장되었습니다 🖼️");
+    } catch(e) {
+      showToast("이미지 저장 실패");
+    }
+  }
+
+  // Session Reset ("우림 끝" Button)
+  $("reset").onclick = () => {
+    if(infusionHistory.length > 0){
+      showToast("오늘의 차 세션을 마감했습니다 🍵");
+    }
+    customTitle = "";
+    sessionDraftNote = "";
+    sessionDraftTags = [];
+    reset();
+  };
+
   $("vesselPrev").onclick=()=>selectVessel(-1);
   $("vesselNext").onclick=()=>selectVessel(1);
   $("teaPrev").onclick=()=>selectTea(teaIdx-1);
   $("teaNext").onclick=()=>selectTea(teaIdx+1);
   $("mute").onclick=function(){ muted=!muted; this.classList.toggle("muted",muted); this.setAttribute("aria-pressed",muted); this.setAttribute("aria-label",muted?"소리 켜기":"소리 끄기"); savePreferences(); if(!muted) void tone(880,.5,.12); };
-  $("note").onclick=openNoteModal;
-  $("noteClose").onclick=closeNoteModal;
-  $("noteDismiss").onclick=closeNoteModal;
-  els.noteModal.addEventListener("click",e=>{ if(e.target===els.noteModal) closeNoteModal(); });
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!els.noteModal.hidden) closeNoteModal(); });
 
   // swipe on hero for vessel
   let sx=0; els.hero.addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; },{passive:true});
