@@ -48,7 +48,7 @@
     min-width:78px; padding:0 .2rem; font-family:inherit; font-size:1.15rem;
   }
   .top-actions .help-link{
-    width:44px; font-family:"Gowun Batang",serif; font-size:1.12rem; font-weight:700;
+    min-width:44px; padding:0 .2rem; font-family:inherit; font-size:1.15rem;
   }
   .top-actions button:active, .top-actions a:active{ color:var(--gold-soft); }
   .hdr{ text-align:center; flex:0 0 auto; }
@@ -235,8 +235,8 @@
 <body>
 <div class="app">
   <div class="top-actions">
-    <button class="reset-top" id="reset">처음부터</button>
-    <a class="help-link" href="help.html" aria-label="도움말 열기" title="도움말">ⓘ</a>
+    <button class="reset-top" id="reset">우림 끝</button>
+    <a class="help-link" href="help.html" aria-label="사용법 열기" title="사용법">사용법</a>
   </div>
 
   <div class="hdr">
@@ -398,7 +398,7 @@
           <path class="slash" d="M3 3l18 18"/>
         </svg>
       </button>
-      <button class="note-button" id="note" aria-label="이번 차의 느낌 남기기" title="이번 차의 느낌">
+      <button class="note-button" id="note" aria-label="차 느낌 남기기" title="차 느낌">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20h9"/>
           <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
