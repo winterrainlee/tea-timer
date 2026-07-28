@@ -1,1735 +1,2736 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#120d09">
-<title>차 한 잔의 시간 · Time for Tea</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg-0:#120d09; --bg-1:#1d150e; --glow:#37301a;
-    --gold:#cdbf63; --gold-soft:#e4d691; --gold-line:#6b5f30;
-    --ink:#efe6d6; --ink-dim:#9c8f78; --ink-faint:#7d715c; --line:#3a3322; --track:#4a4128;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    background:radial-gradient(120% 75% at 50% 30%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 82%);
-    color:var(--ink); font-family:"Gowun Batang",serif;
-    min-height:100%; overflow:hidden; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-  }
-  .app{
-    position:relative; width:min(100vw,460px); margin:0 auto; min-height:100%;
-    display:flex; flex-direction:column; gap:.45rem;
-    padding:calc(.85rem + env(safe-area-inset-top)) 1.05rem calc(.85rem + env(safe-area-inset-bottom));
-  }
-  .sr-only{
-    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
-    clip:rect(0,0,0,0); clip-path:inset(50%); white-space:nowrap; border:0;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#120d09">
+  <title>차 한 잔의 시간 · Time for Tea</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-0: #120d09;
+      --bg-1: #1d150e;
+      --glow: #37301a;
+      --gold: #cdbf63;
+      --gold-soft: #e4d691;
+      --gold-line: #6b5f30;
+      --ink: #efe6d6;
+      --ink-dim: #9c8f78;
+      --ink-faint: #7d715c;
+      --line: #3a3322;
+      --track: #4a4128;
+    }
 
-  /* header */
-  .top-actions{
-    position:absolute; top:calc(.65rem + env(safe-area-inset-top)); left:.8rem; right:.8rem; z-index:30;
-    display:flex; align-items:center; justify-content:space-between; pointer-events:none;
-  }
-  .top-actions button, .top-actions a{
-    pointer-events:auto; min-height:44px; border:0; background:none; color:var(--ink-dim); cursor:pointer;
-    display:inline-flex; align-items:center; justify-content:center; text-decoration:none;
-  }
-  .top-actions .reset-top{
-    min-width:78px; padding:0 .2rem; font-family:inherit; font-size:1.15rem;
-  }
-  .top-actions .help-link{
-    min-width:44px; padding:0 .2rem; font-family:inherit; font-size:1.15rem;
-  }
-  .top-actions button:active, .top-actions a:active{ color:var(--gold-soft); }
-  .hdr{ text-align:center; flex:0 0 auto; }
-  .hdr .title{ font-size:1.18rem; font-weight:700; color:var(--gold-soft); letter-spacing:.06em; }
-  .hdr .sub{ font-family:"Space Mono",monospace; font-size:.62rem; letter-spacing:.18em; color:var(--ink-dim); margin-top:.18rem; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-  /* tea first */
-  .tea-picker{
-    position:relative; z-index:12; flex:0 0 auto; margin-top:1.05rem;
-    display:flex; flex-direction:column; align-items:center; width:100%;
-  }
+    html,
+    body {
+      height: 100%
+    }
 
-  /* hero */
-  .hero{ position:relative; flex:1 1 auto; min-height:195px; display:flex; align-items:center; justify-content:center; margin-top:.1rem; margin-bottom:.1rem; }
-  .hero svg.stage{ width:100%; height:100%; max-height:42vh; display:block; }
-  .halo{ position:absolute; left:50%; top:48%; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; opacity:0; transition:opacity .4s; }
-  .halo.h1{ width:54%; aspect-ratio:1; border:2px solid rgba(205,191,99,.5); }
-  .halo.h2{ width:40%; aspect-ratio:1; border:1.5px solid rgba(228,214,145,.45); }
-  .urgent .halo{ animation:halo 1s ease-in-out infinite; }
-  .urgent .halo.h2{ animation-delay:.25s; }
-  @keyframes halo{ 0%,100%{opacity:.2;transform:translate(-50%,-50%) scale(1)} 50%{opacity:.55;transform:translate(-50%,-50%) scale(1.08)} }
+    body {
+      background: radial-gradient(120% 75% at 50% 30%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 82%);
+      color: var(--ink);
+      font-family: "Gowun Batang", serif;
+      min-height: 100%;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
 
-  .readout{ position:absolute; left:0; right:0; top:var(--readout-top,18%); transform:translateY(-50%); text-align:center; pointer-events:none; }
-  .readout .time{ font-family:"Space Mono",monospace; font-weight:700; font-size:2.2rem; letter-spacing:.02em; color:var(--ink); text-shadow:0 1px 8px rgba(0,0,0,.78); transition:color .3s; }
-  .readout.done .time, .urgent .readout .time{ color:var(--gold-soft); }
-  .urgent .readout .time{ animation:num 1s ease-in-out infinite; }
-  @keyframes num{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-  .message{ position:absolute; top:1.5%; left:50%; transform:translateX(-50%); font-size:.9rem; letter-spacing:.08em; color:var(--ink-dim); white-space:nowrap; text-align:center; text-shadow:0 1px 6px rgba(0,0,0,.7); transition:color .3s; z-index:6; }
-  .message:empty{ display:none; }
-  .message.gold{ color:var(--gold-soft); text-shadow:0 0 12px rgba(228,214,145,.45); }
-  .tea-preview{
-    position:relative; left:auto; top:auto; transform:none; z-index:5; width:min(70%,270px); aspect-ratio:5/1;
-    margin-top:.2rem; margin-bottom:.15rem; pointer-events:none; opacity:.9;
-    transition:opacity .24s ease, transform .24s ease; filter:drop-shadow(0 8px 12px rgba(0,0,0,.42));
-  }
-  .tea-preview.hide{ opacity:0; transform:translateY(-6px); }
-  .tea-preview .chahe{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:.94; }
-  .tea-preview .dry-leaves{
-    position:absolute; left:24%; top:14%; width:52%; height:68%; overflow:visible;
-    filter:drop-shadow(0 1px 1px rgba(0,0,0,.42));
-  }
-  .tea-picker.locked .tea-preview{ opacity:.35; transform:none; }
-  .tea-picker.locked .dots, .tea-picker.locked .chev, .tea-picker.locked .ghost{ opacity:0; pointer-events:none; }
-  .tea-picker.locked .cur{ color:var(--ink-dim); text-shadow:none; }
-  .vessel-nav{
-    position:absolute; top:55%; transform:translateY(-50%); z-index:7;
-    width:44px; height:44px; border:0; background:none; color:var(--ink-dim);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-  }
-  .vessel-nav.prev{ left:-.25rem; }
-  .vessel-nav.next{ right:-.25rem; }
-  .vessel-nav svg{ width:22px; height:22px; }
-  /* controls */
-  .controls{ flex:0 0 auto; display:flex; flex-direction:column; gap:.42rem; }
-  .carousel{ position:relative; display:flex; align-items:center; gap:.25rem; padding:0 3rem; width:100%; }
-  .carousel .chev{ position:absolute; top:50%; z-index:8; transform:translateY(-50%); background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; transition:opacity .2s; }
-  .carousel .chev:first-child{ left:0; }
-  .carousel .chev:last-child{ right:0; }
-  .carousel .chev svg{ width:20px; height:20px; }
-  .carousel .track{
-    flex:1; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-    align-items:center; column-gap:.72rem; overflow:hidden; height:36px;
-  }
-  .carousel .ghost{ font-size:.72rem; color:var(--ink-faint); opacity:.55; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .carousel .ghost:first-child{ text-align:right; }
-  .carousel .ghost:last-child{ text-align:left; }
-  .carousel .cur{
-    display:inline-flex; align-items:center; justify-content:center; gap:.42rem;
-    flex:none; white-space:nowrap; padding:0 .35rem; color:var(--gold-soft);
-    font-size:1.04rem; font-weight:700; letter-spacing:.02em; text-shadow:0 0 10px rgba(228,214,145,.22);
-  }
-  .carousel .cur .tea-dot{
-    width:8px; height:8px; border-radius:50%; flex:none; box-shadow:0 0 8px rgba(228,214,145,.22);
-  }
-  .dots{ position:relative; left:auto; right:auto; top:auto; display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:.1rem; transition:opacity .2s; }
-  .dots i{ width:5px; height:5px; border-radius:50%; background:var(--track); transition:width .2s,background .2s; }
-  .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
+    .app {
+      position: relative;
+      width: min(100vw, 460px);
+      margin: 0 auto;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      padding: calc(.85rem + env(safe-area-inset-top)) 1.05rem calc(.85rem + env(safe-area-inset-bottom));
+    }
 
-  .slider-row{ padding:.08rem 0 .12rem; margin-top:0; }
-  .slider-row .top{ display:flex; align-items:center; justify-content:center; gap:.45rem; font-size:.96rem; color:var(--ink-dim); margin-bottom:.08rem; }
-  .slider-row .temp-hint{
-    font-family:"Space Mono",monospace; font-size:.768rem; letter-spacing:.05em; color:var(--gold-soft);
-    opacity:.86; transform:translateY(.02rem);
-  }
-  .infusion-line{
-    min-height:1rem; margin-bottom:.18rem; color:var(--ink-faint); font-size:.92rem; text-align:center;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em;
-  }
-  .slider-row .val{
-    display:block; text-align:center; font-family:"Gowun Batang",serif; font-weight:700;
-    font-size:2.25rem; line-height:1; color:var(--gold-soft); margin:0 0 .28rem;
-    text-shadow:0 1px 10px rgba(0,0,0,.45);
-  }
-  .slider-row .val .val-suffix{
-    font-size:1.05rem; font-weight:400; color:var(--ink-dim); margin-left:.45rem; letter-spacing:.06em;
-  }
-  .slider-line{ display:flex; align-items:center; gap:.75rem; }
-  .range-wrap{ position:relative; flex:1; display:flex; align-items:center; }
-  .recommended-mark{
-    position:absolute; left:calc(15px + (100% - 30px)*var(--recommended-f,.13)); top:50%; z-index:2;
-    width:2px; height:14px; border-radius:2px; background:rgba(239,230,214,.5);
-    box-shadow:0 0 0 1px rgba(18,13,9,.45);
-    transform:translate(-50%,-50%); pointer-events:none;
-  }
-  .step{ width:44px; height:44px; flex:none; border-radius:50%; border:0.5px solid var(--line); background:rgba(255,255,255,.02); color:var(--ink-dim); font-size:1.35rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .step:active{ background:rgba(255,255,255,.06); }
-  .step:disabled{ opacity:.45; cursor:default; }
-  input[type=range]{
-    -webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:999px; outline:none;
-    background:linear-gradient(90deg,var(--gold) 0%,var(--gold) var(--p,20%),var(--track) var(--p,20%),var(--track) 100%);
-  }
-  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:30px; height:30px; border-radius:50%; background:var(--gold-soft); border:2px solid #2a2414; box-shadow:0 0 10px rgba(205,191,99,.55); cursor:pointer; }
-  input[type=range]::-moz-range-thumb{ width:30px; height:30px; border-radius:50%; background:var(--gold-soft); border:2px solid #2a2414; cursor:pointer; }
-  input[type=range]:disabled{ opacity:.45; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
 
-  .brew{ width:100%; font-family:"Gowun Batang",serif; font-weight:700; letter-spacing:.1em; font-size:.98rem; color:var(--bg-0); background:linear-gradient(180deg,var(--gold-soft),var(--gold)); border:none; border-radius:999px; padding:.75rem 0; cursor:pointer; transition:filter .15s,transform .1s,opacity .2s; }
-  .brew:active{ transform:translateY(1px); }
-  .brew[disabled]{ opacity:.5; filter:grayscale(.25); cursor:default; background:none; border:0.5px solid var(--line); color:var(--ink-dim); }
+    /* header */
+    .top-actions {
+      position: absolute;
+      top: calc(.65rem + env(safe-area-inset-top));
+      left: .8rem;
+      right: .8rem;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
 
-  .footer{ display:flex; align-items:center; justify-content:space-between; font-size:.88rem; color:var(--ink-dim); margin-top:1.05rem; padding-bottom:.45rem; }
-  .footer button{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-family:"Gowun Batang",serif; font-size:.88rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center; gap:.35rem; min-height:44px; padding:0 .2rem; }
-  .footer button:active{ color:var(--gold-soft); }
-  .footer button svg{ width:16px; height:16px; }
-  .footer button.muted .wave{ opacity:0; }
-  .footer button .slash{ opacity:0; }
-  .footer button.muted .slash{ opacity:1; }
+    .top-actions button,
+    .top-actions a {
+      pointer-events: auto;
+      min-height: 44px;
+      border: 0;
+      background: none;
+      color: var(--ink-dim);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
 
-  .modal-backdrop{
-    position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center;
-    padding:1rem; background:rgba(6,4,2,.58); backdrop-filter:blur(5px);
-  }
-  .modal-backdrop[hidden]{ display:none; }
-  .support-modal{
-    position:relative; width:min(100%,330px); border:1px solid rgba(205,191,99,.28); border-radius:8px;
-    background:linear-gradient(180deg,rgba(37,28,18,.98),rgba(20,14,9,.98)); color:var(--ink);
-    padding:1.35rem 1.2rem 1.15rem; box-shadow:0 20px 48px rgba(0,0,0,.52);
-    text-align:center;
-  }
-  .support-modal h2{ font-size:1.12rem; color:var(--gold-soft); margin-bottom:.72rem; }
-  .support-modal p{ font-size:.94rem; line-height:1.62; color:var(--ink); word-break:keep-all; }
-  .modal-close{
-    position:absolute; top:.35rem; right:.38rem; width:44px; height:44px; border:0; background:none;
-    color:var(--ink-dim); cursor:pointer; font-size:1.3rem; line-height:1;
-  }
-  .modal-actions{ display:flex; align-items:center; justify-content:center; gap:.55rem; margin-top:1.1rem; }
-  .modal-actions[hidden], .modal-actions button[hidden]{ display:none; }
-  .modal-actions button{
-    min-height:42px; border-radius:8px; border:1px solid var(--gold-line); padding:0 .95rem;
-    font-family:inherit; font-size:.92rem; cursor:pointer;
-  }
-  .modal-primary{ background:var(--gold-soft); color:var(--bg-0); }
-  .modal-ghost{ background:transparent; color:var(--ink-dim); }
+    .top-actions .reset-top {
+      min-width: 78px;
+      padding: 0 .2rem;
+      font-family: inherit;
+      font-size: 1.15rem;
+    }
 
-  .flash{ position:fixed; inset:0; background:#fffae4; opacity:0; pointer-events:none; z-index:50; }
-  .flash.go{ animation:flash 1.4s ease-out 1; }
-  @keyframes flash{ 0%{opacity:0} 12%{opacity:.5} 100%{opacity:0} }
+    .top-actions .help-link {
+      min-width: 44px;
+      padding: 0 .2rem;
+      font-family: inherit;
+      font-size: 1.15rem;
+    }
 
-  @media (prefers-reduced-motion: reduce){
-    .urgent .halo,.urgent .readout .time{ animation:none; }
-    .flash.go{ animation:none; }
-  }
-  @media (max-height: 720px){
-    .app{ gap:.34rem; padding:calc(.7rem + env(safe-area-inset-top)) .95rem calc(.7rem + env(safe-area-inset-bottom)); }
-    .hdr .title{ font-size:1.05rem; }
-    .hdr .sub{ margin-top:.12rem; }
-    .hero{ min-height:160px; }
-    .hero svg.stage{ max-height:35vh; }
-    .tea-picker{ margin-top:.32rem; }
-    .tea-preview{ top:2.55rem; width:min(66%,248px); opacity:.86; }
-    .controls{ gap:.42rem; }
-    .carousel{ padding:0 2.7rem; }
-    .carousel .chev{ top:2.55rem; }
-    .carousel .track{ height:34px; }
-    .dots{ top:5.45rem; }
-    .slider-row{ margin-top:0; }
-    .slider-row .top{ font-size:.936rem; gap:.38rem; }
-    .slider-row .temp-hint{ font-size:.696rem; }
-    .infusion-line{ font-size:.864rem; margin-bottom:.2rem; }
-    .slider-row .val{ font-size:2.28rem; margin-bottom:.3rem; }
-    .step{ width:44px; height:44px; }
-    input[type=range]::-webkit-slider-thumb{ width:26px; height:26px; }
-    input[type=range]::-moz-range-thumb{ width:26px; height:26px; }
-    .brew{ padding:.78rem 0; }
-  }
+    .top-actions button:active,
+    .top-actions a:active {
+      color: var(--gold-soft);
+    }
 
-  /* Bottom Sheet Modal for Tea Feeling Notes */
-  .sheet-backdrop {
-    position: fixed; inset: 0; z-index: 100; background: rgba(6, 4, 2, 0.72); backdrop-filter: blur(8px);
-    display: flex; align-items: flex-end; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.28s ease;
-  }
-  .sheet-backdrop.active { opacity: 1; pointer-events: auto; }
-  .sheet-container {
-    width: min(100vw, 440px); max-height: 88vh; background: #1a140d; border: 1px solid var(--line);
-    border-radius: 20px 20px 0 0; padding: 1.25rem 1.15rem 1.4rem; overflow-y: auto;
-    transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.6); color: var(--ink);
-  }
-  .sheet-backdrop.active .sheet-container { transform: translateY(0); }
-  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 1rem; }
-  .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; }
-  .sheet-title { font-size: 1.12rem; font-weight: 700; color: var(--gold-soft); letter-spacing: 0.04em; }
-  .btn-close-sheet { background: none; border: none; color: var(--ink-dim); font-size: 1.4rem; cursor: pointer; padding: 0.2rem 0.5rem; }
+    .hdr {
+      text-align: center;
+      flex: 0 0 auto;
+    }
 
-  /* Summary Card */
-  .summary-card {
-    background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px;
-    padding: 0.85rem 1rem; margin-bottom: 1.2rem;
-  }
-  .summary-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
-  .tea-info-group { display: flex; align-items: center; gap: 0.4rem; }
-  .tea-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
-  .btn-edit-title { background: none; border: none; color: var(--ink-dim); cursor: pointer; padding: 2px 4px; font-size: 0.85rem; }
-  .btn-edit-title:hover { color: var(--gold-soft); }
-  .session-date { font-family: "Space Mono", monospace; font-size: 0.78rem; color: var(--ink-dim); }
-  .infusion-history { font-size: 0.88rem; color: var(--gold-soft); letter-spacing: 0.02em; }
-  .edit-input-inline {
-    background: #120d09; border: 1px solid var(--gold-line); color: var(--gold-soft);
-    font-family: inherit; font-size: 0.95rem; padding: 0.2rem 0.4rem; border-radius: 4px; width: 180px;
-  }
+    .hdr .title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--gold-soft);
+      letter-spacing: .06em;
+    }
 
-  /* Section Styles */
-  .section-label { font-size: 0.92rem; font-weight: 700; color: var(--ink-dim); margin-bottom: 0.6rem; display: block; }
-  
-  /* Tag Chips Grid (Option 3: Borderless Soft Fill Badge) */
-  .tags-grid { display: flex; flex-wrap: wrap; gap: 0.35rem 0.4rem; margin-bottom: 1.25rem; }
-  .tag-chip {
-    min-height: 30px; padding: 0.22rem 0.55rem; border-radius: 4px; border: none;
-    background: rgba(255,255,255,0.05); color: var(--ink-dim); font-family: inherit; font-size: 0.84rem;
-    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
-    user-select: none;
-  }
-  .tag-chip.active {
-    color: var(--gold-soft); background: rgba(205, 191, 99, 0.22);
-    box-shadow: 0 0 10px rgba(205, 191, 99, 0.25); font-weight: 700;
-  }
+    .hdr .sub {
+      font-family: "Space Mono", monospace;
+      font-size: .62rem;
+      letter-spacing: .18em;
+      color: var(--ink-dim);
+      margin-top: .18rem;
+    }
 
-  /* Note Textarea */
-  .note-textarea {
-    width: 100%; min-height: 80px; background: rgba(0,0,0,0.25); border: 1px solid var(--line);
-    border-radius: 10px; padding: 0.75rem; color: var(--ink); font-family: inherit; font-size: 0.88rem;
-    line-height: 1.5; resize: none; outline: none; margin-bottom: 1.15rem; transition: border-color 0.2s;
-  }
-  .note-textarea:focus { border-color: var(--gold-line); }
+    /* tea first */
+    .tea-picker {
+      position: relative;
+      z-index: 12;
+      flex: 0 0 auto;
+      margin-top: 1.05rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
 
-  /* Action Buttons */
-  .action-grid { display: grid; grid-template-columns: 1fr 1.1fr 1.3fr; gap: 0.45rem; }
-  .btn-action {
-    min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.04);
-    color: var(--ink); font-family: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 0.25rem; transition: all 0.15s;
-  }
-  .btn-action:active { background: rgba(205, 191, 99, 0.15); border-color: var(--gold-soft); color: var(--gold-soft); }
+    /* hero */
+    .hero {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 195px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: .1rem;
+      margin-bottom: .1rem;
+    }
 
-  /* Toast Notification */
-  .toast {
-    position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%) translateY(-20px);
-    background: rgba(37, 28, 18, 0.95); border: 1px solid var(--gold); color: var(--gold-soft);
-    padding: 0.6rem 1.2rem; border-radius: 999px; font-size: 0.88rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 200;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hero svg.stage {
+      width: 100%;
+      height: 100%;
+      max-height: 42vh;
+      display: block;
+    }
 
-  /* Generated Card Preview Overlay */
-  .card-modal-backdrop {
-    position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
-    display: flex; align-items: center; justify-content: center; padding: 1rem;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s;
-  }
-  .card-modal-backdrop.active { opacity: 1; pointer-events: auto; }
-  .card-preview-box {
-    width: min(100%, 340px); background: #18120b; border: 1px solid var(--gold-line); border-radius: 16px;
-    padding: 1.4rem; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); position: relative;
-  }
-  .card-header-badge { font-family: "Space Mono", monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 1rem; }
-  .card-tea-name { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-bottom: 0.3rem; }
-  .card-infusions { font-size: 0.85rem; color: var(--gold-soft); margin-bottom: 1rem; }
-  .card-tags { display: flex; flex-direction: column; gap: 0.35rem; align-items: center; margin-bottom: 1rem; }
-  .card-tags-row { display: flex; gap: 0.35rem; justify-content: center; width: 100%; }
-  .card-tag { font-size: 0.78rem; background: rgba(205,191,99,0.14); color: var(--gold-soft); border: none; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 700; }
-  .card-note-quote { font-size: 0.9rem; font-style: italic; color: var(--ink); line-height: 1.5; border-left: 2px solid var(--gold); padding-left: 0.8rem; margin: 1rem 0; text-align: left; }
-  .card-footer-date { font-size: 0.72rem; color: var(--ink-faint); margin-top: 1.2rem; }
-  .btn-close-card { margin-top: 1.2rem; width: 100%; padding: 0.7rem 0; border-radius: 8px; border: none; background: var(--gold-soft); color: var(--bg-0); font-family: inherit; font-weight: 700; cursor: pointer; }
-</style>
+    .halo {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    .halo.h1 {
+      width: 54%;
+      aspect-ratio: 1;
+      border: 2px solid rgba(205, 191, 99, .5);
+    }
+
+    .halo.h2 {
+      width: 40%;
+      aspect-ratio: 1;
+      border: 1.5px solid rgba(228, 214, 145, .45);
+    }
+
+    .urgent .halo {
+      animation: halo 1s ease-in-out infinite;
+    }
+
+    .urgent .halo.h2 {
+      animation-delay: .25s;
+    }
+
+    @keyframes halo {
+
+      0%,
+      100% {
+        opacity: .2;
+        transform: translate(-50%, -50%) scale(1)
+      }
+
+      50% {
+        opacity: .55;
+        transform: translate(-50%, -50%) scale(1.08)
+      }
+    }
+
+    .readout {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: var(--readout-top, 18%);
+      transform: translateY(-50%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .readout .time {
+      font-family: "Space Mono", monospace;
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: .02em;
+      color: var(--ink);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, .78);
+      transition: color .3s;
+    }
+
+    .readout.done .time,
+    .urgent .readout .time {
+      color: var(--gold-soft);
+    }
+
+    .urgent .readout .time {
+      animation: num 1s ease-in-out infinite;
+    }
+
+    @keyframes num {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.1)
+      }
+    }
+
+    .message {
+      position: absolute;
+      top: 1.5%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: .9rem;
+      letter-spacing: .08em;
+      color: var(--ink-dim);
+      white-space: nowrap;
+      text-align: center;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .7);
+      transition: color .3s;
+      z-index: 6;
+    }
+
+    .message:empty {
+      display: none;
+    }
+
+    .message.gold {
+      color: var(--gold-soft);
+      text-shadow: 0 0 12px rgba(228, 214, 145, .45);
+    }
+
+    .tea-preview {
+      position: relative;
+      left: auto;
+      top: auto;
+      transform: none;
+      z-index: 5;
+      width: min(70%, 270px);
+      aspect-ratio: 5/1;
+      margin-top: .2rem;
+      margin-bottom: .15rem;
+      pointer-events: none;
+      opacity: .9;
+      transition: opacity .24s ease, transform .24s ease;
+      filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .42));
+    }
+
+    .tea-preview.hide {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    .tea-preview .chahe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: .94;
+    }
+
+    .tea-preview .dry-leaves {
+      position: absolute;
+      left: 24%;
+      top: 14%;
+      width: 52%;
+      height: 68%;
+      overflow: visible;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .42));
+    }
+
+    .tea-picker.locked .tea-preview {
+      opacity: .35;
+      transform: none;
+    }
+
+    .tea-picker.locked .dots,
+    .tea-picker.locked .chev,
+    .tea-picker.locked .ghost {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .tea-picker.locked .cur {
+      color: var(--ink-dim);
+      text-shadow: none;
+    }
+
+    .vessel-nav {
+      position: absolute;
+      top: 55%;
+      transform: translateY(-50%);
+      z-index: 7;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      background: none;
+      color: var(--ink-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .vessel-nav.prev {
+      left: -.25rem;
+    }
+
+    .vessel-nav.next {
+      right: -.25rem;
+    }
+
+    .vessel-nav svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* controls */
+    .controls {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: .42rem;
+    }
+
+    .carousel {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      padding: 0 3rem;
+      width: 100%;
+    }
+
+    .carousel .chev {
+      position: absolute;
+      top: 50%;
+      z-index: 8;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--ink-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0;
+      transition: opacity .2s;
+    }
+
+    .carousel .chev:first-child {
+      left: 0;
+    }
+
+    .carousel .chev:last-child {
+      right: 0;
+    }
+
+    .carousel .chev svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .carousel .track {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: .72rem;
+      overflow: hidden;
+      height: 36px;
+    }
+
+    .carousel .ghost {
+      font-size: .72rem;
+      color: var(--ink-faint);
+      opacity: .55;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .carousel .ghost:first-child {
+      text-align: right;
+    }
+
+    .carousel .ghost:last-child {
+      text-align: left;
+    }
+
+    .carousel .cur {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .42rem;
+      flex: none;
+      white-space: nowrap;
+      padding: 0 .35rem;
+      color: var(--gold-soft);
+      font-size: 1.04rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      text-shadow: 0 0 10px rgba(228, 214, 145, .22);
+    }
+
+    .carousel .cur .tea-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: none;
+      box-shadow: 0 0 8px rgba(228, 214, 145, .22);
+    }
+
+    .dots {
+      position: relative;
+      left: auto;
+      right: auto;
+      top: auto;
+      display: flex;
+      gap: .25rem;
+      justify-content: center;
+      align-items: center;
+      margin-top: .1rem;
+      transition: opacity .2s;
+    }
+
+    .dots i {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--track);
+      transition: width .2s, background .2s;
+    }
+
+    .dots i.on {
+      width: 13px;
+      border-radius: 3px;
+      background: var(--gold);
+    }
+
+    .slider-row {
+      padding: .08rem 0 .12rem;
+      margin-top: 0;
+    }
+
+    .slider-row .top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45rem;
+      font-size: .96rem;
+      color: var(--ink-dim);
+      margin-bottom: .08rem;
+    }
+
+    .slider-row .temp-hint {
+      font-family: "Space Mono", monospace;
+      font-size: .768rem;
+      letter-spacing: .05em;
+      color: var(--gold-soft);
+      opacity: .86;
+      transform: translateY(.02rem);
+    }
+
+    .infusion-line {
+      min-height: 1rem;
+      margin-bottom: .18rem;
+      color: var(--ink-faint);
+      font-size: .92rem;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: .04em;
+    }
+
+    .slider-row .val {
+      display: block;
+      text-align: center;
+      font-family: "Gowun Batang", serif;
+      font-weight: 700;
+      font-size: 2.25rem;
+      line-height: 1;
+      color: var(--gold-soft);
+      margin: 0 0 .28rem;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, .45);
+    }
+
+    .slider-row .val .val-suffix {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--ink-dim);
+      margin-left: .45rem;
+      letter-spacing: .06em;
+    }
+
+    .slider-line {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .range-wrap {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .recommended-mark {
+      position: absolute;
+      left: calc(15px + (100% - 30px)*var(--recommended-f, .13));
+      top: 50%;
+      z-index: 2;
+      width: 2px;
+      height: 14px;
+      border-radius: 2px;
+      background: rgba(239, 230, 214, .5);
+      box-shadow: 0 0 0 1px rgba(18, 13, 9, .45);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .step {
+      width: 44px;
+      height: 44px;
+      flex: none;
+      border-radius: 50%;
+      border: 0.5px solid var(--line);
+      background: rgba(255, 255, 255, .02);
+      color: var(--ink-dim);
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step:active {
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .step:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold) var(--p, 20%), var(--track) var(--p, 20%), var(--track) 100%);
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--gold-soft);
+      border: 2px solid #2a2414;
+      box-shadow: 0 0 10px rgba(205, 191, 99, .55);
+      cursor: pointer;
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--gold-soft);
+      border: 2px solid #2a2414;
+      cursor: pointer;
+    }
+
+    input[type=range]:disabled {
+      opacity: .45;
+    }
+
+    .brew {
+      width: 100%;
+      font-family: "Gowun Batang", serif;
+      font-weight: 700;
+      letter-spacing: .1em;
+      font-size: .98rem;
+      color: var(--bg-0);
+      background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+      border: none;
+      border-radius: 999px;
+      padding: .75rem 0;
+      cursor: pointer;
+      transition: filter .15s, transform .1s, opacity .2s;
+    }
+
+    .brew:active {
+      transform: translateY(1px);
+    }
+
+    .brew[disabled] {
+      opacity: .5;
+      filter: grayscale(.25);
+      cursor: default;
+      background: none;
+      border: 0.5px solid var(--line);
+      color: var(--ink-dim);
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .88rem;
+      color: var(--ink-dim);
+      margin-top: 1.05rem;
+      padding-bottom: .45rem;
+    }
+
+    .footer button {
+      background: none;
+      border: none;
+      color: var(--ink-dim);
+      cursor: pointer;
+      font-family: "Gowun Batang", serif;
+      font-size: .88rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      min-height: 44px;
+      padding: 0 .2rem;
+    }
+
+    .footer button:active {
+      color: var(--gold-soft);
+    }
+
+    .footer button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .footer button.muted .wave {
+      opacity: 0;
+    }
+
+    .footer button .slash {
+      opacity: 0;
+    }
+
+    .footer button.muted .slash {
+      opacity: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(6, 4, 2, .58);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .support-modal {
+      position: relative;
+      width: min(100%, 330px);
+      border: 1px solid rgba(205, 191, 99, .28);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(37, 28, 18, .98), rgba(20, 14, 9, .98));
+      color: var(--ink);
+      padding: 1.35rem 1.2rem 1.15rem;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, .52);
+      text-align: center;
+    }
+
+    .support-modal h2 {
+      font-size: 1.12rem;
+      color: var(--gold-soft);
+      margin-bottom: .72rem;
+    }
+
+    .support-modal p {
+      font-size: .94rem;
+      line-height: 1.62;
+      color: var(--ink);
+      word-break: keep-all;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: .35rem;
+      right: .38rem;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      background: none;
+      color: var(--ink-dim);
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      margin-top: 1.1rem;
+    }
+
+    .modal-actions[hidden],
+    .modal-actions button[hidden] {
+      display: none;
+    }
+
+    .modal-actions button {
+      min-height: 42px;
+      border-radius: 8px;
+      border: 1px solid var(--gold-line);
+      padding: 0 .95rem;
+      font-family: inherit;
+      font-size: .92rem;
+      cursor: pointer;
+    }
+
+    .modal-primary {
+      background: var(--gold-soft);
+      color: var(--bg-0);
+    }
+
+    .modal-ghost {
+      background: transparent;
+      color: var(--ink-dim);
+    }
+
+    .flash {
+      position: fixed;
+      inset: 0;
+      background: #fffae4;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .flash.go {
+      animation: flash 1.4s ease-out 1;
+    }
+
+    @keyframes flash {
+      0% {
+        opacity: 0
+      }
+
+      12% {
+        opacity: .5
+      }
+
+      100% {
+        opacity: 0
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .urgent .halo,
+      .urgent .readout .time {
+        animation: none;
+      }
+
+      .flash.go {
+        animation: none;
+      }
+    }
+
+    @media (max-height: 720px) {
+      .app {
+        gap: .34rem;
+        padding: calc(.7rem + env(safe-area-inset-top)) .95rem calc(.7rem + env(safe-area-inset-bottom));
+      }
+
+      .hdr .title {
+        font-size: 1.05rem;
+      }
+
+      .hdr .sub {
+        margin-top: .12rem;
+      }
+
+      .hero {
+        min-height: 160px;
+      }
+
+      .hero svg.stage {
+        max-height: 35vh;
+      }
+
+      .tea-picker {
+        margin-top: .32rem;
+      }
+
+      .tea-preview {
+        top: 2.55rem;
+        width: min(66%, 248px);
+        opacity: .86;
+      }
+
+      .controls {
+        gap: .42rem;
+      }
+
+      .carousel {
+        padding: 0 2.7rem;
+      }
+
+      .carousel .chev {
+        top: 2.55rem;
+      }
+
+      .carousel .track {
+        height: 34px;
+      }
+
+      .dots {
+        top: 5.45rem;
+      }
+
+      .slider-row {
+        margin-top: 0;
+      }
+
+      .slider-row .top {
+        font-size: .936rem;
+        gap: .38rem;
+      }
+
+      .slider-row .temp-hint {
+        font-size: .696rem;
+      }
+
+      .infusion-line {
+        font-size: .864rem;
+        margin-bottom: .2rem;
+      }
+
+      .slider-row .val {
+        font-size: 2.28rem;
+        margin-bottom: .3rem;
+      }
+
+      .step {
+        width: 44px;
+        height: 44px;
+      }
+
+      input[type=range]::-webkit-slider-thumb {
+        width: 26px;
+        height: 26px;
+      }
+
+      input[type=range]::-moz-range-thumb {
+        width: 26px;
+        height: 26px;
+      }
+
+      .brew {
+        padding: .78rem 0;
+      }
+    }
+
+    /* Bottom Sheet Modal for Tea Feeling Notes */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(6, 4, 2, 0.72);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    .sheet-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-container {
+      width: min(100vw, 440px);
+      max-height: 88vh;
+      background: #1a140d;
+      border: 1px solid var(--line);
+      border-radius: 20px 20px 0 0;
+      padding: 1.25rem 1.15rem 1.4rem;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+      color: var(--ink);
+    }
+
+    .sheet-backdrop.active .sheet-container {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 2px;
+      margin: 0 auto 1rem;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.1rem;
+    }
+
+    .sheet-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--gold-soft);
+      letter-spacing: 0.04em;
+    }
+
+    .btn-close-sheet {
+      background: none;
+      border: none;
+      color: var(--ink-dim);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+    }
+
+    /* Summary Card */
+    .summary-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .summary-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .tea-info-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tea-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .btn-edit-title {
+      background: none;
+      border: none;
+      color: var(--ink-dim);
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 0.85rem;
+    }
+
+    .btn-edit-title:hover {
+      color: var(--gold-soft);
+    }
+
+    .session-date {
+      font-family: "Space Mono", monospace;
+      font-size: 0.78rem;
+      color: var(--ink-dim);
+    }
+
+    .infusion-history {
+      font-size: 0.88rem;
+      color: var(--gold-soft);
+      letter-spacing: 0.02em;
+    }
+
+    .edit-input-inline {
+      background: #120d09;
+      border: 1px solid var(--gold-line);
+      color: var(--gold-soft);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      width: 180px;
+    }
+
+    /* Section Styles */
+    .section-label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink-dim);
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    /* Tag Chips Grid (Option 3: Borderless Soft Fill Badge) */
+    .tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tag-chip {
+      min-height: 30px;
+      padding: 0.22rem 0.55rem;
+      border-radius: 4px;
+      border: none;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--ink-dim);
+      font-family: inherit;
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .tag-chip.active {
+      color: var(--gold-soft);
+      background: rgba(205, 191, 99, 0.22);
+      box-shadow: 0 0 10px rgba(205, 191, 99, 0.25);
+      font-weight: 700;
+    }
+
+    /* Note Textarea */
+    .note-textarea {
+      width: 100%;
+      min-height: 80px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.75rem;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+      margin-bottom: 1.15rem;
+      transition: border-color 0.2s;
+    }
+
+    .note-textarea:focus {
+      border-color: var(--gold-line);
+    }
+
+    /* Action Buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr 1.3fr;
+      gap: 0.45rem;
+    }
+
+    .btn-action {
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.15s;
+    }
+
+    .btn-action:active {
+      background: rgba(205, 191, 99, 0.15);
+      border-color: var(--gold-soft);
+      color: var(--gold-soft);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(37, 28, 18, 0.95);
+      border: 1px solid var(--gold);
+      color: var(--gold-soft);
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Generated Card Preview Overlay */
+    .card-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .card-modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card-preview-box {
+      width: min(100%, 340px);
+      background: #18120b;
+      border: 1px solid var(--gold-line);
+      border-radius: 16px;
+      padding: 1.4rem;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .card-header-badge {
+      font-family: "Space Mono", monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .card-tea-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+
+    .card-infusions {
+      font-size: 0.85rem;
+      color: var(--gold-soft);
+      margin-bottom: 1rem;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .card-tags-row {
+      display: flex;
+      gap: 0.35rem;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .card-tag {
+      font-size: 0.78rem;
+      background: rgba(205, 191, 99, 0.14);
+      color: var(--gold-soft);
+      border: none;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .card-note-quote {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.5;
+      border-left: 2px solid var(--gold);
+      padding-left: 0.8rem;
+      margin: 1rem 0;
+      text-align: left;
+    }
+
+    .card-footer-date {
+      font-size: 0.72rem;
+      color: var(--ink-faint);
+      margin-top: 1.2rem;
+    }
+
+    .btn-close-card {
+      margin-top: 1.2rem;
+      width: 100%;
+      padding: 0.7rem 0;
+      border-radius: 8px;
+      border: none;
+      background: var(--gold-soft);
+      color: var(--bg-0);
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
-<div class="app">
-  <div class="top-actions">
-    <button class="reset-top" id="reset">우림 끝</button>
-    <a class="help-link" href="help.html" aria-label="사용법 열기" title="사용법">사용법</a>
-  </div>
-
-  <div class="hdr">
-    <div class="title">차 한 잔의 시간</div>
-    <div class="sub">Time for Tea</div>
-    <div class="sr-only" aria-live="polite"><span id="teaName">청향 우롱</span> · <span id="infLabel">第一泡</span> · <span id="infKo">첫 우림</span></div>
-  </div>
-
-  <div class="tea-picker">
-    <div class="carousel">
-      <button class="chev" id="teaPrev" aria-label="이전 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <div class="track">
-        <span class="ghost" id="teaGhostL"></span>
-        <span class="cur"><span class="tea-dot" id="teaDot"></span><span id="teaCur">청향 우롱</span></span>
-        <span class="ghost" id="teaGhostR"></span>
-      </div>
-      <button class="chev" id="teaNext" aria-label="다음 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+  <div class="app">
+    <div class="top-actions">
+      <button class="reset-top" id="reset">우림 끝</button>
+      <a class="help-link" href="help.html" aria-label="사용법 열기" title="사용법">사용법</a>
     </div>
-    <div class="tea-preview" id="teaPreview" aria-hidden="true">
-      <img class="chahe" src="assets/tea-preview/chahe.svg" alt="">
-      <svg class="dry-leaves" id="dryLeaves" viewBox="0 0 220 82" focusable="false"></svg>
+
+    <div class="hdr">
+      <div class="title">차 한 잔의 시간</div>
+      <div class="sub">Time for Tea</div>
+      <div class="sr-only" aria-live="polite"><span id="teaName">청향 우롱</span> · <span id="infLabel">第一泡</span> · <span
+          id="infKo">첫 우림</span></div>
     </div>
-    <div class="dots" id="dots"></div>
-  </div>
 
-	  <div class="hero" id="hero">
-	    <div class="message" id="timeLabel" aria-live="polite"></div>
-	    <button class="vessel-nav prev" id="vesselPrev" aria-label="이전 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <button class="vessel-nav next" id="vesselNext" aria-label="다음 우림 도구"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-    <div class="halo h1"></div>
-    <div class="halo h2"></div>
-    <svg class="stage" id="stage" viewBox="0 0 200 224" aria-label="차 우림 타이머 시각화">
-      <defs>
-        <radialGradient id="softTeaGlow" cx="50%" cy="44%" r="54%">
-          <stop offset="0" stop-color="#fff1a6" stop-opacity=".24"/>
-          <stop offset="1" stop-color="#fff1a6" stop-opacity="0"/>
-        </radialGradient>
-        <linearGradient id="liquorGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop id="liquorTop" offset="0" stop-color="#cdbf63" stop-opacity=".78"/>
-          <stop id="liquorBot" offset="1" stop-color="#cdbf63" stop-opacity="1"/>
-        </linearGradient>
-        <linearGradient id="pyLowerGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#cdbf63" stop-opacity=".80"/>
-          <stop offset=".48" stop-color="#cdbf63" stop-opacity=".42"/>
-          <stop offset="1" stop-color="#cdbf63" stop-opacity=".04"/>
-        </linearGradient>
-        <radialGradient id="mugSurfGrad" cx="50%" cy="42%" r="74%">
-          <stop id="mugSurfCenter" offset="0" stop-color="#efe09a" stop-opacity=".82"/>
-          <stop id="mugSurfEdge" offset="1" stop-color="#cdbf63" stop-opacity=".86"/>
-        </radialGradient>
-        <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stop-color="#ffd27a" stop-opacity="1"/>
-          <stop offset=".5" stop-color="#eaa84f" stop-opacity=".45"/>
-          <stop offset="1" stop-color="#eaa84f" stop-opacity="0"/>
-        </radialGradient>
-        <linearGradient id="pourGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#fff7e0" stop-opacity="0"/>
-          <stop offset=".35" stop-color="#fff7e0" stop-opacity=".45"/>
-          <stop offset="1" stop-color="#fff7e0" stop-opacity=".82"/>
-        </linearGradient>
-        <filter id="steamBlur" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="1.8"/>
-        </filter>
-        <filter id="vesselShadow" x="-30%" y="-30%" width="160%" height="170%">
-          <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#000" flood-opacity=".34"/>
-        </filter>
-        <clipPath id="gBowl"><path d="M57 126 C58 139 60 148 60 152 C60 157 58 160 56 162 C53 164 74 166 100 166 C126 166 147 164 144 162 C142 160 140 157 140 152 C140 148 142 139 143 126 Z"/></clipPath>
-        <clipPath id="pyOut"><path d="M71 149 C79 146 88 145 97 145 C106 145 115 146 123 149 L123 185 C123 191 113 193 97 193 C81 193 71 191 71 185 Z"/></clipPath>
-        <clipPath id="pyIn"><path d="M77 105 L77 128 C77 133 86 136 97 136 C108 136 117 133 117 128 L117 105 Z"/></clipPath>
-      </defs>
-
-      <!-- ambient glow (opaque vessels) -->
-      <ellipse id="ambient" cx="100" cy="124" rx="82" ry="76" fill="url(#ambientGlow)" opacity="0"/>
-
-      <!-- ===== RASTER VESSEL LAYERS + SVG EFFECTS ===== -->
-      <g id="v-teapot" class="vessel" style="display:none" filter="url(#vesselShadow)">
-        <image href="assets/vessels/teapot.png" x="8" y="44" width="184" height="184" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-
-      <g id="v-eastern-pot" class="vessel" style="display:none" filter="url(#vesselShadow)">
-        <image href="assets/vessels/eastern-pot-zisha.png" x="16" y="48" width="168" height="168" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-
-      <g id="v-gaiwan" class="vessel" filter="url(#vesselShadow)">
-        <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172" preserveAspectRatio="xMidYMid meet"/>
-        <g clip-path="url(#gBowl)" style="mix-blend-mode:multiply">
-          <ellipse cx="100" cy="148" rx="46" ry="22" fill="url(#softTeaGlow)" opacity=".38"/>
-          <path id="g-liquid" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
-          <path id="g-meniscus" d="M100 166" fill="none" stroke="#f4e6a0" stroke-width="1.2" stroke-linecap="round" opacity="0"/>
-          <path id="g-wall-left" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
-          <path id="g-wall-right" d="M100 166 Z" fill="#cdbf63" opacity="0"/>
-        </g>
-        <g id="g-leaves" clip-path="url(#gBowl)" style="mix-blend-mode:multiply"></g>
-        <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172" preserveAspectRatio="xMidYMid meet" opacity=".46"/>
-        <g id="g-lid" opacity="0" style="display:none">
-          <path d="M62 97 C74 91 88 88 100 88 C112 88 126 91 138 97" fill="none" stroke="rgba(255,250,232,.28)" stroke-width="1.5" stroke-linecap="round"/>
-          <ellipse cx="100" cy="96" rx="39" ry="7" fill="none" stroke="rgba(255,250,232,.18)" stroke-width="1.1"/>
-        </g>
-      </g>
-
-      <g id="v-mug" class="vessel" style="display:none" filter="url(#vesselShadow)">
-        <image href="assets/vessels/mug.png" x="24" y="43" width="160" height="160" preserveAspectRatio="xMidYMid meet"/>
-        <ellipse id="mug-surface" cx="96" cy="83" rx="34" ry="7.4" fill="url(#mugSurfGrad)" opacity="0"/>
-      </g>
-
-      <g id="v-piaoyibei" class="vessel" style="display:none" filter="url(#vesselShadow)">
-        <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178" preserveAspectRatio="xMidYMid meet"/>
-        <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply"><path id="py-lower" d="M97 194 Z" fill="url(#pyLowerGrad)" opacity="0"/></g>
-        <ellipse id="py-lowerSurf" cx="97" cy="194" rx="0" ry="3.8" fill="#f3eaa8" opacity="0" style="mix-blend-mode:multiply"/>
-        <g clip-path="url(#pyIn)" style="mix-blend-mode:multiply"><rect id="py-chamber" x="72" y="112" width="50" height="44" fill="#cdbf63" opacity="0"/></g>
-        <ellipse id="py-chSurf" cx="97" cy="112" rx="23" ry="4.8" fill="#ded284" opacity="0" style="mix-blend-mode:multiply"/>
-        <g id="py-leaves" clip-path="url(#pyIn)" style="mix-blend-mode:multiply"></g>
-        <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178" preserveAspectRatio="xMidYMid meet" opacity=".54"/>
-      </g>
-
-      <!-- pour stream (붓는 중) -->
-      <g id="pour" opacity="0">
-        <rect id="pour-stream" x="98.6" y="48" width="2.8" height="0" fill="url(#pourGrad)"/>
-        <ellipse id="pour-ripple" cx="100" cy="124" rx="0" ry="0" fill="none" stroke="#fff7e0" stroke-width="1" opacity="0"/>
-      </g>
-
-      <!-- steam -->
-      <g id="steam" filter="url(#steamBlur)"></g>
-
-      <!-- time ring -->
-      <circle id="ring-track" cx="100" cy="118" r="92" fill="none" stroke="var(--track)" stroke-width="2" opacity="0"/>
-      <circle id="ring-prog" cx="100" cy="118" r="92" fill="none" stroke="#8c7f63" stroke-width="2" stroke-linecap="round" opacity="0" transform="rotate(-90 100 118)"/>
-    </svg>
-
-    <div class="readout" id="readout">
-      <div class="time" id="time">0:20</div>
-    </div>
-    <div class="sr-only" id="vesselName">개완</div>
-  </div>
-
-  <div class="controls">
-    <div class="slider-row">
-      <div class="top"><span>권장 우림</span><span class="temp-hint" id="tempHint">95°C / 20초</span></div>
-      <div class="infusion-line" id="infusionLine" aria-live="polite"></div>
-      <div class="val"><span id="secVal">1포 20초</span><span class="val-suffix">우리기</span></div>
-      <div class="slider-line">
-        <button class="step" id="dec" aria-label="1초 줄이기">−</button>
-        <div class="range-wrap" id="rangeWrap">
-          <span class="recommended-mark" aria-hidden="true"></span>
-          <input type="range" id="slider" min="5" max="120" step="1" value="20" aria-label="우림 시간(초)">
+    <div class="tea-picker">
+      <div class="carousel">
+        <button class="chev" id="teaPrev" aria-label="이전 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg></button>
+        <div class="track">
+          <span class="ghost" id="teaGhostL"></span>
+          <span class="cur"><span class="tea-dot" id="teaDot"></span><span id="teaCur">청향 우롱</span></span>
+          <span class="ghost" id="teaGhostR"></span>
         </div>
-        <button class="step" id="inc" aria-label="1초 늘리기">+</button>
+        <button class="chev" id="teaNext" aria-label="다음 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg></button>
       </div>
+      <div class="tea-preview" id="teaPreview" aria-hidden="true">
+        <img class="chahe" src="assets/tea-preview/chahe.svg" alt="">
+        <svg class="dry-leaves" id="dryLeaves" viewBox="0 0 220 82" focusable="false"></svg>
+      </div>
+      <div class="dots" id="dots"></div>
     </div>
 
-    <button class="brew" id="brew">우리기 시작</button>
+    <div class="hero" id="hero">
+      <div class="message" id="timeLabel" aria-live="polite"></div>
+      <button class="vessel-nav prev" id="vesselPrev" aria-label="이전 우림 도구"><svg viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg></button>
+      <button class="vessel-nav next" id="vesselNext" aria-label="다음 우림 도구"><svg viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg></button>
+      <div class="halo h1"></div>
+      <div class="halo h2"></div>
+      <svg class="stage" id="stage" viewBox="0 0 200 224" aria-label="차 우림 타이머 시각화">
+        <defs>
+          <radialGradient id="softTeaGlow" cx="50%" cy="44%" r="54%">
+            <stop offset="0" stop-color="#fff1a6" stop-opacity=".24" />
+            <stop offset="1" stop-color="#fff1a6" stop-opacity="0" />
+          </radialGradient>
+          <linearGradient id="liquorGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop id="liquorTop" offset="0" stop-color="#cdbf63" stop-opacity=".78" />
+            <stop id="liquorBot" offset="1" stop-color="#cdbf63" stop-opacity="1" />
+          </linearGradient>
+          <linearGradient id="pyLowerGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#cdbf63" stop-opacity=".80" />
+            <stop offset=".48" stop-color="#cdbf63" stop-opacity=".42" />
+            <stop offset="1" stop-color="#cdbf63" stop-opacity=".04" />
+          </linearGradient>
+          <radialGradient id="mugSurfGrad" cx="50%" cy="42%" r="74%">
+            <stop id="mugSurfCenter" offset="0" stop-color="#efe09a" stop-opacity=".82" />
+            <stop id="mugSurfEdge" offset="1" stop-color="#cdbf63" stop-opacity=".86" />
+          </radialGradient>
+          <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#ffd27a" stop-opacity="1" />
+            <stop offset=".5" stop-color="#eaa84f" stop-opacity=".45" />
+            <stop offset="1" stop-color="#eaa84f" stop-opacity="0" />
+          </radialGradient>
+          <linearGradient id="pourGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff7e0" stop-opacity="0" />
+            <stop offset=".35" stop-color="#fff7e0" stop-opacity=".45" />
+            <stop offset="1" stop-color="#fff7e0" stop-opacity=".82" />
+          </linearGradient>
+          <filter id="steamBlur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="1.8" />
+          </filter>
+          <filter id="vesselShadow" x="-30%" y="-30%" width="160%" height="170%">
+            <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#000" flood-opacity=".34" />
+          </filter>
+          <clipPath id="gBowl">
+            <path
+              d="M57 126 C58 139 60 148 60 152 C60 157 58 160 56 162 C53 164 74 166 100 166 C126 166 147 164 144 162 C142 160 140 157 140 152 C140 148 142 139 143 126 Z" />
+          </clipPath>
+          <clipPath id="pyOut">
+            <path
+              d="M71 149 C79 146 88 145 97 145 C106 145 115 146 123 149 L123 185 C123 191 113 193 97 193 C81 193 71 191 71 185 Z" />
+          </clipPath>
+          <clipPath id="pyIn">
+            <path d="M77 105 L77 128 C77 133 86 136 97 136 C108 136 117 133 117 128 L117 105 Z" />
+          </clipPath>
+        </defs>
 
-    <div class="footer">
-      <button id="mute" aria-pressed="false" aria-label="소리 끄기">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 9v6h4l5 4V5L8 9H4z"/>
-          <path class="wave" d="M16 9a3 3 0 0 1 0 6"/>
-          <path class="wave" d="M18.5 7a6 6 0 0 1 0 10"/>
-          <path class="slash" d="M3 3l18 18"/>
-        </svg>
-        <span id="muteText">소리 끄기</span>
-      </button>
-      <button class="note-button" id="note" aria-label="차 느낌 남기기">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9"/>
-          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-        </svg>
-        <span>차 느낌</span>
-      </button>
+        <!-- ambient glow (opaque vessels) -->
+        <ellipse id="ambient" cx="100" cy="124" rx="82" ry="76" fill="url(#ambientGlow)" opacity="0" />
+
+        <!-- ===== RASTER VESSEL LAYERS + SVG EFFECTS ===== -->
+        <g id="v-teapot" class="vessel" style="display:none" filter="url(#vesselShadow)">
+          <image href="assets/vessels/teapot.png" x="8" y="44" width="184" height="184"
+            preserveAspectRatio="xMidYMid meet" />
+        </g>
+
+        <g id="v-eastern-pot" class="vessel" style="display:none" filter="url(#vesselShadow)">
+          <image href="assets/vessels/eastern-pot-zisha.png" x="16" y="48" width="168" height="168"
+            preserveAspectRatio="xMidYMid meet" />
+        </g>
+
+        <g id="v-gaiwan" class="vessel" filter="url(#vesselShadow)">
+          <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172"
+            preserveAspectRatio="xMidYMid meet" />
+          <g clip-path="url(#gBowl)" style="mix-blend-mode:multiply">
+            <ellipse cx="100" cy="148" rx="46" ry="22" fill="url(#softTeaGlow)" opacity=".38" />
+            <path id="g-liquid" d="M100 166 Z" fill="#cdbf63" opacity="0" />
+            <path id="g-meniscus" d="M100 166" fill="none" stroke="#f4e6a0" stroke-width="1.2" stroke-linecap="round"
+              opacity="0" />
+            <path id="g-wall-left" d="M100 166 Z" fill="#cdbf63" opacity="0" />
+            <path id="g-wall-right" d="M100 166 Z" fill="#cdbf63" opacity="0" />
+          </g>
+          <g id="g-leaves" clip-path="url(#gBowl)" style="mix-blend-mode:multiply"></g>
+          <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172"
+            preserveAspectRatio="xMidYMid meet" opacity=".46" />
+          <g id="g-lid" opacity="0" style="display:none">
+            <path d="M62 97 C74 91 88 88 100 88 C112 88 126 91 138 97" fill="none" stroke="rgba(255,250,232,.28)"
+              stroke-width="1.5" stroke-linecap="round" />
+            <ellipse cx="100" cy="96" rx="39" ry="7" fill="none" stroke="rgba(255,250,232,.18)" stroke-width="1.1" />
+          </g>
+        </g>
+
+        <g id="v-mug" class="vessel" style="display:none" filter="url(#vesselShadow)">
+          <image href="assets/vessels/mug.png" x="24" y="43" width="160" height="160"
+            preserveAspectRatio="xMidYMid meet" />
+          <ellipse id="mug-surface" cx="96" cy="83" rx="34" ry="7.4" fill="url(#mugSurfGrad)" opacity="0" />
+        </g>
+
+        <g id="v-piaoyibei" class="vessel" style="display:none" filter="url(#vesselShadow)">
+          <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178"
+            preserveAspectRatio="xMidYMid meet" />
+          <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply">
+            <path id="py-lower" d="M97 194 Z" fill="url(#pyLowerGrad)" opacity="0" />
+          </g>
+          <ellipse id="py-lowerSurf" cx="97" cy="194" rx="0" ry="3.8" fill="#f3eaa8" opacity="0"
+            style="mix-blend-mode:multiply" />
+          <g clip-path="url(#pyIn)" style="mix-blend-mode:multiply">
+            <rect id="py-chamber" x="72" y="112" width="50" height="44" fill="#cdbf63" opacity="0" />
+          </g>
+          <ellipse id="py-chSurf" cx="97" cy="112" rx="23" ry="4.8" fill="#ded284" opacity="0"
+            style="mix-blend-mode:multiply" />
+          <g id="py-leaves" clip-path="url(#pyIn)" style="mix-blend-mode:multiply"></g>
+          <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178"
+            preserveAspectRatio="xMidYMid meet" opacity=".54" />
+        </g>
+
+        <!-- pour stream (붓는 중) -->
+        <g id="pour" opacity="0">
+          <rect id="pour-stream" x="98.6" y="48" width="2.8" height="0" fill="url(#pourGrad)" />
+          <ellipse id="pour-ripple" cx="100" cy="124" rx="0" ry="0" fill="none" stroke="#fff7e0" stroke-width="1"
+            opacity="0" />
+        </g>
+
+        <!-- steam -->
+        <g id="steam" filter="url(#steamBlur)"></g>
+
+        <!-- time ring -->
+        <circle id="ring-track" cx="100" cy="118" r="92" fill="none" stroke="var(--track)" stroke-width="2"
+          opacity="0" />
+        <circle id="ring-prog" cx="100" cy="118" r="92" fill="none" stroke="#8c7f63" stroke-width="2"
+          stroke-linecap="round" opacity="0" transform="rotate(-90 100 118)" />
+      </svg>
+
+      <div class="readout" id="readout">
+        <div class="time" id="time">0:20</div>
+      </div>
+      <div class="sr-only" id="vesselName">개완</div>
     </div>
-  </div>
-</div>
-<div class="flash" id="flash"></div>
-<div class="toast" id="toast">복사되었습니다</div>
 
-<!-- Bottom Sheet Component for Tea Feeling Note -->
-<div class="sheet-backdrop" id="sheetBackdrop">
-  <div class="sheet-container">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h2 class="sheet-title">이번 차의 느낌</h2>
-      <button class="btn-close-sheet" id="closeSheetBtn" aria-label="닫기">✕</button>
-    </div>
-
-    <!-- Summary Card -->
-    <div class="summary-card">
-      <div class="summary-top">
-        <div class="tea-info-group">
-          <span class="tea-title" id="teaTitleDisplay">🍃 청향 우롱 · 개완</span>
-          <button class="btn-edit-title" id="editTitleBtn" aria-label="차 이름 수정">✏️</button>
+    <div class="controls">
+      <div class="slider-row">
+        <div class="top"><span>권장 우림</span><span class="temp-hint" id="tempHint">95°C / 20초</span></div>
+        <div class="infusion-line" id="infusionLine" aria-live="polite"></div>
+        <div class="val"><span id="secVal">1포 20초</span><span class="val-suffix">우리기</span></div>
+        <div class="slider-line">
+          <button class="step" id="dec" aria-label="1초 줄이기">−</button>
+          <div class="range-wrap" id="rangeWrap">
+            <span class="recommended-mark" aria-hidden="true"></span>
+            <input type="range" id="slider" min="5" max="120" step="1" value="20" aria-label="우림 시간(초)">
+          </div>
+          <button class="step" id="inc" aria-label="1초 늘리기">+</button>
         </div>
-        <span class="session-date" id="sessionDateDisplay">2026-07-28</span>
       </div>
-      <div class="infusion-history" id="infusionHistoryDisplay">
-        1포 20초 · 2포 25초 (총 2포)
+
+      <button class="brew" id="brew">우리기 시작</button>
+
+      <div class="footer">
+        <button id="mute" aria-pressed="false" aria-label="소리 끄기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" />
+            <path class="wave" d="M16 9a3 3 0 0 1 0 6" />
+            <path class="wave" d="M18.5 7a6 6 0 0 1 0 10" />
+            <path class="slash" d="M3 3l18 18" />
+          </svg>
+          <span id="muteText">소리 끄기</span>
+        </button>
+        <button class="note-button" id="note" aria-label="차 느낌 남기기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>
+          <span>차 느낌</span>
+        </button>
       </div>
-    </div>
-
-    <!-- Tag Chips Grid -->
-    <label class="section-label">오늘 떠오른 단어</label>
-    <div class="tags-grid" id="tagsGrid">
-      <!-- js에서 render -->
-    </div>
-
-    <!-- Note Textarea -->
-    <label class="section-label">조금 더 자세히 적는다면</label>
-    <textarea class="note-textarea" id="noteInput" placeholder="차를 마시며 느낀 점, 나만의 비유, 분위기나 장소를 자유롭게 적어보세요..."></textarea>
-
-    <!-- Action Buttons -->
-    <div class="action-grid">
-      <button class="btn-action" id="draftBtn">💾 임시 저장</button>
-      <button class="btn-action" id="copyBtn">📋 텍스트 복사</button>
-      <button class="btn-action" id="cardBtn">🖼️ 카드 이미지 저장</button>
     </div>
   </div>
-</div>
+  <div class="flash" id="flash"></div>
+  <div class="toast" id="toast">복사되었습니다</div>
 
-<!-- Generated Card Preview Modal -->
-<div class="card-modal-backdrop" id="cardModalBackdrop">
-  <div class="card-preview-box">
-    <div class="card-header-badge">TIME FOR TEA · TASTING NOTE</div>
-    <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
-    <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
-    <div class="card-tags" id="cardTagsContainer"></div>
-    <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
-    <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
-    <button class="btn-close-card" id="closeCardModalBtn">닫기 및 이미지 저장</button>
+  <!-- Bottom Sheet Component for Tea Feeling Note -->
+  <div class="sheet-backdrop" id="sheetBackdrop">
+    <div class="sheet-container">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2 class="sheet-title">이번 차의 느낌</h2>
+        <button class="btn-close-sheet" id="closeSheetBtn" aria-label="닫기">✕</button>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="summary-card">
+        <div class="summary-top">
+          <div class="tea-info-group">
+            <span class="tea-title" id="teaTitleDisplay">🍃 청향 우롱 · 개완</span>
+            <button class="btn-edit-title" id="editTitleBtn" aria-label="차 이름 수정">✏️</button>
+          </div>
+          <span class="session-date" id="sessionDateDisplay">2026-07-28</span>
+        </div>
+        <div class="infusion-history" id="infusionHistoryDisplay">
+          1포 20초 · 2포 25초 (총 2포)
+        </div>
+      </div>
+
+      <!-- Tag Chips Grid -->
+      <label class="section-label">오늘 떠오른 단어</label>
+      <div class="tags-grid" id="tagsGrid">
+        <!-- js에서 render -->
+      </div>
+
+      <!-- Note Textarea -->
+      <label class="section-label">조금 더 자세히 적는다면</label>
+      <textarea class="note-textarea" id="noteInput" placeholder="차를 마시며 느낀 점, 나만의 비유, 분위기나 장소를 자유롭게 적어보세요."></textarea>
+
+      <!-- Action Buttons -->
+      <div class="action-grid">
+        <button class="btn-action" id="draftBtn">💾 임시 저장</button>
+        <button class="btn-action" id="copyBtn">📋 텍스트 복사</button>
+        <button class="btn-action" id="cardBtn">🖼️ 카드 이미지 저장</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-(() => {
-  let reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', e => { reduce = e.matches; });
-  const SVGNS = "http://www.w3.org/2000/svg";
-  const $ = id => document.getElementById(id);
-  const lerp=(a,b,t)=>a+(b-a)*t, clamp=(v,a,b)=>v<a?a:v>b?b:v;
-  const mix=(c1,c2,t)=>[lerp(c1[0],c2[0],t),lerp(c1[1],c2[1],t),lerp(c1[2],c2[2],t)];
-  const rgb=c=>`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;
-  const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-  const SAT_K=3.2, SAT_D=1-Math.exp(-SAT_K);
-  const sat=t=>(1-Math.exp(-SAT_K*t))/SAT_D;   // 추출 포화 곡선: 초반 빠르게, 후반 완만
-  const cjk=["","一","二","三","四","五","六","七","八","九","十"];
-  const infText=n=>`第${n<=10?cjk[n]:n}泡`;
-  const koOrd=["","첫","두 번째","세 번째","네 번째","다섯 번째","여섯 번째","일곱 번째","여덟 번째","아홉 번째","열 번째"];
-  const koInf=n=>n===1?"첫 우림":`${koOrd[n]||n+'번째'} 우림`;
+  <!-- Generated Card Preview Modal -->
+  <div class="card-modal-backdrop" id="cardModalBackdrop">
+    <div class="card-preview-box">
+      <div class="card-header-badge">TIME FOR TEA · TASTING NOTE</div>
+      <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
+      <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
+      <div class="card-tags" id="cardTagsContainer"></div>
+      <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
+      <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
+      <button class="btn-close-card" id="closeCardModalBtn">닫기 및 이미지 저장</button>
+    </div>
+  </div>
 
-  // ---- data ----
-  const TEAS=[
-    {id:"green",  name:"녹차",      cjk:"綠茶",   temp:80,  base:15, add:10, light:[214,221,134], strong:[185,196,90],  peak:.60},
-    {id:"white",  name:"백차",      cjk:"白茶",   temp:90,  base:30, add:10, light:[236,220,160], strong:[216,180,110], peak:.55},
-    {id:"oolong", name:"청향 우롱",  cjk:"清香烏龍", temp:95, base:20, add:5,  light:[222,210,132], strong:[198,176,86],  peak:.66},
-    {id:"nong",   name:"농향 우롱",  cjk:"濃香烏龍", temp:98, base:20, add:5,  light:[201,143,67],  strong:[158,101,38],  peak:.78},
-    {id:"black",  name:"홍차",      cjk:"紅茶",   temp:90,  base:12, add:5,  light:[196,98,42],   strong:[156,58,24],   peak:.82},
-    {id:"sheng",  name:"보이 생차",   cjk:"生普洱", temp:95, base:15, add:5,  light:[224,168,62],  strong:[200,126,31],  peak:.70},
-    {id:"shou",   name:"보이 숙차",   cjk:"熟普洱", temp:100, base:20, add:8,  light:[122,58,30],   strong:[74,31,14],    peak:.90},
-  ];
-  const VESSELS=[
-    {id:"teapot", name:"티팟", label:"서양 티팟 · 도자 · 탕색 안 보임", family:"closed-pot", culture:"western", material:"porcelain", silhouette:"round-large", vis:"none", round:true, readoutTop:"18%", done:"pour", completion:"따라내세요 · 出湯", asset:"assets/vessels/teapot.png", requiresSeparationAction:false},
-    {id:"eastern-pot", name:"동양식 다호", shortName:"다호", label:"동양식 다호 · 자사 · 탕색 안 보임", family:"closed-pot", culture:"gongfu", material:"zisha-clay", silhouette:"compact", vis:"none", round:true, readoutTop:"18%", done:"pour", completion:"바로 따라내세요 · 出湯", asset:"assets/vessels/eastern-pot-zisha.png", requiresSeparationAction:false},
-    {id:"gaiwan", name:"개완", label:"개완 蓋碗 · 유리 · 탕색 보임", family:"lidded-bowl", culture:"gongfu", material:"glass", silhouette:"bowl", vis:"liquid", round:false, readoutTop:"18%", done:"lid", completion:"뚜껑 열고 따르세요 · 開蓋", asset:"assets/vessels/gaiwan-glass.png", requiresSeparationAction:false},
-    {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"18%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
-    {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"silhouette", vis:"chamber", round:false, readoutTop:"18%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true, steepOffset:5},
-  ];
-  const PREF_KEY="teaTimer.preferences.v1", PREF_VERSION=1;
-  function loadPreferences(){
-    const fallback={lastVesselId:"gaiwan",lastTeaId:"oolong",secDeltaByTea:{},muted:false};
-    try{
-      const parsed=JSON.parse(localStorage.getItem(PREF_KEY));
-      if(!parsed||parsed.version!==PREF_VERSION) return fallback;
-      const vesselOk=VESSELS.some(v=>v.id===parsed.lastVesselId);
-      const teaOk=TEAS.some(t=>t.id===parsed.lastTeaId);
-      const deltas={};
-      if(parsed.secDeltaByTea&&typeof parsed.secDeltaByTea==="object"){
-        TEAS.forEach(t=>{
-          const value=parsed.secDeltaByTea[t.id];
-          if(Number.isInteger(value)&&Math.abs(value)<=115) deltas[t.id]=value;
+  <script>
+    (() => {
+      let reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', e => { reduce = e.matches; });
+      const SVGNS = "http://www.w3.org/2000/svg";
+      const $ = id => document.getElementById(id);
+      const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+      const mix = (c1, c2, t) => [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
+      const rgb = c => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
+      const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const SAT_K = 3.2, SAT_D = 1 - Math.exp(-SAT_K);
+      const sat = t => (1 - Math.exp(-SAT_K * t)) / SAT_D;   // 추출 포화 곡선: 초반 빠르게, 후반 완만
+      const cjk = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+      const infText = n => `第${n <= 10 ? cjk[n] : n}泡`;
+      const koOrd = ["", "첫", "두 번째", "세 번째", "네 번째", "다섯 번째", "여섯 번째", "일곱 번째", "여덟 번째", "아홉 번째", "열 번째"];
+      const koInf = n => n === 1 ? "첫 우림" : `${koOrd[n] || n + '번째'} 우림`;
+
+      // ---- data ----
+      const TEAS = [
+        { id: "green", name: "녹차", cjk: "綠茶", temp: 80, base: 15, add: 10, light: [214, 221, 134], strong: [185, 196, 90], peak: .60 },
+        { id: "white", name: "백차", cjk: "白茶", temp: 90, base: 30, add: 10, light: [236, 220, 160], strong: [216, 180, 110], peak: .55 },
+        { id: "oolong", name: "청향 우롱", cjk: "清香烏龍", temp: 95, base: 20, add: 5, light: [222, 210, 132], strong: [198, 176, 86], peak: .66 },
+        { id: "nong", name: "농향 우롱", cjk: "濃香烏龍", temp: 98, base: 20, add: 5, light: [201, 143, 67], strong: [158, 101, 38], peak: .78 },
+        { id: "black", name: "홍차", cjk: "紅茶", temp: 90, base: 12, add: 5, light: [196, 98, 42], strong: [156, 58, 24], peak: .82 },
+        { id: "sheng", name: "보이 생차", cjk: "生普洱", temp: 95, base: 15, add: 5, light: [224, 168, 62], strong: [200, 126, 31], peak: .70 },
+        { id: "shou", name: "보이 숙차", cjk: "熟普洱", temp: 100, base: 20, add: 8, light: [122, 58, 30], strong: [74, 31, 14], peak: .90 },
+      ];
+      const VESSELS = [
+        { id: "teapot", name: "티팟", label: "서양 티팟 · 도자 · 탕색 안 보임", family: "closed-pot", culture: "western", material: "porcelain", silhouette: "round-large", vis: "none", round: true, readoutTop: "18%", done: "pour", completion: "따라내세요 · 出湯", asset: "assets/vessels/teapot.png", requiresSeparationAction: false },
+        { id: "eastern-pot", name: "동양식 다호", shortName: "다호", label: "동양식 다호 · 자사 · 탕색 안 보임", family: "closed-pot", culture: "gongfu", material: "zisha-clay", silhouette: "compact", vis: "none", round: true, readoutTop: "18%", done: "pour", completion: "바로 따라내세요 · 出湯", asset: "assets/vessels/eastern-pot-zisha.png", requiresSeparationAction: false },
+        { id: "gaiwan", name: "개완", label: "개완 蓋碗 · 유리 · 탕색 보임", family: "lidded-bowl", culture: "gongfu", material: "glass", silhouette: "bowl", vis: "liquid", round: false, readoutTop: "18%", done: "lid", completion: "뚜껑 열고 따르세요 · 開蓋", asset: "assets/vessels/gaiwan-glass.png", requiresSeparationAction: false },
+        { id: "mug", name: "머그", label: "머그컵 · 도자 · 윗면만 보임", family: "cup", culture: "casual", material: "porcelain", silhouette: "tall-cup", vis: "top", round: false, readoutTop: "18%", done: "glow", completion: "드세요 · 出湯", asset: "assets/vessels/mug.png", requiresSeparationAction: false },
+        { id: "piaoyibei", name: "표일배", label: "표일배 飄逸杯 · 유리 · 버튼 배수", family: "separator", culture: "gongfu", material: "glass", silhouette: "silhouette", vis: "chamber", round: false, readoutTop: "18%", done: "button", completion: "버튼 눌러 내리세요 · 出湯", asset: "assets/vessels/piaoyibei-glass.png", requiresSeparationAction: true, steepOffset: 5 },
+      ];
+      const PREF_KEY = "teaTimer.preferences.v1", PREF_VERSION = 1;
+      function loadPreferences() {
+        const fallback = { lastVesselId: "gaiwan", lastTeaId: "oolong", secDeltaByTea: {}, muted: false };
+        try {
+          const parsed = JSON.parse(localStorage.getItem(PREF_KEY));
+          if (!parsed || parsed.version !== PREF_VERSION) return fallback;
+          const vesselOk = VESSELS.some(v => v.id === parsed.lastVesselId);
+          const teaOk = TEAS.some(t => t.id === parsed.lastTeaId);
+          const deltas = {};
+          if (parsed.secDeltaByTea && typeof parsed.secDeltaByTea === "object") {
+            TEAS.forEach(t => {
+              const value = parsed.secDeltaByTea[t.id];
+              if (Number.isInteger(value) && Math.abs(value) <= 115) deltas[t.id] = value;
+            });
+          }
+          return {
+            lastVesselId: vesselOk ? parsed.lastVesselId : fallback.lastVesselId,
+            lastTeaId: teaOk ? parsed.lastTeaId : fallback.lastTeaId,
+            secDeltaByTea: deltas,
+            muted: typeof parsed.muted === "boolean" ? parsed.muted : fallback.muted,
+          };
+        } catch (e) { return fallback; }
+      }
+      const preferences = loadPreferences();
+      const secDeltaByTea = { ...preferences.secDeltaByTea };
+      const VICONS = {
+        teapot: '<ellipse cx="20" cy="27" rx="12" ry="9"/><path d="M8 24 L2 21 L4 25 L10 28"/><path d="M32 24 C37 24 37 31 32 32"/><path d="M13 18 Q20 14 27 18"/><circle cx="20" cy="15" r="1.6"/>',
+        "eastern-pot": '<ellipse cx="20" cy="28" rx="12" ry="8"/><path d="M8 26 L2 24 L4 28 L9 29"/><path d="M32 25 C37 24 37 32 32 33"/><path d="M14 21 Q20 18 26 21"/><circle cx="20" cy="18" r="1.4"/>',
+        gaiwan: '<ellipse cx="20" cy="34" rx="13" ry="3.4"/><path d="M9 21 C8 29 14 34 20 34 C26 34 32 29 31 21"/><ellipse cx="20" cy="21" rx="11" ry="3"/><path d="M11 18 Q20 14 29 18"/><circle cx="20" cy="14.5" r="1.5"/>',
+        mug: '<path d="M11 17 L10 33 C10 35 14 36 20 36 C26 36 30 35 30 33 L29 17"/><ellipse cx="20" cy="17" rx="9" ry="2.6"/><path d="M30 22 C35 22 35 30 30 30"/>',
+        piaoyibei: '<path d="M12 19 L11 35 C11 37 15 38 20 38 C25 38 29 37 29 35 L28 19"/><ellipse cx="20" cy="18" rx="10" ry="2.6"/><path d="M20 18 L20 14"/><circle cx="20" cy="12.5" r="2.2"/><path d="M15 22 L15.4 30 M25 22 L24.6 30"/><path d="M15.4 30 L24.6 30" stroke-dasharray="2 2"/>',
+      };
+
+      // ---- state ----
+      let teaIdx = Math.max(0, TEAS.findIndex(t => t.id === preferences.lastTeaId));
+      let vesselId = preferences.lastVesselId, infusion = 1, sec = 20, pyDrained = false;
+      let infusionHistory = [], activeBrew = null;
+      let phase = "idle"; // idle | pour | steep | done
+      let pourStart = 0, steepStart = 0, steepMs = 0, lastNow = performance.now();
+      let level = 0, curAlpha = 0, strengthT = 0, openEff = 0, lidLift = 0, lidTarget = 0, glow = 0, drain = 0;
+      let preWarnSec = 5, preWarned = false, lastTick = -1, isUrgent = false, agitate = 0;
+      let lastNoteFocus = null;
+      // Alpha-margin fit: keeps mug/piaoyibei visible tops aligned with the gaiwan readout lane.
+      const VESSEL_FITS = {
+        mug: { scale: .96, x: 4, y: 8.7 },
+        piaoyibei: { scale: .88, x: 11.6, y: 24.5 },
+      };
+      const tea = () => TEAS[teaIdx];
+      const vessel = () => VESSELS.find(v => v.id === vesselId);
+      const vesselSteepOffset = () => vessel().steepOffset || 0;
+      const recommendedSecFor = n => clamp(tea().base + tea().add * (n - 1) + vesselSteepOffset(), 5, 120);
+      const adjustedSecFor = n => clamp(recommendedSecFor(n) + (secDeltaByTea[tea().id] || 0), 5, 120);
+      function savePreferences() {
+        try {
+          localStorage.setItem(PREF_KEY, JSON.stringify({
+            version: PREF_VERSION, lastVesselId: vesselId, lastTeaId: tea().id,
+            secDeltaByTea, muted,
+          }));
+        } catch (e) { }
+      }
+      function rememberTimeAdjustment() {
+        secDeltaByTea[tea().id] = sec - recommendedSecFor(infusion);
+        savePreferences();
+      }
+      function fitPoint(id, x, y) {
+        const t = VESSEL_FITS[id];
+        return t ? { x: t.x + x * t.scale, y: t.y + y * t.scale } : { x, y };
+      }
+      function fitY(id, y) {
+        const t = VESSEL_FITS[id];
+        return t ? t.y + y * t.scale : y;
+      }
+      function applyVesselFits() {
+        Object.entries(VESSEL_FITS).forEach(([id, t]) => {
+          const g = $("v-" + id);
+          if (g) g.setAttribute("transform", `matrix(${t.scale} 0 0 ${t.scale} ${t.x} ${t.y})`);
         });
       }
-      return {
-        lastVesselId:vesselOk?parsed.lastVesselId:fallback.lastVesselId,
-        lastTeaId:teaOk?parsed.lastTeaId:fallback.lastTeaId,
-        secDeltaByTea:deltas,
-        muted:typeof parsed.muted==="boolean"?parsed.muted:fallback.muted,
+
+      // ---- audio ----
+      let actx = null, muted = preferences.muted;
+      async function ensureAudio() {
+        try {
+          if (!actx || actx.state === "closed") actx = new (window.AudioContext || window.webkitAudioContext)();
+          if (actx.state !== "running") await actx.resume(); // iOS Safari may return from another app as "interrupted"
+          return actx.state === "running";
+        } catch (e) { return false; }
+      }
+      function bell(freq, t0, dur, gain) {
+        if (!actx) return;
+        const master = actx.createGain(); master.gain.value = gain; master.connect(actx.destination);
+        [[1, 1], [2.0, .5], [2.97, .3], [4.1, .18]].forEach(([r, g], i) => {
+          const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq * r; o.detune.value = i ? (Math.random() * 8 - 4) : 0;
+          const ge = actx.createGain(); ge.gain.setValueAtTime(0, t0); ge.gain.linearRampToValueAtTime(g, t0 + .006);
+          ge.gain.exponentialRampToValueAtTime(.0001, t0 + dur * (1 - i * .12));
+          o.connect(ge).connect(master); o.start(t0); o.stop(t0 + dur + .1);
+        });
+      }
+      async function tone(freq, dur, gain) { if (muted || !await ensureAudio()) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
+      const tick = () => tone(1320, .06, .12);
+      const preWarn = () => tone(784, .5, .16);              // G5
+      async function chime() { if (muted || !await ensureAudio()) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); }
+
+      // ---- wake lock ----
+      let wakeLock = null;
+      async function reqWake() { try { if ("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) { } }
+      function relWake() { try { wakeLock && wakeLock.release(); } catch (e) { } wakeLock = null; }
+      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { if (actx) void ensureAudio(); if (phase === "pour" || phase === "steep") reqWake(); } });
+
+      // ---- leaves ----
+      function buildLeaves(groupId, anchors) {
+        const g = $(groupId); g.innerHTML = "";
+        const profile = leafProfile(tea().id), n = profile.leaves || 4;
+        return anchors.map((a, idx) => {
+          const leaf = document.createElementNS(SVGNS, "g");
+          for (let i = 0; i < n; i++) { const p = document.createElementNS(SVGNS, "path"); p.setAttribute("d", "M0 0"); leaf.appendChild(p); }
+          g.appendChild(leaf);
+          return { el: leaf, seed: idx * 1.7, delay: (idx % 3) * 0.13, scaleVar: 0.88 + (idx % 4) * 0.08, ...a };
+        });
+      }
+      let gLeaves = [], pyLeaves = [];
+      function leafProfile(id) {
+        switch (id) {
+          case "green":
+            return { kind: "needle", dry: [76, 91, 47], wet: [116, 148, 70], w0: 2.8, w1: 4.2, len0: 24, len1: 52, scaleBoost: 1.22, alphaBoost: 1.38, alphaCap: .72, leaves: 4 };
+          case "white":
+            return { kind: "bud-leaf", dry: [180, 170, 140], wet: [168, 180, 130], budDry: [205, 196, 153], budWet: [190, 180, 140], w0: 2, w1: 3, len0: 18, len1: 28, leafW0: 4, leafW1: 8, leafLen0: 18, leafLen1: 36, scaleBoost: 1.15, alphaBoost: 1.1, alphaCap: .68, leaves: 3 };
+          case "oolong":
+            return { kind: "ball-broad", dry: [60, 74, 44], wet: [104, 134, 68], w0: 5, w1: 9, len0: 8, len1: 44, scaleBoost: 1.30, alphaBoost: 1, alphaCap: .72, leaves: 3 };
+          case "nong":
+            return { kind: "ball-crinkle", dry: [90, 65, 35], wet: [140, 100, 55], w0: 5, w1: 8.5, len0: 8, len1: 42, scaleBoost: 1.25, alphaBoost: 1.15, alphaCap: .76, leaves: 3 };
+          case "black":
+            return { kind: "mid-strip", dry: [15, 13, 10], wet: [28, 20, 14], w0: 2.6, w1: 5, len0: 23, len1: 42, scaleBoost: 1.18, alphaBoost: 2.35, alphaCap: .86, leaves: 4 };
+          case "sheng":
+            return { kind: "serrated", dry: [80, 72, 40], wet: [144, 128, 58], w0: 4, w1: 8, len0: 10, len1: 40, scaleBoost: 1.20, alphaBoost: 1.2, alphaCap: .74, leaves: 3 };
+          case "shou":
+            return { kind: "broken", dry: [50, 28, 15], wet: [74, 31, 14], w0: 2, w1: 4, len0: 8, len1: 22, scaleBoost: .85, alphaBoost: 2.0, alphaCap: .82, leaves: 5 };
+          default:
+            return { kind: "ball-broad", dry: [60, 74, 44], wet: [104, 134, 68], w0: 5, w1: 8, len0: 8, len1: 38, scaleBoost: 1, alphaBoost: 1, alphaCap: 1, leaves: 3 };
+        }
+      }
+      function leafPath(profile, open, childIdx) {
+        const k = profile.kind, len = lerp(profile.len0, profile.len1, open), w = lerp(profile.w0, profile.w1, open);
+        if (k === "needle" || k === "mid-strip") {
+          return `M 0 0 C ${w.toFixed(2)} ${(-len * .28).toFixed(2)} ${(w * .72).toFixed(2)} ${(-len * .72).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w * .72).toFixed(2)} ${(-len * .72).toFixed(2)} ${(-w).toFixed(2)} ${(-len * .28).toFixed(2)} 0 0 Z`;
+        }
+        if (k === "bud-leaf") {
+          if (childIdx === 0) {
+            const bw = lerp(profile.w0, profile.w1, open), bl = lerp(profile.len0, profile.len1, open);
+            return `M 0 0 C ${bw.toFixed(2)} ${(-bl * .3).toFixed(2)} ${(bw * .6).toFixed(2)} ${(-bl * .8).toFixed(2)} 0 ${(-bl).toFixed(2)} C ${(-bw * .6).toFixed(2)} ${(-bl * .8).toFixed(2)} ${(-bw).toFixed(2)} ${(-bl * .3).toFixed(2)} 0 0 Z`;
+          }
+          const lw = lerp(profile.leafW0, profile.leafW1, open), ll = lerp(profile.leafLen0, profile.leafLen1, open);
+          return `M 0 0 C ${lw.toFixed(2)} ${(-ll * .22).toFixed(2)} ${(lw * .9).toFixed(2)} ${(-ll * .55).toFixed(2)} ${(lw * .3).toFixed(2)} ${(-ll).toFixed(2)} C ${(-lw * .1).toFixed(2)} ${(-ll * .7).toFixed(2)} ${(-lw).toFixed(2)} ${(-ll * .22).toFixed(2)} 0 0 Z`;
+        }
+        if (k === "ball-broad") {
+          return `M 0 0 C ${w.toFixed(2)} ${(-len * .2).toFixed(2)} ${(w * .85).toFixed(2)} ${(-len * .65).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w * .85).toFixed(2)} ${(-len * .65).toFixed(2)} ${(-w).toFixed(2)} ${(-len * .2).toFixed(2)} 0 0 Z`;
+        }
+        if (k === "ball-crinkle") {
+          const cr = w * .18 * open;
+          return `M 0 0 C ${(w + cr).toFixed(2)} ${(-len * .18).toFixed(2)} ${(w * .7 - cr).toFixed(2)} ${(-len * .4).toFixed(2)} ${(w * .9 + cr).toFixed(2)} ${(-len * .6).toFixed(2)} C ${(w * .5).toFixed(2)} ${(-len * .82).toFixed(2)} ${(w * .15).toFixed(2)} ${(-len * .95).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w * .15).toFixed(2)} ${(-len * .95).toFixed(2)} ${(-w * .5).toFixed(2)} ${(-len * .82).toFixed(2)} ${(-w * .9 - cr).toFixed(2)} ${(-len * .6).toFixed(2)} C ${(-w * .7 + cr).toFixed(2)} ${(-len * .4).toFixed(2)} ${(-w - cr).toFixed(2)} ${(-len * .18).toFixed(2)} 0 0 Z`;
+        }
+        if (k === "serrated") {
+          const s = w * .2 * open, n = len;
+          return `M 0 0 C ${(w * .6).toFixed(2)} ${(-n * .1).toFixed(2)} ${(w + s).toFixed(2)} ${(-n * .25).toFixed(2)} ${(w * .8).toFixed(2)} ${(-n * .38).toFixed(2)} C ${(w * .6 - s).toFixed(2)} ${(-n * .48).toFixed(2)} ${(w * .9 + s).toFixed(2)} ${(-n * .62).toFixed(2)} ${(w * .5).toFixed(2)} ${(-n * .78).toFixed(2)} C ${(w * .2).toFixed(2)} ${(-n * .92).toFixed(2)} 0 ${(-n).toFixed(2)} 0 ${(-n).toFixed(2)} C 0 ${(-n).toFixed(2)} ${(-w * .2).toFixed(2)} ${(-n * .92).toFixed(2)} ${(-w * .5).toFixed(2)} ${(-n * .78).toFixed(2)} C ${(-w * .9 - s).toFixed(2)} ${(-n * .62).toFixed(2)} ${(-w * .6 + s).toFixed(2)} ${(-n * .48).toFixed(2)} ${(-w * .8).toFixed(2)} ${(-n * .38).toFixed(2)} C ${(-w - s).toFixed(2)} ${(-n * .25).toFixed(2)} ${(-w * .6).toFixed(2)} ${(-n * .1).toFixed(2)} 0 0 Z`;
+        }
+        if (k === "broken") {
+          if (childIdx >= 3) {
+            const sz = lerp(5, 8, open);
+            const shapes = [
+              `M0 0 L${sz * .4} ${-sz} L${sz} ${-sz * .6} L${sz * .7} 0 Z`,
+              `M0 0 L${-sz * .3} ${-sz * .9} L${sz * .5} ${-sz} L${sz * .4} ${-sz * .2} Z`,
+            ];
+            return shapes[childIdx % 2];
+          }
+          return `M 0 0 C ${w.toFixed(2)} ${(-len * .28).toFixed(2)} ${(w * .72).toFixed(2)} ${(-len * .72).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w * .72).toFixed(2)} ${(-len * .72).toFixed(2)} ${(-w).toFixed(2)} ${(-len * .28).toFixed(2)} 0 0 Z`;
+        }
+        return `M0 0 Q${w} ${-len * .5} 0 ${-len} Q${-w} ${-len * .5} 0 0 Z`;
+      }
+      function drawLeaves(arr, open, opts = {}) {
+        const t = performance.now() / 1000, ag = agitate;
+        const profile = leafProfile(tea().id), dry = profile.dry, wet = profile.wet;
+        const isNarrow = profile.kind === "needle" || profile.kind === "mid-strip";
+        arr.forEach(L => {
+          const d = L.delay || 0, lo = clamp((open - d) / (1 - d), 0, 1);
+          const sd = L.seed || 0;
+          const alpha = clamp(((opts.baseAlpha ?? .04) + (opts.peakAlpha ?? .56) * lo + ag * 0.16) * profile.alphaBoost, 0, profile.alphaCap);
+          const spread = isNarrow ? lerp(opts.minSpread ?? 7, opts.maxSpread ?? 24, lo) : lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
+          const scale = lerp(opts.minScale ?? .18, opts.maxScale ?? .48, lo) * (L.scaleVar || 1) * profile.scaleBoost;
+          const sway = reduce ? 0 : Math.sin(t * 0.9 + sd) * 4 * lo;
+          const swirl = reduce ? 0 : ag * Math.sin(t * 5 + sd) * 15;
+          const dx = reduce ? 0 : ag * Math.sin(t * 4.3 + sd * 2) * 5;
+          const dy = reduce ? 0 : -ag * (4 + Math.sin(t * 3.7 + sd) * 4);
+          const n = L.el.children.length;
+          for (let i = 0; i < n; i++) {
+            const flutter = reduce ? 0 : Math.sin(t * 1.6 + i + sd) * 1.3 * (lo + ag);
+            const ang = L.base + (i - (n - 1) / 2) * spread + flutter;
+            const p = L.el.children[i];
+            const col = (profile.kind === "bud-leaf" && i === 0) ? mix(profile.budDry, profile.budWet, lo) : mix(dry, wet, lo);
+            p.setAttribute("fill", `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${alpha.toFixed(3)})`);
+            p.setAttribute("d", leafPath(profile, lo, i));
+            p.setAttribute("transform", `rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
+          }
+          L.el.setAttribute("transform", `translate(${(L.x + dx).toFixed(2)} ${(L.y + dy).toFixed(2)}) rotate(${(sway + swirl).toFixed(2)})`);
+        });
+      }
+
+      const dryLeafSpots = [
+        { x: 45, y: 49, r: -31, s: .76 }, { x: 65, y: 38, r: 18, s: .9 }, { x: 83, y: 52, r: 56, s: .72 }, { x: 101, y: 35, r: -9, s: .86 },
+        { x: 119, y: 49, r: 33, s: .8 }, { x: 139, y: 36, r: -42, s: .75 }, { x: 157, y: 51, r: 8, s: .9 }, { x: 174, y: 41, r: 62, s: .7 },
+        { x: 57, y: 58, r: 84, s: .58 }, { x: 89, y: 28, r: -67, s: .55 }, { x: 128, y: 61, r: -18, s: .6 }, { x: 151, y: 27, r: 27, s: .54 },
+        { x: 106, y: 55, r: 103, s: .5 }, { x: 71, y: 50, r: -8, s: .48 }, { x: 167, y: 57, r: -58, s: .5 }, { x: 118, y: 28, r: 78, s: .46 }
+      ];
+      function dryLeafPreviewProfile(id) {
+        switch (id) {
+          case "green":
+            return { kind: "needle", count: 15, colors: [[90, 118, 48], [125, 151, 65], [66, 91, 39]], stroke: [42, 58, 25] };
+          case "white":
+            return { kind: "bud", count: 13, colors: [[205, 196, 153], [174, 184, 138], [225, 211, 166]], stroke: [119, 126, 92] };
+          case "oolong":
+            return { kind: "pearl", count: 14, colors: [[56, 78, 43], [73, 95, 48], [93, 107, 54]], stroke: [35, 48, 25] };
+          case "nong":
+            return { kind: "pearl", count: 14, colors: [[92, 62, 31], [119, 80, 36], [60, 45, 25]], stroke: [43, 28, 15] };
+          case "black":
+            return { kind: "wire", count: 16, colors: [[26, 20, 15], [49, 32, 18], [71, 42, 21]], stroke: [17, 13, 10] };
+          case "sheng":
+            return { kind: "twist", count: 15, colors: [[103, 90, 45], [139, 108, 45], [74, 80, 39]], stroke: [50, 47, 22] };
+          case "shou":
+            return { kind: "flake", count: 15, colors: [[45, 24, 14], [70, 38, 20], [31, 18, 12]], stroke: [20, 12, 8] };
+          default:
+            return { kind: "twist", count: 14, colors: [[72, 84, 46], [105, 116, 56]], stroke: [38, 45, 25] };
+        }
+      }
+      function svgEl(name, attrs) {
+        const el = document.createElementNS(SVGNS, name);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        return el;
+      }
+      function dryLeafShape(kind) {
+        if (kind === "needle") return "M-1 13 C1 4 1 -8 0 -20 C5 -10 6 4 1 14 Z";
+        if (kind === "wire") return "M-1 16 C5 5 -5 -6 2 -20 C-4 -10 2 2 -2 14";
+        if (kind === "bud") return "M0 14 C8 4 6 -12 0 -21 C-7 -12 -8 4 0 14 Z";
+        if (kind === "twist") return "M-8 11 C5 8 12 -1 7 -11 C4 -17 -4 -17 -8 -8 C-12 0 -8 6 5 10";
+        if (kind === "flake") return "M-8 9 C-13 0 -7 -10 2 -12 C12 -10 13 2 7 10 C1 15 -5 14 -8 9 Z";
+        return "M0 0";
+      }
+      function renderDryLeafPreview() {
+        const svg = els.dryLeaves, profile = dryLeafPreviewProfile(tea().id);
+        if (!svg) return;
+        svg.innerHTML = "";
+        dryLeafSpots.slice(0, profile.count).forEach((spot, i) => {
+          const color = profile.colors[i % profile.colors.length], fill = rgb(color), stroke = rgb(profile.stroke);
+          const g = svgEl("g", { transform: `translate(${spot.x} ${spot.y}) rotate(${spot.r}) scale(${spot.s})` });
+          if (profile.kind === "pearl") {
+            g.appendChild(svgEl("ellipse", { cx: "0", cy: "0", rx: "9", ry: "6.4", fill, stroke, "stroke-width": "1.2", opacity: ".94" }));
+            g.appendChild(svgEl("path", { d: "M-5 -1 C-1 -4 5 -2 6 2", fill: "none", stroke: "rgba(255,232,168,.34)", "stroke-width": "1.1", "stroke-linecap": "round" }));
+          } else {
+            const path = svgEl("path", { d: dryLeafShape(profile.kind), fill, stroke, "stroke-width": profile.kind === "wire" ? "2.6" : "1.1", "stroke-linecap": "round", "stroke-linejoin": "round", opacity: profile.kind === "bud" ? ".9" : ".95" });
+            if (profile.kind === "wire") path.setAttribute("fill", "none");
+            g.appendChild(path);
+            if (profile.kind === "bud") {
+              g.appendChild(svgEl("path", { d: "M0 10 C1 2 0 -7 -1 -16", fill: "none", stroke: "rgba(255,245,204,.32)", "stroke-width": ".8", "stroke-linecap": "round" }));
+            }
+          }
+          svg.appendChild(g);
+        });
+      }
+      function setTeaPickerActive(active, options = {}) {
+        const { showPreview = active } = options;
+        if (els.teaPicker) els.teaPicker.classList.toggle("locked", !active);
+        if (active && els.teaPreview) els.teaPreview.classList.toggle("hide", !showPreview);
+        $("teaPrev").disabled = !active;
+        $("teaNext").disabled = !active;
+      }
+      function openNoteModal() {
+        lastNoteFocus = document.activeElement;
+        els.noteModal.hidden = false;
+        $("noteDismiss").focus({ preventScroll: true });
+      }
+      function closeNoteModal() {
+        els.noteModal.hidden = true;
+        if (lastNoteFocus && typeof lastNoteFocus.focus === "function") lastNoteFocus.focus({ preventScroll: true });
+      }
+
+      // ---- elements ----
+      const els = {
+        ambient: $("ambient"), gLiquid: $("g-liquid"), gMeniscus: $("g-meniscus"), gLid: $("g-lid"),
+        gWallLeft: $("g-wall-left"), gWallRight: $("g-wall-right"),
+        liquorTop: $("liquorTop"), liquorBot: $("liquorBot"),
+        mugSurf: $("mug-surface"), mugSurfCenter: $("mugSurfCenter"), mugSurfEdge: $("mugSurfEdge"),
+        pyChamber: $("py-chamber"), pyChSurf: $("py-chSurf"),
+        pyLower: $("py-lower"), pyLowerSurf: $("py-lowerSurf"), pyLowerGrad: $("pyLowerGrad"),
+        ringTrack: $("ring-track"), ringProg: $("ring-prog"), steam: $("steam"),
+        pour: $("pour"), pourStream: $("pour-stream"), pourRipple: $("pour-ripple"),
+        hero: $("hero"), readout: $("readout"), time: $("time"), timeLabel: $("timeLabel"),
+        brew: $("brew"), slider: $("slider"), rangeWrap: $("rangeWrap"), dec: $("dec"), inc: $("inc"), secVal: $("secVal"), infusionLine: $("infusionLine"), tempHint: $("tempHint"),
+        teaPicker: document.querySelector(".tea-picker"),
+        teaPreview: $("teaPreview"), dryLeaves: $("dryLeaves"),
+        noteModal: $("noteModal"),
       };
-    }catch(e){ return fallback; }
-  }
-  const preferences=loadPreferences();
-  const secDeltaByTea={...preferences.secDeltaByTea};
-  const VICONS={
-    teapot:'<ellipse cx="20" cy="27" rx="12" ry="9"/><path d="M8 24 L2 21 L4 25 L10 28"/><path d="M32 24 C37 24 37 31 32 32"/><path d="M13 18 Q20 14 27 18"/><circle cx="20" cy="15" r="1.6"/>',
-    "eastern-pot":'<ellipse cx="20" cy="28" rx="12" ry="8"/><path d="M8 26 L2 24 L4 28 L9 29"/><path d="M32 25 C37 24 37 32 32 33"/><path d="M14 21 Q20 18 26 21"/><circle cx="20" cy="18" r="1.4"/>',
-    gaiwan:'<ellipse cx="20" cy="34" rx="13" ry="3.4"/><path d="M9 21 C8 29 14 34 20 34 C26 34 32 29 31 21"/><ellipse cx="20" cy="21" rx="11" ry="3"/><path d="M11 18 Q20 14 29 18"/><circle cx="20" cy="14.5" r="1.5"/>',
-    mug:'<path d="M11 17 L10 33 C10 35 14 36 20 36 C26 36 30 35 30 33 L29 17"/><ellipse cx="20" cy="17" rx="9" ry="2.6"/><path d="M30 22 C35 22 35 30 30 30"/>',
-    piaoyibei:'<path d="M12 19 L11 35 C11 37 15 38 20 38 C25 38 29 37 29 35 L28 19"/><ellipse cx="20" cy="18" rx="10" ry="2.6"/><path d="M20 18 L20 14"/><circle cx="20" cy="12.5" r="2.2"/><path d="M15 22 L15.4 30 M25 22 L24.6 30"/><path d="M15.4 30 L24.6 30" stroke-dasharray="2 2"/>',
-  };
-
-  // ---- state ----
-  let teaIdx=Math.max(0,TEAS.findIndex(t=>t.id===preferences.lastTeaId));
-  let vesselId=preferences.lastVesselId, infusion=1, sec=20, pyDrained=false;
-  let infusionHistory=[], activeBrew=null;
-  let phase="idle"; // idle | pour | steep | done
-  let pourStart=0, steepStart=0, steepMs=0, lastNow=performance.now();
-  let level=0, curAlpha=0, strengthT=0, openEff=0, lidLift=0, lidTarget=0, glow=0, drain=0;
-  let preWarnSec=5, preWarned=false, lastTick=-1, isUrgent=false, agitate=0;
-  let lastNoteFocus=null;
-  // Alpha-margin fit: keeps mug/piaoyibei visible tops aligned with the gaiwan readout lane.
-  const VESSEL_FITS={
-    mug:{scale:.96,x:4,y:8.7},
-    piaoyibei:{scale:.88,x:11.6,y:24.5},
-  };
-  const tea=()=>TEAS[teaIdx];
-  const vessel=()=>VESSELS.find(v=>v.id===vesselId);
-  const vesselSteepOffset=()=>vessel().steepOffset||0;
-  const recommendedSecFor=n=>clamp(tea().base+tea().add*(n-1)+vesselSteepOffset(),5,120);
-  const adjustedSecFor=n=>clamp(recommendedSecFor(n)+(secDeltaByTea[tea().id]||0),5,120);
-  function savePreferences(){
-    try{
-      localStorage.setItem(PREF_KEY,JSON.stringify({
-        version:PREF_VERSION,lastVesselId:vesselId,lastTeaId:tea().id,
-        secDeltaByTea,muted,
-      }));
-    }catch(e){}
-  }
-  function rememberTimeAdjustment(){
-    secDeltaByTea[tea().id]=sec-recommendedSecFor(infusion);
-    savePreferences();
-  }
-  function fitPoint(id,x,y){
-    const t=VESSEL_FITS[id];
-    return t ? {x:t.x+x*t.scale, y:t.y+y*t.scale} : {x,y};
-  }
-  function fitY(id,y){
-    const t=VESSEL_FITS[id];
-    return t ? t.y+y*t.scale : y;
-  }
-  function applyVesselFits(){
-    Object.entries(VESSEL_FITS).forEach(([id,t])=>{
-      const g=$("v-"+id);
-      if(g) g.setAttribute("transform",`matrix(${t.scale} 0 0 ${t.scale} ${t.x} ${t.y})`);
-    });
-  }
-
-  // ---- audio ----
-  let actx=null, muted=preferences.muted;
-  async function ensureAudio(){
-    try{
-      if(!actx||actx.state==="closed") actx=new (window.AudioContext||window.webkitAudioContext)();
-      if(actx.state!=="running") await actx.resume(); // iOS Safari may return from another app as "interrupted"
-      return actx.state==="running";
-    }catch(e){ return false; }
-  }
-  function bell(freq,t0,dur,gain){
-    if(!actx) return;
-    const master=actx.createGain(); master.gain.value=gain; master.connect(actx.destination);
-    [[1,1],[2.0,.5],[2.97,.3],[4.1,.18]].forEach(([r,g],i)=>{
-      const o=actx.createOscillator(); o.type="sine"; o.frequency.value=freq*r; o.detune.value=i?(Math.random()*8-4):0;
-      const ge=actx.createGain(); ge.gain.setValueAtTime(0,t0); ge.gain.linearRampToValueAtTime(g,t0+.006);
-      ge.gain.exponentialRampToValueAtTime(.0001,t0+dur*(1-i*.12));
-      o.connect(ge).connect(master); o.start(t0); o.stop(t0+dur+.1);
-    });
-  }
-  async function tone(freq,dur,gain){ if(muted||!await ensureAudio()) return; const t=actx.currentTime; const o=actx.createOscillator(); o.type="sine"; o.frequency.value=freq; const ge=actx.createGain(); ge.gain.setValueAtTime(0,t); ge.gain.linearRampToValueAtTime(gain,t+.005); ge.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(ge).connect(actx.destination); o.start(t); o.stop(t+dur+.05); }
-  const tick=()=>tone(1320,.06,.12);
-  const preWarn=()=>tone(784,.5,.16);              // G5
-  async function chime(){ if(muted||!await ensureAudio()) return; const t=actx.currentTime; bell(659.25,t,2.6,.26); bell(987.77,t+.17,2.9,.2); }
-
-  // ---- wake lock ----
-  let wakeLock=null;
-  async function reqWake(){ try{ if("wakeLock" in navigator) wakeLock=await navigator.wakeLock.request("screen"); }catch(e){} }
-  function relWake(){ try{ wakeLock&&wakeLock.release(); }catch(e){} wakeLock=null; }
-  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"){ if(actx) void ensureAudio(); if(phase==="pour"||phase==="steep") reqWake(); } });
-
-  // ---- leaves ----
-  function buildLeaves(groupId, anchors){
-    const g=$(groupId); g.innerHTML="";
-    const profile=leafProfile(tea().id), n=profile.leaves||4;
-    return anchors.map((a,idx)=>{
-      const leaf=document.createElementNS(SVGNS,"g");
-      for(let i=0;i<n;i++){ const p=document.createElementNS(SVGNS,"path"); p.setAttribute("d","M0 0"); leaf.appendChild(p); }
-      g.appendChild(leaf);
-      return {el:leaf, seed:idx*1.7, delay:(idx%3)*0.13, scaleVar:0.88+(idx%4)*0.08, ...a};
-    });
-  }
-  let gLeaves=[], pyLeaves=[];
-  function leafProfile(id){
-    switch(id){
-      case "green":
-        return {kind:"needle", dry:[76,91,47], wet:[116,148,70], w0:2.8, w1:4.2, len0:24, len1:52, scaleBoost:1.22, alphaBoost:1.38, alphaCap:.72, leaves:4};
-      case "white":
-        return {kind:"bud-leaf", dry:[180,170,140], wet:[168,180,130], budDry:[205,196,153], budWet:[190,180,140], w0:2, w1:3, len0:18, len1:28, leafW0:4, leafW1:8, leafLen0:18, leafLen1:36, scaleBoost:1.15, alphaBoost:1.1, alphaCap:.68, leaves:3};
-      case "oolong":
-        return {kind:"ball-broad", dry:[60,74,44], wet:[104,134,68], w0:5, w1:9, len0:8, len1:44, scaleBoost:1.30, alphaBoost:1, alphaCap:.72, leaves:3};
-      case "nong":
-        return {kind:"ball-crinkle", dry:[90,65,35], wet:[140,100,55], w0:5, w1:8.5, len0:8, len1:42, scaleBoost:1.25, alphaBoost:1.15, alphaCap:.76, leaves:3};
-      case "black":
-        return {kind:"mid-strip", dry:[15,13,10], wet:[28,20,14], w0:2.6, w1:5, len0:23, len1:42, scaleBoost:1.18, alphaBoost:2.35, alphaCap:.86, leaves:4};
-      case "sheng":
-        return {kind:"serrated", dry:[80,72,40], wet:[144,128,58], w0:4, w1:8, len0:10, len1:40, scaleBoost:1.20, alphaBoost:1.2, alphaCap:.74, leaves:3};
-      case "shou":
-        return {kind:"broken", dry:[50,28,15], wet:[74,31,14], w0:2, w1:4, len0:8, len1:22, scaleBoost:.85, alphaBoost:2.0, alphaCap:.82, leaves:5};
-      default:
-        return {kind:"ball-broad", dry:[60,74,44], wet:[104,134,68], w0:5, w1:8, len0:8, len1:38, scaleBoost:1, alphaBoost:1, alphaCap:1, leaves:3};
-    }
-  }
-  function leafPath(profile, open, childIdx){
-    const k=profile.kind, len=lerp(profile.len0,profile.len1,open), w=lerp(profile.w0,profile.w1,open);
-    if(k==="needle" || k==="mid-strip"){
-      return `M 0 0 C ${w.toFixed(2)} ${(-len*.28).toFixed(2)} ${(w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.28).toFixed(2)} 0 0 Z`;
-    }
-    if(k==="bud-leaf"){
-      if(childIdx===0){
-        const bw=lerp(profile.w0,profile.w1,open), bl=lerp(profile.len0,profile.len1,open);
-        return `M 0 0 C ${bw.toFixed(2)} ${(-bl*.3).toFixed(2)} ${(bw*.6).toFixed(2)} ${(-bl*.8).toFixed(2)} 0 ${(-bl).toFixed(2)} C ${(-bw*.6).toFixed(2)} ${(-bl*.8).toFixed(2)} ${(-bw).toFixed(2)} ${(-bl*.3).toFixed(2)} 0 0 Z`;
-      }
-      const lw=lerp(profile.leafW0,profile.leafW1,open), ll=lerp(profile.leafLen0,profile.leafLen1,open);
-      return `M 0 0 C ${lw.toFixed(2)} ${(-ll*.22).toFixed(2)} ${(lw*.9).toFixed(2)} ${(-ll*.55).toFixed(2)} ${(lw*.3).toFixed(2)} ${(-ll).toFixed(2)} C ${(-lw*.1).toFixed(2)} ${(-ll*.7).toFixed(2)} ${(-lw).toFixed(2)} ${(-ll*.22).toFixed(2)} 0 0 Z`;
-    }
-    if(k==="ball-broad"){
-      return `M 0 0 C ${w.toFixed(2)} ${(-len*.2).toFixed(2)} ${(w*.85).toFixed(2)} ${(-len*.65).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.85).toFixed(2)} ${(-len*.65).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.2).toFixed(2)} 0 0 Z`;
-    }
-    if(k==="ball-crinkle"){
-      const cr=w*.18*open;
-      return `M 0 0 C ${(w+cr).toFixed(2)} ${(-len*.18).toFixed(2)} ${(w*.7-cr).toFixed(2)} ${(-len*.4).toFixed(2)} ${(w*.9+cr).toFixed(2)} ${(-len*.6).toFixed(2)} C ${(w*.5).toFixed(2)} ${(-len*.82).toFixed(2)} ${(w*.15).toFixed(2)} ${(-len*.95).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.15).toFixed(2)} ${(-len*.95).toFixed(2)} ${(-w*.5).toFixed(2)} ${(-len*.82).toFixed(2)} ${(-w*.9-cr).toFixed(2)} ${(-len*.6).toFixed(2)} C ${(-w*.7+cr).toFixed(2)} ${(-len*.4).toFixed(2)} ${(-w-cr).toFixed(2)} ${(-len*.18).toFixed(2)} 0 0 Z`;
-    }
-    if(k==="serrated"){
-      const s=w*.2*open, n=len;
-      return `M 0 0 C ${(w*.6).toFixed(2)} ${(-n*.1).toFixed(2)} ${(w+s).toFixed(2)} ${(-n*.25).toFixed(2)} ${(w*.8).toFixed(2)} ${(-n*.38).toFixed(2)} C ${(w*.6-s).toFixed(2)} ${(-n*.48).toFixed(2)} ${(w*.9+s).toFixed(2)} ${(-n*.62).toFixed(2)} ${(w*.5).toFixed(2)} ${(-n*.78).toFixed(2)} C ${(w*.2).toFixed(2)} ${(-n*.92).toFixed(2)} 0 ${(-n).toFixed(2)} 0 ${(-n).toFixed(2)} C 0 ${(-n).toFixed(2)} ${(-w*.2).toFixed(2)} ${(-n*.92).toFixed(2)} ${(-w*.5).toFixed(2)} ${(-n*.78).toFixed(2)} C ${(-w*.9-s).toFixed(2)} ${(-n*.62).toFixed(2)} ${(-w*.6+s).toFixed(2)} ${(-n*.48).toFixed(2)} ${(-w*.8).toFixed(2)} ${(-n*.38).toFixed(2)} C ${(-w-s).toFixed(2)} ${(-n*.25).toFixed(2)} ${(-w*.6).toFixed(2)} ${(-n*.1).toFixed(2)} 0 0 Z`;
-    }
-    if(k==="broken"){
-      if(childIdx>=3){
-        const sz=lerp(5,8,open);
-        const shapes=[
-          `M0 0 L${sz*.4} ${-sz} L${sz} ${-sz*.6} L${sz*.7} 0 Z`,
-          `M0 0 L${-sz*.3} ${-sz*.9} L${sz*.5} ${-sz} L${sz*.4} ${-sz*.2} Z`,
-        ];
-        return shapes[childIdx%2];
-      }
-      return `M 0 0 C ${w.toFixed(2)} ${(-len*.28).toFixed(2)} ${(w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} 0 ${(-len).toFixed(2)} C ${(-w*.72).toFixed(2)} ${(-len*.72).toFixed(2)} ${(-w).toFixed(2)} ${(-len*.28).toFixed(2)} 0 0 Z`;
-    }
-    return `M0 0 Q${w} ${-len*.5} 0 ${-len} Q${-w} ${-len*.5} 0 0 Z`;
-  }
-  function drawLeaves(arr, open, opts={}){
-    const t=performance.now()/1000, ag=agitate;
-    const profile=leafProfile(tea().id), dry=profile.dry, wet=profile.wet;
-    const isNarrow=profile.kind==="needle"||profile.kind==="mid-strip";
-    arr.forEach(L=>{
-      const d=L.delay||0, lo=clamp((open-d)/(1-d),0,1);
-      const sd=L.seed||0;
-      const alpha=clamp(((opts.baseAlpha ?? .04)+(opts.peakAlpha ?? .56)*lo + ag*0.16)*profile.alphaBoost,0,profile.alphaCap);
-      const spread=isNarrow ? lerp(opts.minSpread ?? 7, opts.maxSpread ?? 24, lo) : lerp(opts.minSpread ?? 8, opts.maxSpread ?? 38, lo);
-      const scale=lerp(opts.minScale ?? .18, opts.maxScale ?? .48, lo)*(L.scaleVar||1)*profile.scaleBoost;
-      const sway=reduce?0:Math.sin(t*0.9+sd)*4*lo;
-      const swirl=reduce?0:ag*Math.sin(t*5+sd)*15;
-      const dx=reduce?0:ag*Math.sin(t*4.3+sd*2)*5;
-      const dy=reduce?0:-ag*(4+Math.sin(t*3.7+sd)*4);
-      const n=L.el.children.length;
-      for(let i=0;i<n;i++){
-        const flutter=reduce?0:Math.sin(t*1.6+i+sd)*1.3*(lo+ag);
-        const ang=L.base+(i-(n-1)/2)*spread+flutter;
-        const p=L.el.children[i];
-        const col = (profile.kind==="bud-leaf" && i===0) ? mix(profile.budDry,profile.budWet,lo) : mix(dry,wet,lo);
-        p.setAttribute("fill",`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${alpha.toFixed(3)})`);
-        p.setAttribute("d",leafPath(profile,lo,i));
-        p.setAttribute("transform",`rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
-      }
-      L.el.setAttribute("transform",`translate(${(L.x+dx).toFixed(2)} ${(L.y+dy).toFixed(2)}) rotate(${(sway+swirl).toFixed(2)})`);
-    });
-  }
-
-  const dryLeafSpots=[
-    {x:45,y:49,r:-31,s:.76},{x:65,y:38,r:18,s:.9},{x:83,y:52,r:56,s:.72},{x:101,y:35,r:-9,s:.86},
-    {x:119,y:49,r:33,s:.8},{x:139,y:36,r:-42,s:.75},{x:157,y:51,r:8,s:.9},{x:174,y:41,r:62,s:.7},
-    {x:57,y:58,r:84,s:.58},{x:89,y:28,r:-67,s:.55},{x:128,y:61,r:-18,s:.6},{x:151,y:27,r:27,s:.54},
-    {x:106,y:55,r:103,s:.5},{x:71,y:50,r:-8,s:.48},{x:167,y:57,r:-58,s:.5},{x:118,y:28,r:78,s:.46}
-  ];
-  function dryLeafPreviewProfile(id){
-    switch(id){
-      case "green":
-        return {kind:"needle", count:15, colors:[[90,118,48],[125,151,65],[66,91,39]], stroke:[42,58,25]};
-      case "white":
-        return {kind:"bud", count:13, colors:[[205,196,153],[174,184,138],[225,211,166]], stroke:[119,126,92]};
-      case "oolong":
-        return {kind:"pearl", count:14, colors:[[56,78,43],[73,95,48],[93,107,54]], stroke:[35,48,25]};
-      case "nong":
-        return {kind:"pearl", count:14, colors:[[92,62,31],[119,80,36],[60,45,25]], stroke:[43,28,15]};
-      case "black":
-        return {kind:"wire", count:16, colors:[[26,20,15],[49,32,18],[71,42,21]], stroke:[17,13,10]};
-      case "sheng":
-        return {kind:"twist", count:15, colors:[[103,90,45],[139,108,45],[74,80,39]], stroke:[50,47,22]};
-      case "shou":
-        return {kind:"flake", count:15, colors:[[45,24,14],[70,38,20],[31,18,12]], stroke:[20,12,8]};
-      default:
-        return {kind:"twist", count:14, colors:[[72,84,46],[105,116,56]], stroke:[38,45,25]};
-    }
-  }
-  function svgEl(name, attrs){
-    const el=document.createElementNS(SVGNS,name);
-    Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
-    return el;
-  }
-  function dryLeafShape(kind){
-    if(kind==="needle") return "M-1 13 C1 4 1 -8 0 -20 C5 -10 6 4 1 14 Z";
-    if(kind==="wire") return "M-1 16 C5 5 -5 -6 2 -20 C-4 -10 2 2 -2 14";
-    if(kind==="bud") return "M0 14 C8 4 6 -12 0 -21 C-7 -12 -8 4 0 14 Z";
-    if(kind==="twist") return "M-8 11 C5 8 12 -1 7 -11 C4 -17 -4 -17 -8 -8 C-12 0 -8 6 5 10";
-    if(kind==="flake") return "M-8 9 C-13 0 -7 -10 2 -12 C12 -10 13 2 7 10 C1 15 -5 14 -8 9 Z";
-    return "M0 0";
-  }
-  function renderDryLeafPreview(){
-    const svg=els.dryLeaves, profile=dryLeafPreviewProfile(tea().id);
-    if(!svg) return;
-    svg.innerHTML="";
-    dryLeafSpots.slice(0,profile.count).forEach((spot,i)=>{
-      const color=profile.colors[i%profile.colors.length], fill=rgb(color), stroke=rgb(profile.stroke);
-      const g=svgEl("g",{transform:`translate(${spot.x} ${spot.y}) rotate(${spot.r}) scale(${spot.s})`});
-      if(profile.kind==="pearl"){
-        g.appendChild(svgEl("ellipse",{cx:"0",cy:"0",rx:"9",ry:"6.4",fill,stroke,"stroke-width":"1.2",opacity:".94"}));
-        g.appendChild(svgEl("path",{d:"M-5 -1 C-1 -4 5 -2 6 2",fill:"none",stroke:"rgba(255,232,168,.34)","stroke-width":"1.1","stroke-linecap":"round"}));
-      } else {
-        const path=svgEl("path",{d:dryLeafShape(profile.kind),fill,stroke,"stroke-width":profile.kind==="wire"?"2.6":"1.1","stroke-linecap":"round","stroke-linejoin":"round",opacity:profile.kind==="bud"?".9":".95"});
-        if(profile.kind==="wire") path.setAttribute("fill","none");
-        g.appendChild(path);
-        if(profile.kind==="bud"){
-          g.appendChild(svgEl("path",{d:"M0 10 C1 2 0 -7 -1 -16",fill:"none",stroke:"rgba(255,245,204,.32)","stroke-width":".8","stroke-linecap":"round"}));
+      let ringC = 2 * Math.PI * 92;
+      els.ringProg.setAttribute("stroke-dasharray", ringC);
+      // 도구별 링 중심·반경 (실루엣에 맞춤)
+      function ringGeom() {
+        switch (vesselId) {
+          case "teapot": return { cy: 132, r: 95 };
+          case "eastern-pot": return { cy: 130, r: 85 };
+          case "mug": return { cy: 120, r: 84 };
+          case "piaoyibei": return { cy: 124, r: 88 };
+          default: return { cy: 124, r: 90 };
         }
       }
-      svg.appendChild(g);
-    });
-  }
-  function setTeaPickerActive(active, options = {}){
-    const {showPreview = active} = options;
-    if(els.teaPicker) els.teaPicker.classList.toggle("locked", !active);
-    if(active && els.teaPreview) els.teaPreview.classList.toggle("hide", !showPreview);
-    $("teaPrev").disabled=!active;
-    $("teaNext").disabled=!active;
-  }
-  function openNoteModal(){
-    lastNoteFocus=document.activeElement;
-    els.noteModal.hidden=false;
-    $("noteDismiss").focus({preventScroll:true});
-  }
-  function closeNoteModal(){
-    els.noteModal.hidden=true;
-    if(lastNoteFocus&&typeof lastNoteFocus.focus==="function") lastNoteFocus.focus({preventScroll:true});
-  }
-
-  // ---- elements ----
-  const els={
-    ambient:$("ambient"), gLiquid:$("g-liquid"), gMeniscus:$("g-meniscus"), gLid:$("g-lid"),
-    gWallLeft:$("g-wall-left"), gWallRight:$("g-wall-right"),
-    liquorTop:$("liquorTop"), liquorBot:$("liquorBot"),
-    mugSurf:$("mug-surface"), mugSurfCenter:$("mugSurfCenter"), mugSurfEdge:$("mugSurfEdge"),
-    pyChamber:$("py-chamber"), pyChSurf:$("py-chSurf"),
-    pyLower:$("py-lower"), pyLowerSurf:$("py-lowerSurf"), pyLowerGrad:$("pyLowerGrad"),
-    ringTrack:$("ring-track"), ringProg:$("ring-prog"), steam:$("steam"),
-    pour:$("pour"), pourStream:$("pour-stream"), pourRipple:$("pour-ripple"),
-    hero:$("hero"), readout:$("readout"), time:$("time"), timeLabel:$("timeLabel"),
-    brew:$("brew"), slider:$("slider"), rangeWrap:$("rangeWrap"), dec:$("dec"), inc:$("inc"), secVal:$("secVal"), infusionLine:$("infusionLine"), tempHint:$("tempHint"),
-    teaPicker:document.querySelector(".tea-picker"),
-    teaPreview:$("teaPreview"), dryLeaves:$("dryLeaves"),
-    noteModal:$("noteModal"),
-  };
-  let ringC=2*Math.PI*92;
-  els.ringProg.setAttribute("stroke-dasharray", ringC);
-  // 도구별 링 중심·반경 (실루엣에 맞춤)
-  function ringGeom(){
-    switch(vesselId){
-      case "teapot":      return {cy:132, r:95};
-      case "eastern-pot": return {cy:130, r:85};
-      case "mug":         return {cy:120, r:84};
-      case "piaoyibei":   return {cy:124, r:88};
-      default:            return {cy:124, r:90};
-    }
-  }
-  function applyRingGeom(){
-    const g=ringGeom(); ringC=2*Math.PI*g.r;
-    [els.ringTrack, els.ringProg].forEach(el=>{ el.setAttribute("cy",g.cy); el.setAttribute("r",g.r); });
-    els.ringProg.setAttribute("stroke-dasharray", ringC);
-    els.ringProg.setAttribute("transform",`rotate(-90 100 ${g.cy})`);
-  }
-
-  // ---- format ----
-  const fmt=ms=>{ const s=Math.max(0,Math.ceil(ms/1000)); return `${(s/60)|0}:${String(s%60).padStart(2,"0")}`; };
-  const brewLabel=(n,s)=>`${n}포 ${s}초`;
-
-  // ---- tea / vessel UI ----
-  function renderedTeaColor(t){
-    const body=mix(t.light,t.strong,Math.min(1,t.peak*.78));
-    return mix(body,[255,248,210],.22);
-  }
-  function paintTea(){
-    const t=tea();
-    $("teaName").textContent=t.name; $("teaCur").textContent=t.name;
-    $("teaDot").style.background=rgb(renderedTeaColor(t));
-    $("teaGhostL").textContent=TEAS[(teaIdx+TEAS.length-1)%TEAS.length].name;
-    $("teaGhostR").textContent=TEAS[(teaIdx+1)%TEAS.length].name;
-    [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===teaIdx));
-    renderDryLeafPreview();
-    rebuildWetLeaves();
-  }
-  function rebuildWetLeaves(){
-    gLeaves=buildLeaves("g-leaves",[{x:100,y:164,base:0},{x:87,y:160,base:70},{x:113,y:160,base:140},{x:95,y:156,base:210},{x:105,y:156,base:300}]);
-    pyLeaves=buildLeaves("py-leaves",[{x:100,y:124,base:0},{x:90,y:119,base:120},{x:110,y:121,base:240}]);
-  }
-  function buildDots(){ const d=$("dots"); d.innerHTML=""; TEAS.forEach(()=>d.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml","i"))); }
-  function vesselIndex(){ return VESSELS.findIndex(v=>v.id===vesselId); }
-  function vesselLabel(v){ return v.shortName||v.name; }
-  function paintVesselPicker(){
-    $("vesselName").textContent=vesselLabel(vessel());
-  }
-  function selectVessel(delta){
-    if(phase==="pour"||phase==="steep") return;
-    if(infusionHistory.length > 0){
-      showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
-      return;
-    }
-    const idx=vesselIndex();
-    vesselId=VESSELS[(idx+delta+VESSELS.length)%VESSELS.length].id;
-    savePreferences();
-    reset(); buildSegState();
-  }
-  function buildSegState(){
-    paintVesselPicker();
-    VESSELS.forEach(v=>{ const g=$("v-"+v.id); if(g) g.style.display = v.id===vesselId?"":"none"; });
-    els.hero.style.setProperty("--readout-top", vessel().readoutTop || "31%");
-    els.ringTrack.style.display = ""; els.ringProg.style.display = "";
-    applyRingGeom();
-  }
-  function selectTea(i){
-    if(phase==="pour"||phase==="steep") return;
-    if(infusionHistory.length > 0){
-      showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
-      return;
-    }
-    teaIdx=(i+TEAS.length)%TEAS.length; paintTea();
-    savePreferences();
-    if(phase==="idle"||phase==="done") reset();
-  }
-
-  // ---- slider ----
-  function updateInfusionLine(){
-    els.infusionLine.textContent=infusionHistory.length
-      ? "우림 기록 "+infusionHistory.map(h=>brewLabel(h.n,h.sec)).join(" / ")
-      : "";
-  }
-  function syncSlider(){
-    els.slider.value=sec;
-    const rec=recommendedSecFor(infusion);
-    const p=((sec-5)/115)*100, recF=(rec-5)/115;
-    els.slider.style.setProperty("--p",p+"%");
-    els.rangeWrap.style.setProperty("--recommended-f",recF);
-    els.slider.setAttribute("aria-valuetext",`${sec}초, 권장 ${rec}초`);
-    els.tempHint.textContent=`${tea().temp}°C / ${rec}초`;
-    els.secVal.textContent=brewLabel(infusion,sec);
-    updateInfusionLine();
-  }
-  els.slider.addEventListener("input",()=>{ sec=clamp(Math.round(+els.slider.value/5)*5,5,120); rememberTimeAdjustment(); syncSlider(); if(phase==="idle"||phase==="done") previewIdle(); });
-  els.dec.onclick=()=>{ if(phase!=="idle"&&phase!=="done") return; sec=clamp(sec-1,5,120); rememberTimeAdjustment(); syncSlider(); previewIdle(); };
-  els.inc.onclick=()=>{ if(phase!=="idle"&&phase!=="done") return; sec=clamp(sec+1,5,120); rememberTimeAdjustment(); syncSlider(); previewIdle(); };
-
-  // ---- rendering ----
-  function applyLiquor(rectEl, surfEl, alpha, strength, top, full){
-    const col=mix(tea().light, tea().strong, strength);
-    if(rectEl){
-      els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .45)));   // 수면 쪽 옅음
-      els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .4)));   // 바닥 쪽 진함
-      rectEl.setAttribute("fill","url(#liquorGrad)"); rectEl.setAttribute("opacity",alpha.toFixed(3));
-      rectEl.setAttribute("y",top); rectEl.setAttribute("height",Math.max(0,full-top));
-    }
-    if(surfEl){ surfEl.setAttribute("fill",rgb(mix(col,[255,248,210],.18))); surfEl.setAttribute("opacity",(alpha*1.05).toFixed(3)); surfEl.setAttribute("cy",top); }
-  }
-  function gaiwanWallAt(y){
-    if(y<=152){
-      const t=clamp((y-126)/26,0,1);
-      return {left:lerp(58,60,t), right:lerp(142,140,t)};
-    }
-    const t=clamp((y-152)/14,0,1);
-    return {left:lerp(60,74,t), right:lerp(140,126,t)};
-  }
-  function gaiwanLiquidPath(top, lvl){
-    const wall=gaiwanWallAt(top), bottom=165.6;
-    const contactY=lerp(top,154,0.82), contact=gaiwanWallAt(contactY);
-    const low=gaiwanWallAt(162.5);
-    const surfaceLift=(reduce?0:Math.sin(performance.now()/720))*0.55*Math.min(1,lvl);
-    const bottomRx=lerp(8,24,lvl);
-    const topDip=lerp(1.1,2.6,lvl)+surfaceLift;
-    return [
-      `M ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
-      `C ${(wall.left+14).toFixed(2)} ${(top-topDip).toFixed(2)} ${(wall.right-14).toFixed(2)} ${(top-topDip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`,
-      `C ${(wall.right+.6).toFixed(2)} ${(top+8).toFixed(2)} ${(contact.right+.8).toFixed(2)} ${(contactY-7).toFixed(2)} ${contact.right.toFixed(2)} ${contactY.toFixed(2)}`,
-      `C ${(low.right-1.4).toFixed(2)} 159.8 ${(100+bottomRx*1.05).toFixed(2)} ${(bottom-2).toFixed(2)} ${(100+bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
-      `C ${(100+bottomRx*.24).toFixed(2)} ${(bottom+1.4).toFixed(2)} ${(100-bottomRx*.24).toFixed(2)} ${(bottom+1.4).toFixed(2)} ${(100-bottomRx*.58).toFixed(2)} ${bottom.toFixed(2)}`,
-      `C ${(100-bottomRx*1.05).toFixed(2)} ${(bottom-2).toFixed(2)} ${(low.left+1.4).toFixed(2)} 159.8 ${contact.left.toFixed(2)} ${contactY.toFixed(2)}`,
-      `C ${(contact.left-.8).toFixed(2)} ${(contactY-7).toFixed(2)} ${(wall.left-.6).toFixed(2)} ${(top+8).toFixed(2)} ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
-      "Z"
-    ].join(" ");
-  }
-  function gaiwanMeniscusPath(top, lvl){
-    const wall=gaiwanWallAt(top);
-    const lift=(reduce?0:Math.sin(performance.now()/720))*0.55*Math.min(1,lvl);
-    const dip=lerp(1.1,2.6,lvl)+lift;
-    return `M ${wall.left.toFixed(2)} ${top.toFixed(2)} C ${(wall.left+14).toFixed(2)} ${(top-dip).toFixed(2)} ${(wall.right-14).toFixed(2)} ${(top-dip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`;
-  }
-  function gaiwanWallWashPath(top, side){
-    const y0=top+1.2, y1=lerp(top,154,.82), y2=164.5;
-    const w0=gaiwanWallAt(y0), w1=gaiwanWallAt(y1), w2=gaiwanWallAt(y2);
-    const outer0=side<0?w0.left:w0.right, outer1=side<0?w1.left:w1.right, outer2=side<0?w2.left:w2.right;
-    const inset0=side<0?5.8:-5.8, inset1=side<0?4.8:-4.8, inset2=side<0?2.9:-2.9;
-    return [
-      `M ${outer0.toFixed(2)} ${y0.toFixed(2)}`,
-      `C ${(outer0+side*-0.8).toFixed(2)} ${(top+11).toFixed(2)} ${(outer1+side*-0.7).toFixed(2)} ${(y1-5).toFixed(2)} ${outer1.toFixed(2)} ${y1.toFixed(2)}`,
-      `C ${(outer1+side*-0.4).toFixed(2)} ${(y1+6).toFixed(2)} ${(outer2+side*-0.4).toFixed(2)} 159.8 ${outer2.toFixed(2)} ${y2.toFixed(2)}`,
-      `L ${(outer2+inset2).toFixed(2)} ${(y2-.8).toFixed(2)}`,
-      `C ${(outer1+inset1).toFixed(2)} ${(y1+5).toFixed(2)} ${(outer0+inset0).toFixed(2)} ${(top+10).toFixed(2)} ${(outer0+inset0).toFixed(2)} ${(y0+.6).toFixed(2)}`,
-      "Z"
-    ].join(" ");
-  }
-  function applyGaiwanLiquor(alpha, strength, top, lvl){
-    const col=mix(tea().light, tea().strong, strength);
-    els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .48)));
-    els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .35)));
-    els.gLiquid.setAttribute("fill","url(#liquorGrad)");
-    els.gLiquid.setAttribute("opacity",alpha.toFixed(3));
-    els.gLiquid.setAttribute("d",gaiwanLiquidPath(top,lvl));
-    els.gMeniscus.setAttribute("d",gaiwanMeniscusPath(top,lvl));
-    els.gMeniscus.setAttribute("stroke",rgb(mix(col,[255,248,210],.35)));
-    els.gMeniscus.setAttribute("opacity",(alpha*.42).toFixed(3));
-    els.gWallLeft.setAttribute("d",gaiwanWallWashPath(top,-1));
-    els.gWallRight.setAttribute("d",gaiwanWallWashPath(top,1));
-    [els.gWallLeft,els.gWallRight].forEach(el=>{
-      el.setAttribute("fill",rgb(mix(col,tea().strong,.38)));
-      el.setAttribute("opacity",(alpha*.62*Math.min(1,lvl*1.6)).toFixed(3));
-    });
-  }
-  function setRing(remaining, total, urgent){
-    const frac=clamp(remaining/total,0,1);
-    els.ringProg.setAttribute("stroke-dashoffset", (ringC*(1-frac)).toFixed(1));
-    els.ringTrack.setAttribute("opacity",".25");
-    els.ringProg.setAttribute("opacity", urgent?".9":".4");
-    els.ringProg.setAttribute("stroke", urgent?"#e4d691":"#8c7f63");
-    els.ringProg.setAttribute("stroke-width", urgent?"3":"2");
-  }
-  function clearRing(){ els.ringProg.setAttribute("opacity","0"); els.ringTrack.setAttribute("opacity","0"); }
-
-  // 김 분출구: 주전자=뚜껑+꼭지, 개완·표일배=뚜껑 테두리 틈새 양쪽, 머그=수면. dx=가로 드리프트
-  function steamPorts(){
-    switch(vesselId){
-      case "teapot":      return [{x:100,y:90,dx:0},{x:32,y:104,dx:-0.42}];   // 뚜껑 · 꼭지
-      case "eastern-pot": return [{x:100,y:95,dx:0},{x:42,y:107,dx:-0.38}];   // 뚜껑 · 꼭지
-      case "gaiwan":      return [{x:68,y:95,dx:-0.12},{x:132,y:95,dx:0.12}]; // 뚜껑-사발 림 틈새
-      case "mug":         return [{...fitPoint("mug",96,82),dx:0}];
-      case "piaoyibei":   return [{...fitPoint("piaoyibei",73,52),dx:-0.12},{...fitPoint("piaoyibei",121,52),dx:0.12}]; // 뚜껑-컵 림 틈새
-      default:            return [{x:100,y:100,dx:0}];
-    }
-  }
-  function setSteam(intensity){
-    const g=els.steam, ports=steamPorts();
-    const perPort=Math.round(intensity*3), want=ports.length*perPort;   // 포트당 최대 3가닥
-    while(g.children.length<want){ const e=document.createElementNS(SVGNS,"ellipse"); e._t=Math.random(); e._s=0.7+Math.random()*0.6; g.appendChild(e); }
-    while(g.children.length>want) g.removeChild(g.lastChild);
-    [...g.children].forEach((e,i)=>{
-      const port=ports[i%ports.length], k=Math.floor(i/ports.length);
-      e._t=(e._t+0.005)%1; const t=e._t, sway=Math.sin(t*6.28+i)*5;
-      e.setAttribute("cx", (port.x + port.dx*t*22 + sway + (k-perPort/2)*5).toFixed(1));
-      e.setAttribute("cy", (port.y-6 - t*46).toFixed(1));
-      e.setAttribute("rx", (4+t*9*e._s).toFixed(1)); e.setAttribute("ry", (6+t*13*e._s).toFixed(1));
-      e.setAttribute("fill","#fff7e0"); e.setAttribute("opacity",(Math.sin(Math.PI*t)*0.21).toFixed(3));
-    });
-  }
-  // 수면 일렁임: 시간 기반으로 ellipse 크기를 미세 진동(임박 구간 amp↑)
-  function shimmerSurf(el, baseRx, baseRy, lvl){
-    if(!el) return;
-    const tt=performance.now()/1000, amp=reduce?0:(0.4+0.7*(isUrgent?1:0))*Math.min(1,lvl);
-    el.setAttribute("rx",(baseRx + Math.sin(tt*1.7)*amp*1.4).toFixed(2));
-    el.setAttribute("ry",(baseRy + Math.sin(tt*2.3+1)*amp).toFixed(2));
-  }
-  function pyLowerPath(top, amount){
-    const cx=97, bottom=190, t=clamp(amount,0,1);
-    const topRx=lerp(5,23,t), botRx=lerp(7,16,t);
-    const topLift=lerp(0,2.3,t), bottomBulge=lerp(0,1.2,t);
-    return [
-      `M ${(cx-topRx).toFixed(2)} ${top.toFixed(2)}`,
-      `C ${(cx-topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(cx+topRx*.55).toFixed(2)} ${(top-topLift).toFixed(2)} ${(cx+topRx).toFixed(2)} ${top.toFixed(2)}`,
-      `L ${(cx+botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
-      `C ${(cx+botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(cx+botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${cx} ${bottom.toFixed(2)}`,
-      `C ${(cx-botRx*.36).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(cx-botRx*.85).toFixed(2)} ${(bottom+bottomBulge).toFixed(2)} ${(cx-botRx).toFixed(2)} ${(bottom-4).toFixed(2)}`,
-      "Z"
-    ].join(" ");
-  }
-  // 물줄기가 떨어지는 착지 높이(도구별 입구)
-  function pourLandY(){ return vesselId==="gaiwan"?122 : vesselId==="piaoyibei"?fitY("piaoyibei",108) : vesselId==="mug"?fitY("mug",82) : vesselId==="eastern-pot"?100 : 95; }
-
-  function render(){
-    const v=vessel();
-    const activeLevel = (phase === "done" && vesselId !== "piaoyibei") ? level * (1 - drain) : level;
-    const activeAlpha = (phase === "done" && vesselId !== "piaoyibei") ? curAlpha * (1 - drain) : curAlpha;
-
-    // gaiwan
-    if(vesselId==="gaiwan"){
-      const top=lerp(166,130,activeLevel);
-      applyGaiwanLiquor(activeAlpha*Math.min(1,activeLevel*1.4)*.92, strengthT, top, activeLevel);
-      drawLeaves(gLeaves, openEff, {baseAlpha:.55, peakAlpha:.24, minSpread:6, maxSpread:30, minScale:.38, maxScale:.42});
-      els.gLid.setAttribute("opacity","0");
-    } else if(vesselId==="piaoyibei"){
-      // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
-      const chTop=lerp(136,108,level), chAlpha=curAlpha*(1-drain);
-      applyLiquor(els.pyChamber, els.pyChSurf, chAlpha*Math.min(1,level*1.4)*.82, strengthT, chTop, 136);
-      shimmerSurf(els.pyChSurf, lerp(11,21,level), 4.8, level);
-      const lowTop=lerp(190,154,drain);   // 손잡이 하단 살짝 밑까지 차오름
-      const lowCol=rgb(mix(tea().light,tea().strong,strengthT));
-      [...els.pyLowerGrad.children].forEach(s=>s.setAttribute("stop-color",lowCol)); // 깊이 그라데이션(바닥 페이드)
-      els.pyLower.setAttribute("d",pyLowerPath(lowTop, drain));
-      els.pyLower.setAttribute("opacity", drain>0?".42":"0");
-      els.pyLowerSurf.setAttribute("cy",lowTop);
-      els.pyLowerSurf.setAttribute("rx",lerp(0,23,drain).toFixed(2));
-      els.pyLowerSurf.setAttribute("opacity", drain>.05?".34":"0");
-      drawLeaves(pyLeaves, openEff, {baseAlpha:.55, peakAlpha:.24, minSpread:6, maxSpread:32, minScale:.38, maxScale:.42});
-    } else if(vesselId==="mug"){
-      const col=mix(tea().light,tea().strong,strengthT);
-      const visible=activeAlpha*Math.min(1,activeLevel*1.4);
-      els.mugSurfCenter.setAttribute("stop-color",rgb(mix(col,[255,248,218],.18)));
-      els.mugSurfEdge.setAttribute("stop-color",rgb(mix(col,tea().strong,.08)));
-      els.mugSurf.setAttribute("opacity",(visible*.78).toFixed(3));
-    }
-    // ambient glow for opaque vessels — 따뜻한 앰버 글로우
-    if(v.vis==="none" || v.vis==="top"){
-      let amb=glow*0.30*(phase === "done" ? (1 - drain) : 1);
-      if(isUrgent && !reduce) amb*=0.8+0.4*(0.5+0.5*Math.sin(performance.now()/220));
-      els.ambient.setAttribute("opacity",amb.toFixed(3));
-      els.ambient.setAttribute("cy", v.round?124:120);
-    } else els.ambient.setAttribute("opacity","0");
-
-    // pour: 물줄기 하강 + 착지 잔물결 (붓는 중에만)
-    if(phase==="pour"){
-      const land=pourLandY();
-      els.pour.setAttribute("opacity","1");
-      els.pourStream.setAttribute("height", Math.max(0,(land-48)*clamp(level*2,0,1)).toFixed(1));
-      const rip=clamp((level-0.4)/0.6,0,1);
-      els.pourRipple.setAttribute("cy",land);
-      els.pourRipple.setAttribute("rx",(rip*22).toFixed(1)); els.pourRipple.setAttribute("ry",(rip*5).toFixed(1));
-      els.pourRipple.setAttribute("opacity",((1-rip)*0.5).toFixed(3));
-    } else els.pour.setAttribute("opacity","0");
-
-    const steamFactor = (phase==="steep"? (0.3+0.7*strengthT) : phase==="done"? 0.7 * (1 - drain) : 0);
-    setSteam(steamFactor);
-  }
-
-  function previewIdle(){
-    level=0; curAlpha=0; strengthT=0; openEff=0; glow=0; drain=0;
-    lidLift=0; lidTarget=0; isUrgent=false; agitate=0;
-    els.time.textContent=fmt(sec*1000); els.timeLabel.textContent="";
-    els.timeLabel.setAttribute('aria-live','polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
-    setTeaPickerActive(true);
-    clearRing(); render();
-  }
-
-  // ---- phases ----
-  function startBrew(){
-    void ensureAudio(); reqWake();
-    setTeaPickerActive(false);
-    activeBrew={n:infusion, sec};
-    updateInfusionLine();
-    preWarnSec=clamp(Math.round(sec*0.2),3,5); preWarned=false; lastTick=-1; drain=0;
-    els.brew.disabled=true; els.slider.disabled=true; els.dec.disabled=true; els.inc.disabled=true;
-    els.timeLabel.setAttribute('aria-live','polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done");
-    if(reduce){ level=1; enterSteep(performance.now()); return; }
-    phase="pour"; pourStart=performance.now(); level=0; els.brew.textContent="물 붓는 중…";
-  }
-  function enterSteep(now){
-    phase="steep"; steepStart=now; steepMs=sec*1000; level=1; lidTarget=0;
-    els.brew.textContent="우리는 중…";
-  }
-  let isDrained = false;
-
-  function finishSteep(){
-    phase="done"; curAlpha=tea().peak; strengthT=1; openEff=1; glow=1; isUrgent=false; agitate=0;
-    isDrained = false; drain = 0;
-    setTeaPickerActive(true, {showPreview:false});
-    els.time.textContent="0:00";
-    els.hero.classList.remove("urgent"); els.readout.classList.add("done");
-    const v=vessel();
-    recordActiveBrew();
-    if(v.done==="lid") lidTarget=1;
-    els.timeLabel.setAttribute('aria-live','assertive');
-    els.timeLabel.textContent=v.completion;
-    const fl=$("flash"); if(fl){ fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go"); }
-    void chime();
-    clearRing();
-    els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.disabled=false;
-    els.brew.textContent = (vesselId === "piaoyibei") ? "버튼 눌러 내리기" : "차 따라내기";
-    relWake(); render();
-  }
-
-  function drainVessel(cb){
-    const t0=performance.now(), dur=reduce?1:1400;
-    (function step(now){
-      drain = clamp((now-t0)/dur, 0, 1);
-      render();
-      if(drain < 1) requestAnimationFrame(step);
-      else {
-        isDrained = true;
-        prepareNextInfusion();
-        els.timeLabel.textContent = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
-        els.brew.textContent = "다음 泡 우리기";
-        cb && cb();
+      function applyRingGeom() {
+        const g = ringGeom(); ringC = 2 * Math.PI * g.r;
+        [els.ringTrack, els.ringProg].forEach(el => { el.setAttribute("cy", g.cy); el.setAttribute("r", g.r); });
+        els.ringProg.setAttribute("stroke-dasharray", ringC);
+        els.ringProg.setAttribute("transform", `rotate(-90 100 ${g.cy})`);
       }
-    })(t0);
-  }
 
-  function reset(){
-    phase="idle"; infusion=1; sec=adjustedSecFor(infusion); pyDrained=false; isDrained=false; drain=0; infusionHistory=[]; activeBrew=null;
-    setInf(); syncSlider(); previewIdle();
-    els.brew.disabled=false; els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.textContent="우리기 시작";
-    relWake();
-  }
-  function setInf(){ $("infLabel").textContent=infText(infusion); $("infKo").textContent=koInf(infusion); }
-  function recordActiveBrew(){
-    const b=activeBrew || {n:infusion, sec};
-    if(!infusionHistory.some(h=>h.n===b.n)) infusionHistory.push({n:b.n, sec:b.sec});
-    activeBrew=null;
-    updateInfusionLine();
-  }
-  function prepareNextInfusion(){
-    const last=infusionHistory[infusionHistory.length-1];
-    infusion=(last?.n || infusion)+1;
-    sec=adjustedSecFor(infusion);
-    setInf(); syncSlider();
-  }
+      // ---- format ----
+      const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${(s / 60) | 0}:${String(s % 60).padStart(2, "0")}`; };
+      const brewLabel = (n, s) => `${n}포 ${s}초`;
 
-  // ---- loop ----
-  function frame(now){
-    const dt=Math.min(now-lastNow,60); lastNow=now;
-    lidLift += (lidTarget-lidLift)*(reduce?1:0.1);
-    if(phase==="pour"){
-      const t=clamp((now-pourStart)/900,0,1); level=ease(t); glow=Math.min(1,glow+dt*0.002);
-      agitate=clamp((now-pourStart)/250,0,1);                       // 붓는 즉시 난류 최고조
-      if(t>=1) enterSteep(now);
-    } else if(phase==="steep"){
-      const elapsed=now-steepStart, remaining=steepMs-elapsed;
-      const lin=clamp(elapsed/steepMs,0,1);
-      agitate=reduce?0:clamp(1-(now-steepStart)/1500,0,1);          // 우림 시작 후 1.5초간 난류가 잦아듦
-      const col=reduce?1:sat(lin);   // 탕색/농도: 초반 빠른 추출
-      const opn=reduce?1:ease(lin);  // 찻잎 펼침: 완만한 재수화
-      curAlpha=lerp(0,tea().peak,col); strengthT=Math.min(1,col); openEff=clamp(opn*1.15,0,1); glow=Math.min(1,0.3+col);
-      els.time.textContent=fmt(remaining);
-      const urgent = remaining<=preWarnSec*1000+50;
-      isUrgent = urgent && !reduce;
-      setRing(remaining, steepMs, urgent);
-      els.hero.classList.toggle("urgent", urgent && !reduce);
-      els.timeLabel.textContent = urgent ? "곧 따라낼 준비" : "";
-      els.timeLabel.classList.toggle("gold", urgent);
-      const remSec=Math.ceil(remaining/1000);
-      if(!preWarned && remaining<=preWarnSec*1000){ preWarned=true; preWarn(); lastTick=remSec; }
-      else if(preWarned && remSec!==lastTick && remSec>0 && remSec<=preWarnSec){ lastTick=remSec; tick(); }
-      if(remaining<=0) finishSteep();
-    } else if(phase==="done"){
-      glow=Math.max(0.6, glow);
-    }
-    if(phase!=="done"||vesselId!=="piaoyibei") render();
-    requestAnimationFrame(frame);
-  }
+      // ---- tea / vessel UI ----
+      function renderedTeaColor(t) {
+        const body = mix(t.light, t.strong, Math.min(1, t.peak * .78));
+        return mix(body, [255, 248, 210], .22);
+      }
+      function paintTea() {
+        const t = tea();
+        $("teaName").textContent = t.name; $("teaCur").textContent = t.name;
+        $("teaDot").style.background = rgb(renderedTeaColor(t));
+        $("teaGhostL").textContent = TEAS[(teaIdx + TEAS.length - 1) % TEAS.length].name;
+        $("teaGhostR").textContent = TEAS[(teaIdx + 1) % TEAS.length].name;
+        [...$("dots").children].forEach((d, i) => d.classList.toggle("on", i === teaIdx));
+        renderDryLeafPreview();
+        rebuildWetLeaves();
+      }
+      function rebuildWetLeaves() {
+        gLeaves = buildLeaves("g-leaves", [{ x: 100, y: 164, base: 0 }, { x: 87, y: 160, base: 70 }, { x: 113, y: 160, base: 140 }, { x: 95, y: 156, base: 210 }, { x: 105, y: 156, base: 300 }]);
+        pyLeaves = buildLeaves("py-leaves", [{ x: 100, y: 124, base: 0 }, { x: 90, y: 119, base: 120 }, { x: 110, y: 121, base: 240 }]);
+      }
+      function buildDots() { const d = $("dots"); d.innerHTML = ""; TEAS.forEach(() => d.appendChild(document.createElementNS("http://www.w3.org/1999/xhtml", "i"))); }
+      function vesselIndex() { return VESSELS.findIndex(v => v.id === vesselId); }
+      function vesselLabel(v) { return v.shortName || v.name; }
+      function paintVesselPicker() {
+        $("vesselName").textContent = vesselLabel(vessel());
+      }
+      function selectVessel(delta) {
+        if (phase === "pour" || phase === "steep") return;
+        if (infusionHistory.length > 0) {
+          showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
+          return;
+        }
+        const idx = vesselIndex();
+        vesselId = VESSELS[(idx + delta + VESSELS.length) % VESSELS.length].id;
+        savePreferences();
+        reset(); buildSegState();
+      }
+      function buildSegState() {
+        paintVesselPicker();
+        VESSELS.forEach(v => { const g = $("v-" + v.id); if (g) g.style.display = v.id === vesselId ? "" : "none"; });
+        els.hero.style.setProperty("--readout-top", vessel().readoutTop || "31%");
+        els.ringTrack.style.display = ""; els.ringProg.style.display = "";
+        applyRingGeom();
+      }
+      function selectTea(i) {
+        if (phase === "pour" || phase === "steep") return;
+        if (infusionHistory.length > 0) {
+          showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
+          return;
+        }
+        teaIdx = (i + TEAS.length) % TEAS.length; paintTea();
+        savePreferences();
+        if (phase === "idle" || phase === "done") reset();
+      }
 
-  // ---- Tea Feeling Notes & Preferences ----
-  const DEFAULT_TAGS = ["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"];
-  let customTags = [...DEFAULT_TAGS];
-  let customTitle = "";
-  let sessionDraftNote = "";
-  let sessionDraftTags = [];
+      // ---- slider ----
+      function updateInfusionLine() {
+        els.infusionLine.textContent = infusionHistory.length
+          ? "우림 기록 " + infusionHistory.map(h => brewLabel(h.n, h.sec)).join(" / ")
+          : "";
+      }
+      function syncSlider() {
+        els.slider.value = sec;
+        const rec = recommendedSecFor(infusion);
+        const p = ((sec - 5) / 115) * 100, recF = (rec - 5) / 115;
+        els.slider.style.setProperty("--p", p + "%");
+        els.rangeWrap.style.setProperty("--recommended-f", recF);
+        els.slider.setAttribute("aria-valuetext", `${sec}초, 권장 ${rec}초`);
+        els.tempHint.textContent = `${tea().temp}°C / ${rec}초`;
+        els.secVal.textContent = brewLabel(infusion, sec);
+        updateInfusionLine();
+      }
+      els.slider.addEventListener("input", () => { sec = clamp(Math.round(+els.slider.value / 5) * 5, 5, 120); rememberTimeAdjustment(); syncSlider(); if (phase === "idle" || phase === "done") previewIdle(); });
+      els.dec.onclick = () => { if (phase !== "idle" && phase !== "done") return; sec = clamp(sec - 1, 5, 120); rememberTimeAdjustment(); syncSlider(); previewIdle(); };
+      els.inc.onclick = () => { if (phase !== "idle" && phase !== "done") return; sec = clamp(sec + 1, 5, 120); rememberTimeAdjustment(); syncSlider(); previewIdle(); };
 
-  function loadPreferencesExt(){
-    try{
-      const raw = localStorage.getItem(PREF_KEY);
-      if(raw){
-        const parsed = JSON.parse(raw);
-        if(Array.isArray(parsed.customTags) && parsed.customTags.length > 0){
-          customTags = parsed.customTags;
+      // ---- rendering ----
+      function applyLiquor(rectEl, surfEl, alpha, strength, top, full) {
+        const col = mix(tea().light, tea().strong, strength);
+        if (rectEl) {
+          els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .45)));   // 수면 쪽 옅음
+          els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .4)));   // 바닥 쪽 진함
+          rectEl.setAttribute("fill", "url(#liquorGrad)"); rectEl.setAttribute("opacity", alpha.toFixed(3));
+          rectEl.setAttribute("y", top); rectEl.setAttribute("height", Math.max(0, full - top));
+        }
+        if (surfEl) { surfEl.setAttribute("fill", rgb(mix(col, [255, 248, 210], .18))); surfEl.setAttribute("opacity", (alpha * 1.05).toFixed(3)); surfEl.setAttribute("cy", top); }
+      }
+      function gaiwanWallAt(y) {
+        if (y <= 152) {
+          const t = clamp((y - 126) / 26, 0, 1);
+          return { left: lerp(58, 60, t), right: lerp(142, 140, t) };
+        }
+        const t = clamp((y - 152) / 14, 0, 1);
+        return { left: lerp(60, 74, t), right: lerp(140, 126, t) };
+      }
+      function gaiwanLiquidPath(top, lvl) {
+        const wall = gaiwanWallAt(top), bottom = 165.6;
+        const contactY = lerp(top, 154, 0.82), contact = gaiwanWallAt(contactY);
+        const low = gaiwanWallAt(162.5);
+        const surfaceLift = (reduce ? 0 : Math.sin(performance.now() / 720)) * 0.55 * Math.min(1, lvl);
+        const bottomRx = lerp(8, 24, lvl);
+        const topDip = lerp(1.1, 2.6, lvl) + surfaceLift;
+        return [
+          `M ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
+          `C ${(wall.left + 14).toFixed(2)} ${(top - topDip).toFixed(2)} ${(wall.right - 14).toFixed(2)} ${(top - topDip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`,
+          `C ${(wall.right + .6).toFixed(2)} ${(top + 8).toFixed(2)} ${(contact.right + .8).toFixed(2)} ${(contactY - 7).toFixed(2)} ${contact.right.toFixed(2)} ${contactY.toFixed(2)}`,
+          `C ${(low.right - 1.4).toFixed(2)} 159.8 ${(100 + bottomRx * 1.05).toFixed(2)} ${(bottom - 2).toFixed(2)} ${(100 + bottomRx * .58).toFixed(2)} ${bottom.toFixed(2)}`,
+          `C ${(100 + bottomRx * .24).toFixed(2)} ${(bottom + 1.4).toFixed(2)} ${(100 - bottomRx * .24).toFixed(2)} ${(bottom + 1.4).toFixed(2)} ${(100 - bottomRx * .58).toFixed(2)} ${bottom.toFixed(2)}`,
+          `C ${(100 - bottomRx * 1.05).toFixed(2)} ${(bottom - 2).toFixed(2)} ${(low.left + 1.4).toFixed(2)} 159.8 ${contact.left.toFixed(2)} ${contactY.toFixed(2)}`,
+          `C ${(contact.left - .8).toFixed(2)} ${(contactY - 7).toFixed(2)} ${(wall.left - .6).toFixed(2)} ${(top + 8).toFixed(2)} ${wall.left.toFixed(2)} ${top.toFixed(2)}`,
+          "Z"
+        ].join(" ");
+      }
+      function gaiwanMeniscusPath(top, lvl) {
+        const wall = gaiwanWallAt(top);
+        const lift = (reduce ? 0 : Math.sin(performance.now() / 720)) * 0.55 * Math.min(1, lvl);
+        const dip = lerp(1.1, 2.6, lvl) + lift;
+        return `M ${wall.left.toFixed(2)} ${top.toFixed(2)} C ${(wall.left + 14).toFixed(2)} ${(top - dip).toFixed(2)} ${(wall.right - 14).toFixed(2)} ${(top - dip).toFixed(2)} ${wall.right.toFixed(2)} ${top.toFixed(2)}`;
+      }
+      function gaiwanWallWashPath(top, side) {
+        const y0 = top + 1.2, y1 = lerp(top, 154, .82), y2 = 164.5;
+        const w0 = gaiwanWallAt(y0), w1 = gaiwanWallAt(y1), w2 = gaiwanWallAt(y2);
+        const outer0 = side < 0 ? w0.left : w0.right, outer1 = side < 0 ? w1.left : w1.right, outer2 = side < 0 ? w2.left : w2.right;
+        const inset0 = side < 0 ? 5.8 : -5.8, inset1 = side < 0 ? 4.8 : -4.8, inset2 = side < 0 ? 2.9 : -2.9;
+        return [
+          `M ${outer0.toFixed(2)} ${y0.toFixed(2)}`,
+          `C ${(outer0 + side * -0.8).toFixed(2)} ${(top + 11).toFixed(2)} ${(outer1 + side * -0.7).toFixed(2)} ${(y1 - 5).toFixed(2)} ${outer1.toFixed(2)} ${y1.toFixed(2)}`,
+          `C ${(outer1 + side * -0.4).toFixed(2)} ${(y1 + 6).toFixed(2)} ${(outer2 + side * -0.4).toFixed(2)} 159.8 ${outer2.toFixed(2)} ${y2.toFixed(2)}`,
+          `L ${(outer2 + inset2).toFixed(2)} ${(y2 - .8).toFixed(2)}`,
+          `C ${(outer1 + inset1).toFixed(2)} ${(y1 + 5).toFixed(2)} ${(outer0 + inset0).toFixed(2)} ${(top + 10).toFixed(2)} ${(outer0 + inset0).toFixed(2)} ${(y0 + .6).toFixed(2)}`,
+          "Z"
+        ].join(" ");
+      }
+      function applyGaiwanLiquor(alpha, strength, top, lvl) {
+        const col = mix(tea().light, tea().strong, strength);
+        els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .48)));
+        els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .35)));
+        els.gLiquid.setAttribute("fill", "url(#liquorGrad)");
+        els.gLiquid.setAttribute("opacity", alpha.toFixed(3));
+        els.gLiquid.setAttribute("d", gaiwanLiquidPath(top, lvl));
+        els.gMeniscus.setAttribute("d", gaiwanMeniscusPath(top, lvl));
+        els.gMeniscus.setAttribute("stroke", rgb(mix(col, [255, 248, 210], .35)));
+        els.gMeniscus.setAttribute("opacity", (alpha * .42).toFixed(3));
+        els.gWallLeft.setAttribute("d", gaiwanWallWashPath(top, -1));
+        els.gWallRight.setAttribute("d", gaiwanWallWashPath(top, 1));
+        [els.gWallLeft, els.gWallRight].forEach(el => {
+          el.setAttribute("fill", rgb(mix(col, tea().strong, .38)));
+          el.setAttribute("opacity", (alpha * .62 * Math.min(1, lvl * 1.6)).toFixed(3));
+        });
+      }
+      function setRing(remaining, total, urgent) {
+        const frac = clamp(remaining / total, 0, 1);
+        els.ringProg.setAttribute("stroke-dashoffset", (ringC * (1 - frac)).toFixed(1));
+        els.ringTrack.setAttribute("opacity", ".25");
+        els.ringProg.setAttribute("opacity", urgent ? ".9" : ".4");
+        els.ringProg.setAttribute("stroke", urgent ? "#e4d691" : "#8c7f63");
+        els.ringProg.setAttribute("stroke-width", urgent ? "3" : "2");
+      }
+      function clearRing() { els.ringProg.setAttribute("opacity", "0"); els.ringTrack.setAttribute("opacity", "0"); }
+
+      // 김 분출구: 주전자=뚜껑+꼭지, 개완·표일배=뚜껑 테두리 틈새 양쪽, 머그=수면. dx=가로 드리프트
+      function steamPorts() {
+        switch (vesselId) {
+          case "teapot": return [{ x: 100, y: 90, dx: 0 }, { x: 32, y: 104, dx: -0.42 }];   // 뚜껑 · 꼭지
+          case "eastern-pot": return [{ x: 100, y: 95, dx: 0 }, { x: 42, y: 107, dx: -0.38 }];   // 뚜껑 · 꼭지
+          case "gaiwan": return [{ x: 68, y: 95, dx: -0.12 }, { x: 132, y: 95, dx: 0.12 }]; // 뚜껑-사발 림 틈새
+          case "mug": return [{ ...fitPoint("mug", 96, 82), dx: 0 }];
+          case "piaoyibei": return [{ ...fitPoint("piaoyibei", 73, 52), dx: -0.12 }, { ...fitPoint("piaoyibei", 121, 52), dx: 0.12 }]; // 뚜껑-컵 림 틈새
+          default: return [{ x: 100, y: 100, dx: 0 }];
         }
       }
-    }catch(e){}
-  }
-  function savePreferencesExt(){
-    try{
-      const raw = localStorage.getItem(PREF_KEY);
-      const parsed = raw ? JSON.parse(raw) : {};
-      parsed.customTags = customTags;
-      localStorage.setItem(PREF_KEY, JSON.stringify(parsed));
-    }catch(e){}
-  }
-  loadPreferencesExt();
+      function setSteam(intensity) {
+        const g = els.steam, ports = steamPorts();
+        const perPort = Math.round(intensity * 3), want = ports.length * perPort;   // 포트당 최대 3가닥
+        while (g.children.length < want) { const e = document.createElementNS(SVGNS, "ellipse"); e._t = Math.random(); e._s = 0.7 + Math.random() * 0.6; g.appendChild(e); }
+        while (g.children.length > want) g.removeChild(g.lastChild);
+        [...g.children].forEach((e, i) => {
+          const port = ports[i % ports.length], k = Math.floor(i / ports.length);
+          e._t = (e._t + 0.005) % 1; const t = e._t, sway = Math.sin(t * 6.28 + i) * 5;
+          e.setAttribute("cx", (port.x + port.dx * t * 22 + sway + (k - perPort / 2) * 5).toFixed(1));
+          e.setAttribute("cy", (port.y - 6 - t * 46).toFixed(1));
+          e.setAttribute("rx", (4 + t * 9 * e._s).toFixed(1)); e.setAttribute("ry", (6 + t * 13 * e._s).toFixed(1));
+          e.setAttribute("fill", "#fff7e0"); e.setAttribute("opacity", (Math.sin(Math.PI * t) * 0.21).toFixed(3));
+        });
+      }
+      // 수면 일렁임: 시간 기반으로 ellipse 크기를 미세 진동(임박 구간 amp↑)
+      function shimmerSurf(el, baseRx, baseRy, lvl) {
+        if (!el) return;
+        const tt = performance.now() / 1000, amp = reduce ? 0 : (0.4 + 0.7 * (isUrgent ? 1 : 0)) * Math.min(1, lvl);
+        el.setAttribute("rx", (baseRx + Math.sin(tt * 1.7) * amp * 1.4).toFixed(2));
+        el.setAttribute("ry", (baseRy + Math.sin(tt * 2.3 + 1) * amp).toFixed(2));
+      }
+      function pyLowerPath(top, amount) {
+        const cx = 97, bottom = 190, t = clamp(amount, 0, 1);
+        const topRx = lerp(5, 23, t), botRx = lerp(7, 16, t);
+        const topLift = lerp(0, 2.3, t), bottomBulge = lerp(0, 1.2, t);
+        return [
+          `M ${(cx - topRx).toFixed(2)} ${top.toFixed(2)}`,
+          `C ${(cx - topRx * .55).toFixed(2)} ${(top - topLift).toFixed(2)} ${(cx + topRx * .55).toFixed(2)} ${(top - topLift).toFixed(2)} ${(cx + topRx).toFixed(2)} ${top.toFixed(2)}`,
+          `L ${(cx + botRx).toFixed(2)} ${(bottom - 4).toFixed(2)}`,
+          `C ${(cx + botRx * .85).toFixed(2)} ${(bottom + bottomBulge).toFixed(2)} ${(cx + botRx * .36).toFixed(2)} ${(bottom + bottomBulge).toFixed(2)} ${cx} ${bottom.toFixed(2)}`,
+          `C ${(cx - botRx * .36).toFixed(2)} ${(bottom + bottomBulge).toFixed(2)} ${(cx - botRx * .85).toFixed(2)} ${(bottom + bottomBulge).toFixed(2)} ${(cx - botRx).toFixed(2)} ${(bottom - 4).toFixed(2)}`,
+          "Z"
+        ].join(" ");
+      }
+      // 물줄기가 떨어지는 착지 높이(도구별 입구)
+      function pourLandY() { return vesselId === "gaiwan" ? 122 : vesselId === "piaoyibei" ? fitY("piaoyibei", 108) : vesselId === "mug" ? fitY("mug", 82) : vesselId === "eastern-pot" ? 100 : 95; }
 
-  function getTeaEmoji(name) {
-    if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
-    return '🍃';
-  }
+      function render() {
+        const v = vessel();
+        const activeLevel = (phase === "done" && vesselId !== "piaoyibei") ? level * (1 - drain) : level;
+        const activeAlpha = (phase === "done" && vesselId !== "piaoyibei") ? curAlpha * (1 - drain) : curAlpha;
 
-  function showToast(msg) {
-    const toast = $("toast");
-    toast.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2200);
-  }
+        // gaiwan
+        if (vesselId === "gaiwan") {
+          const top = lerp(166, 130, activeLevel);
+          applyGaiwanLiquor(activeAlpha * Math.min(1, activeLevel * 1.4) * .92, strengthT, top, activeLevel);
+          drawLeaves(gLeaves, openEff, { baseAlpha: .55, peakAlpha: .24, minSpread: 6, maxSpread: 30, minScale: .38, maxScale: .42 });
+          els.gLid.setAttribute("opacity", "0");
+        } else if (vesselId === "piaoyibei") {
+          // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
+          const chTop = lerp(136, 108, level), chAlpha = curAlpha * (1 - drain);
+          applyLiquor(els.pyChamber, els.pyChSurf, chAlpha * Math.min(1, level * 1.4) * .82, strengthT, chTop, 136);
+          shimmerSurf(els.pyChSurf, lerp(11, 21, level), 4.8, level);
+          const lowTop = lerp(190, 154, drain);   // 손잡이 하단 살짝 밑까지 차오름
+          const lowCol = rgb(mix(tea().light, tea().strong, strengthT));
+          [...els.pyLowerGrad.children].forEach(s => s.setAttribute("stop-color", lowCol)); // 깊이 그라데이션(바닥 페이드)
+          els.pyLower.setAttribute("d", pyLowerPath(lowTop, drain));
+          els.pyLower.setAttribute("opacity", drain > 0 ? ".42" : "0");
+          els.pyLowerSurf.setAttribute("cy", lowTop);
+          els.pyLowerSurf.setAttribute("rx", lerp(0, 23, drain).toFixed(2));
+          els.pyLowerSurf.setAttribute("opacity", drain > .05 ? ".34" : "0");
+          drawLeaves(pyLeaves, openEff, { baseAlpha: .55, peakAlpha: .24, minSpread: 6, maxSpread: 32, minScale: .38, maxScale: .42 });
+        } else if (vesselId === "mug") {
+          const col = mix(tea().light, tea().strong, strengthT);
+          const visible = activeAlpha * Math.min(1, activeLevel * 1.4);
+          els.mugSurfCenter.setAttribute("stop-color", rgb(mix(col, [255, 248, 218], .18)));
+          els.mugSurfEdge.setAttribute("stop-color", rgb(mix(col, tea().strong, .08)));
+          els.mugSurf.setAttribute("opacity", (visible * .78).toFixed(3));
+        }
+        // ambient glow for opaque vessels — 따뜻한 앰버 글로우
+        if (v.vis === "none" || v.vis === "top") {
+          let amb = glow * 0.30 * (phase === "done" ? (1 - drain) : 1);
+          if (isUrgent && !reduce) amb *= 0.8 + 0.4 * (0.5 + 0.5 * Math.sin(performance.now() / 220));
+          els.ambient.setAttribute("opacity", amb.toFixed(3));
+          els.ambient.setAttribute("cy", v.round ? 124 : 120);
+        } else els.ambient.setAttribute("opacity", "0");
 
-  // Render Tags Grid
-  function renderTagsGrid() {
-    const grid = $("tagsGrid");
-    grid.innerHTML = "";
-    customTags.forEach(tag => {
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "tag-chip" + (sessionDraftTags.includes(tag) ? " active" : "");
-      chip.textContent = "#" + tag;
-      chip.onclick = () => {
-        if(sessionDraftTags.includes(tag)){
-          sessionDraftTags = sessionDraftTags.filter(t => t !== tag);
-          chip.classList.remove("active");
+        // pour: 물줄기 하강 + 착지 잔물결 (붓는 중에만)
+        if (phase === "pour") {
+          const land = pourLandY();
+          els.pour.setAttribute("opacity", "1");
+          els.pourStream.setAttribute("height", Math.max(0, (land - 48) * clamp(level * 2, 0, 1)).toFixed(1));
+          const rip = clamp((level - 0.4) / 0.6, 0, 1);
+          els.pourRipple.setAttribute("cy", land);
+          els.pourRipple.setAttribute("rx", (rip * 22).toFixed(1)); els.pourRipple.setAttribute("ry", (rip * 5).toFixed(1));
+          els.pourRipple.setAttribute("opacity", ((1 - rip) * 0.5).toFixed(3));
+        } else els.pour.setAttribute("opacity", "0");
+
+        const steamFactor = (phase === "steep" ? (0.3 + 0.7 * strengthT) : phase === "done" ? 0.7 * (1 - drain) : 0);
+        setSteam(steamFactor);
+      }
+
+      function previewIdle() {
+        level = 0; curAlpha = 0; strengthT = 0; openEff = 0; glow = 0; drain = 0;
+        lidLift = 0; lidTarget = 0; isUrgent = false; agitate = 0;
+        els.time.textContent = fmt(sec * 1000); els.timeLabel.textContent = "";
+        els.timeLabel.setAttribute('aria-live', 'polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
+        setTeaPickerActive(true);
+        clearRing(); render();
+      }
+
+      // ---- phases ----
+      function startBrew() {
+        void ensureAudio(); reqWake();
+        setTeaPickerActive(false);
+        activeBrew = { n: infusion, sec };
+        updateInfusionLine();
+        preWarnSec = clamp(Math.round(sec * 0.2), 3, 5); preWarned = false; lastTick = -1; drain = 0;
+        els.brew.disabled = true; els.slider.disabled = true; els.dec.disabled = true; els.inc.disabled = true;
+        els.timeLabel.setAttribute('aria-live', 'polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done");
+        if (reduce) { level = 1; enterSteep(performance.now()); return; }
+        phase = "pour"; pourStart = performance.now(); level = 0; els.brew.textContent = "물 붓는 중…";
+      }
+      function enterSteep(now) {
+        phase = "steep"; steepStart = now; steepMs = sec * 1000; level = 1; lidTarget = 0;
+        els.brew.textContent = "우리는 중…";
+      }
+      let isDrained = false;
+
+      function finishSteep() {
+        phase = "done"; curAlpha = tea().peak; strengthT = 1; openEff = 1; glow = 1; isUrgent = false; agitate = 0;
+        isDrained = false; drain = 0;
+        setTeaPickerActive(true, { showPreview: false });
+        els.time.textContent = "0:00";
+        els.hero.classList.remove("urgent"); els.readout.classList.add("done");
+        const v = vessel();
+        recordActiveBrew();
+        if (v.done === "lid") lidTarget = 1;
+        els.timeLabel.setAttribute('aria-live', 'assertive');
+        els.timeLabel.textContent = v.completion;
+        const fl = $("flash"); if (fl) { fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go"); }
+        void chime();
+        clearRing();
+        els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.disabled = false;
+        els.brew.textContent = (vesselId === "piaoyibei") ? "버튼 눌러 내리기" : "차 따라내기";
+        relWake(); render();
+      }
+
+      function drainVessel(cb) {
+        const t0 = performance.now(), dur = reduce ? 1 : 1400;
+        (function step(now) {
+          drain = clamp((now - t0) / dur, 0, 1);
+          render();
+          if (drain < 1) requestAnimationFrame(step);
+          else {
+            isDrained = true;
+            prepareNextInfusion();
+            els.timeLabel.textContent = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
+            els.brew.textContent = "다음 泡 우리기";
+            cb && cb();
+          }
+        })(t0);
+      }
+
+      function reset() {
+        phase = "idle"; infusion = 1; sec = adjustedSecFor(infusion); pyDrained = false; isDrained = false; drain = 0; infusionHistory = []; activeBrew = null;
+        setInf(); syncSlider(); previewIdle();
+        els.brew.disabled = false; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = "우리기 시작";
+        relWake();
+      }
+      function setInf() { $("infLabel").textContent = infText(infusion); $("infKo").textContent = koInf(infusion); }
+      function recordActiveBrew() {
+        const b = activeBrew || { n: infusion, sec };
+        if (!infusionHistory.some(h => h.n === b.n)) infusionHistory.push({ n: b.n, sec: b.sec });
+        activeBrew = null;
+        updateInfusionLine();
+      }
+      function prepareNextInfusion() {
+        const last = infusionHistory[infusionHistory.length - 1];
+        infusion = (last?.n || infusion) + 1;
+        sec = adjustedSecFor(infusion);
+        setInf(); syncSlider();
+      }
+
+      // ---- loop ----
+      function frame(now) {
+        const dt = Math.min(now - lastNow, 60); lastNow = now;
+        lidLift += (lidTarget - lidLift) * (reduce ? 1 : 0.1);
+        if (phase === "pour") {
+          const t = clamp((now - pourStart) / 900, 0, 1); level = ease(t); glow = Math.min(1, glow + dt * 0.002);
+          agitate = clamp((now - pourStart) / 250, 0, 1);                       // 붓는 즉시 난류 최고조
+          if (t >= 1) enterSteep(now);
+        } else if (phase === "steep") {
+          const elapsed = now - steepStart, remaining = steepMs - elapsed;
+          const lin = clamp(elapsed / steepMs, 0, 1);
+          agitate = reduce ? 0 : clamp(1 - (now - steepStart) / 1500, 0, 1);          // 우림 시작 후 1.5초간 난류가 잦아듦
+          const col = reduce ? 1 : sat(lin);   // 탕색/농도: 초반 빠른 추출
+          const opn = reduce ? 1 : ease(lin);  // 찻잎 펼침: 완만한 재수화
+          curAlpha = lerp(0, tea().peak, col); strengthT = Math.min(1, col); openEff = clamp(opn * 1.15, 0, 1); glow = Math.min(1, 0.3 + col);
+          els.time.textContent = fmt(remaining);
+          const urgent = remaining <= preWarnSec * 1000 + 50;
+          isUrgent = urgent && !reduce;
+          setRing(remaining, steepMs, urgent);
+          els.hero.classList.toggle("urgent", urgent && !reduce);
+          els.timeLabel.textContent = urgent ? "곧 따라낼 준비" : "";
+          els.timeLabel.classList.toggle("gold", urgent);
+          const remSec = Math.ceil(remaining / 1000);
+          if (!preWarned && remaining <= preWarnSec * 1000) { preWarned = true; preWarn(); lastTick = remSec; }
+          else if (preWarned && remSec !== lastTick && remSec > 0 && remSec <= preWarnSec) { lastTick = remSec; tick(); }
+          if (remaining <= 0) finishSteep();
+        } else if (phase === "done") {
+          glow = Math.max(0.6, glow);
+        }
+        if (phase !== "done" || vesselId !== "piaoyibei") render();
+        requestAnimationFrame(frame);
+      }
+
+      // ---- Tea Feeling Notes & Preferences ----
+      const DEFAULT_TAGS = ["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"];
+      let customTags = [...DEFAULT_TAGS];
+      let customTitle = "";
+      let sessionDraftNote = "";
+      let sessionDraftTags = [];
+
+      function loadPreferencesExt() {
+        try {
+          const raw = localStorage.getItem(PREF_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.customTags) && parsed.customTags.length > 0) {
+              customTags = parsed.customTags;
+            }
+          }
+        } catch (e) { }
+      }
+      function savePreferencesExt() {
+        try {
+          const raw = localStorage.getItem(PREF_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          parsed.customTags = customTags;
+          localStorage.setItem(PREF_KEY, JSON.stringify(parsed));
+        } catch (e) { }
+      }
+      loadPreferencesExt();
+
+      function getTeaEmoji(name) {
+        if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
+        return '🍃';
+      }
+
+      function showToast(msg) {
+        const toast = $("toast");
+        toast.textContent = msg;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2200);
+      }
+
+      // Render Tags Grid
+      function renderTagsGrid() {
+        const grid = $("tagsGrid");
+        grid.innerHTML = "";
+        customTags.forEach(tag => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = "tag-chip" + (sessionDraftTags.includes(tag) ? " active" : "");
+          chip.textContent = "#" + tag;
+          chip.onclick = () => {
+            if (sessionDraftTags.includes(tag)) {
+              sessionDraftTags = sessionDraftTags.filter(t => t !== tag);
+              chip.classList.remove("active");
+            } else {
+              sessionDraftTags.push(tag);
+              chip.classList.add("active");
+            }
+          };
+          grid.appendChild(chip);
+        });
+      }
+
+      function updateSummaryCard() {
+        const rawName = customTitle || (tea().name + " · " + vessel().name);
+        const emoji = getTeaEmoji(rawName);
+        $("teaTitleDisplay").textContent = emoji + " " + rawName;
+
+        const today = new Date();
+        const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
+        $("sessionDateDisplay").textContent = dateStr;
+
+        if (infusionHistory.length > 0) {
+          const historyStr = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" · ");
+          $("infusionHistoryDisplay").textContent = `${historyStr} (총 ${infusionHistory.length}포)`;
         } else {
-          sessionDraftTags.push(tag);
-          chip.classList.add("active");
+          $("infusionHistoryDisplay").textContent = `우림 완료 기록 없음 (첫 우림 전)`;
         }
+      }
+
+      // Inline Title Edit
+      $("editTitleBtn").onclick = () => {
+        const display = $("teaTitleDisplay");
+        const currentText = display.textContent.replace(/^[🍃🍂]\s*/, '');
+        const input = document.createElement("input");
+        input.className = "edit-input-inline";
+        input.value = currentText;
+        display.replaceWith(input);
+        input.focus();
+
+        function finishEdit() {
+          const val = input.value.trim() || (tea().name + " · " + vessel().name);
+          customTitle = val;
+          const emoji = getTeaEmoji(val);
+          const newSpan = document.createElement("span");
+          newSpan.className = "tea-title";
+          newSpan.id = "teaTitleDisplay";
+          newSpan.textContent = emoji + " " + val;
+          input.replaceWith(newSpan);
+        }
+        input.onblur = finishEdit;
+        input.onkeydown = (e) => { if (e.key === "Enter") finishEdit(); };
       };
-      grid.appendChild(chip);
-    });
-  }
 
-  function updateSummaryCard() {
-    const rawName = customTitle || (tea().name + " · " + vessel().name);
-    const emoji = getTeaEmoji(rawName);
-    $("teaTitleDisplay").textContent = emoji + " " + rawName;
+      // Open & Close Bottom Sheet
+      function openNoteSheet() {
+        renderTagsGrid();
+        updateSummaryCard();
+        $("noteInput").value = sessionDraftNote;
+        $("sheetBackdrop").classList.add("active");
+      }
+      function closeNoteSheet() {
+        sessionDraftNote = $("noteInput").value;
+        $("sheetBackdrop").classList.remove("active");
+      }
 
-    const today = new Date();
-    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
-    $("sessionDateDisplay").textContent = dateStr;
+      $("note").onclick = openNoteSheet;
+      $("closeSheetBtn").onclick = closeNoteSheet;
+      $("sheetBackdrop").onclick = (e) => { if (e.target === $("sheetBackdrop")) closeNoteSheet(); };
 
-    if(infusionHistory.length > 0){
-      const historyStr = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" · ");
-      $("infusionHistoryDisplay").textContent = `${historyStr} (총 ${infusionHistory.length}포)`;
-    } else {
-      $("infusionHistoryDisplay").textContent = `우림 완료 기록 없음 (첫 우림 전)`;
-    }
-  }
+      // Draft Save
+      $("draftBtn").onclick = () => {
+        sessionDraftNote = $("noteInput").value;
+        showToast("임시 저장되었습니다 💾");
+      };
 
-  // Inline Title Edit
-  $("editTitleBtn").onclick = () => {
-    const display = $("teaTitleDisplay");
-    const currentText = display.textContent.replace(/^[🍃🍂]\s*/, '');
-    const input = document.createElement("input");
-    input.className = "edit-input-inline";
-    input.value = currentText;
-    display.replaceWith(input);
-    input.focus();
+      // Copy Plain Text
+      $("copyBtn").onclick = () => {
+        sessionDraftNote = $("noteInput").value;
+        const rawName = customTitle || (tea().name + " · " + vessel().name);
+        const emoji = getTeaEmoji(rawName);
+        const today = new Date();
+        const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
 
-    function finishEdit() {
-      const val = input.value.trim() || (tea().name + " · " + vessel().name);
-      customTitle = val;
-      const emoji = getTeaEmoji(val);
-      const newSpan = document.createElement("span");
-      newSpan.className = "tea-title";
-      newSpan.id = "teaTitleDisplay";
-      newSpan.textContent = emoji + " " + val;
-      input.replaceWith(newSpan);
-    }
-    input.onblur = finishEdit;
-    input.onkeydown = (e) => { if(e.key === "Enter") finishEdit(); };
-  };
+        let historyLines = "우림 기록이 없습니다.";
+        if (infusionHistory.length > 0) {
+          historyLines = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" / ");
+        }
 
-  // Open & Close Bottom Sheet
-  function openNoteSheet() {
-    renderTagsGrid();
-    updateSummaryCard();
-    $("noteInput").value = sessionDraftNote;
-    $("sheetBackdrop").classList.add("active");
-  }
-  function closeNoteSheet() {
-    sessionDraftNote = $("noteInput").value;
-    $("sheetBackdrop").classList.remove("active");
-  }
+        const tagsLine = sessionDraftTags.length > 0 ? sessionDraftTags.map(t => `#${t}`).join(" ") : "(선택 단어 없음)";
+        const noteLine = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : "(노트 없음)";
 
-  $("note").onclick = openNoteSheet;
-  $("closeSheetBtn").onclick = closeNoteSheet;
-  $("sheetBackdrop").onclick = (e) => { if(e.target === $("sheetBackdrop")) closeNoteSheet(); };
-
-  // Draft Save
-  $("draftBtn").onclick = () => {
-    sessionDraftNote = $("noteInput").value;
-    showToast("임시 저장되었습니다 💾");
-  };
-
-  // Copy Plain Text
-  $("copyBtn").onclick = () => {
-    sessionDraftNote = $("noteInput").value;
-    const rawName = customTitle || (tea().name + " · " + vessel().name);
-    const emoji = getTeaEmoji(rawName);
-    const today = new Date();
-    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
-    
-    let historyLines = "우림 기록이 없습니다.";
-    if(infusionHistory.length > 0){
-      historyLines = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" / ");
-    }
-
-    const tagsLine = sessionDraftTags.length > 0 ? sessionDraftTags.map(t => `#${t}`).join(" ") : "(선택 단어 없음)";
-    const noteLine = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : "(노트 없음)";
-
-    const textToCopy = `[차 한 잔의 시간 시음 노트]
+        const textToCopy = `[차 한 잔의 시간 시음 노트]
 ${emoji} ${rawName}
 📅 ${dateStr} (${infusionHistory.length}포 우림)
 ⏱️ ${historyLines}
 🏷️ ${tagsLine}
 💬 ${noteLine}`;
 
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(textToCopy).then(() => showToast("클립보드에 텍스트가 복사되었습니다 📋")).catch(() => showToast("복사 실패"));
-    } else {
-      showToast("클립보드 미지원 환경");
-    }
-  };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textToCopy).then(() => showToast("클립보드에 텍스트가 복사되었습니다 📋")).catch(() => showToast("복사 실패"));
+        } else {
+          showToast("클립보드 미지원 환경");
+        }
+      };
 
-  // Balanced Tag Rows for Card Image & Preview
-  function getBalancedTagRows(tags) {
-    if (!tags || tags.length === 0) return [];
-    const N = tags.length;
-    let L = 1;
-    if (N <= 4) L = 1;
-    else if (N <= 8) L = 2;
-    else L = 3;
+      // Balanced Tag Rows for Card Image & Preview
+      function getBalancedTagRows(tags) {
+        if (!tags || tags.length === 0) return [];
+        const N = tags.length;
+        let L = 1;
+        if (N <= 4) L = 1;
+        else if (N <= 8) L = 2;
+        else L = 3;
 
-    const baseCount = Math.floor(N / L);
-    const remainder = N % L;
-    const rows = [];
-    let idx = 0;
-    for (let r = 0; r < L; r++) {
-      const count = baseCount + (r < remainder ? 1 : 0);
-      rows.push(tags.slice(idx, idx + count));
-      idx += count;
-    }
-    return rows;
-  }
+        const baseCount = Math.floor(N / L);
+        const remainder = N % L;
+        const rows = [];
+        let idx = 0;
+        for (let r = 0; r < L; r++) {
+          const count = baseCount + (r < remainder ? 1 : 0);
+          rows.push(tags.slice(idx, idx + count));
+          idx += count;
+        }
+        return rows;
+      }
 
-  // Card Image Generation (Canvas 680x900) & Preview
-  $("cardBtn").onclick = () => {
-    sessionDraftNote = $("noteInput").value;
-    const rawName = customTitle || (tea().name + " · " + vessel().name);
-    const emoji = getTeaEmoji(rawName);
-    const today = new Date();
-    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
+      // Card Image Generation (Canvas 680x900) & Preview
+      $("cardBtn").onclick = () => {
+        sessionDraftNote = $("noteInput").value;
+        const rawName = customTitle || (tea().name + " · " + vessel().name);
+        const emoji = getTeaEmoji(rawName);
+        const today = new Date();
+        const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
 
-    // Update DOM preview modal
-    $("cardTeaName").textContent = emoji + " " + rawName;
-    $("cardInfusions").textContent = `${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`;
-    $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"차 한 잔의 평화로운 순간"`;
-    $("cardFooterDate").textContent = `${dateStr} · 차 한 잔의 시간`;
+        // Update DOM preview modal
+        $("cardTeaName").textContent = emoji + " " + rawName;
+        $("cardInfusions").textContent = `${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`;
+        $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"차 한 잔의 평화로운 순간"`;
+        $("cardFooterDate").textContent = `${dateStr} · 차 한 잔의 시간`;
 
-    const cardTagsContainer = $("cardTagsContainer");
-    cardTagsContainer.innerHTML = "";
-    const tagRows = getBalancedTagRows(sessionDraftTags);
-    if(tagRows.length === 0){
-      cardTagsContainer.style.display = "none";
-    } else {
-      cardTagsContainer.style.display = "flex";
-      tagRows.forEach(row => {
-        const rowDiv = document.createElement("div");
-        rowDiv.className = "card-tags-row";
-        row.forEach(t => {
-          const span = document.createElement("span");
-          span.className = "card-tag";
-          span.textContent = "#" + t;
-          rowDiv.appendChild(span);
-        });
-        cardTagsContainer.appendChild(rowDiv);
-      });
-    }
+        const cardTagsContainer = $("cardTagsContainer");
+        cardTagsContainer.innerHTML = "";
+        const tagRows = getBalancedTagRows(sessionDraftTags);
+        if (tagRows.length === 0) {
+          cardTagsContainer.style.display = "none";
+        } else {
+          cardTagsContainer.style.display = "flex";
+          tagRows.forEach(row => {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "card-tags-row";
+            row.forEach(t => {
+              const span = document.createElement("span");
+              span.className = "card-tag";
+              span.textContent = "#" + t;
+              rowDiv.appendChild(span);
+            });
+            cardTagsContainer.appendChild(rowDiv);
+          });
+        }
 
-    $("cardModalBackdrop").classList.add("active");
-  };
+        $("cardModalBackdrop").classList.add("active");
+      };
 
-  $("closeCardModalBtn").onclick = () => {
-    // Generate Canvas PNG Image Download
-    renderAndDownloadCanvasCard();
-    $("cardModalBackdrop").classList.remove("active");
-  };
-  $("cardModalBackdrop").onclick = (e) => {
-    if(e.target === $("cardModalBackdrop")) $("cardModalBackdrop").classList.remove("active");
-  };
+      $("closeCardModalBtn").onclick = () => {
+        // Generate Canvas PNG Image Download
+        renderAndDownloadCanvasCard();
+        $("cardModalBackdrop").classList.remove("active");
+      };
+      $("cardModalBackdrop").onclick = (e) => {
+        if (e.target === $("cardModalBackdrop")) $("cardModalBackdrop").classList.remove("active");
+      };
 
-  function renderAndDownloadCanvasCard() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 680;
-    canvas.height = 900;
-    const ctx = canvas.getContext("2d");
+      function renderAndDownloadCanvasCard() {
+        const canvas = document.createElement("canvas");
+        canvas.width = 680;
+        canvas.height = 900;
+        const ctx = canvas.getContext("2d");
 
-    // Background Gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, 900);
-    grad.addColorStop(0, "#1c150c");
-    grad.addColorStop(1, "#100b07");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 680, 900);
+        // Background Gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, 900);
+        grad.addColorStop(0, "#1c150c");
+        grad.addColorStop(1, "#100b07");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 680, 900);
 
-    // Outer Border
-    ctx.strokeStyle = "#4a3e20";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(30, 30, 620, 840);
+        // Outer Border
+        ctx.strokeStyle = "#4a3e20";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(30, 30, 620, 840);
 
-    // Inner Line
-    ctx.strokeStyle = "rgba(205,191,99,0.3)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(40, 40, 600, 820);
+        // Inner Line
+        ctx.strokeStyle = "rgba(205,191,99,0.3)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(40, 40, 600, 820);
 
-    // Header Badge
-    ctx.fillStyle = "#cdbf63";
-    ctx.font = "bold 16px 'Space Mono', monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("TIME FOR TEA · TASTING NOTE", 340, 110);
-
-    // Tea Name
-    const rawName = customTitle || (tea().name + " · " + vessel().name);
-    const emoji = getTeaEmoji(rawName);
-    ctx.fillStyle = "#efe6d6";
-    ctx.font = "bold 38px 'Gowun Batang', serif";
-    ctx.fillText(emoji + " " + rawName, 340, 185);
-
-    // Infusion Info
-    ctx.fillStyle = "#e4d691";
-    ctx.font = "22px 'Gowun Batang', serif";
-    ctx.fillText(`${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`, 340, 235);
-
-    // History times
-    if(infusionHistory.length > 0){
-      ctx.fillStyle = "#9c8f78";
-      ctx.font = "17px 'Space Mono', monospace";
-      const hStr = infusionHistory.map(h => `${h.n}포:${h.sec}초`).join("  ");
-      ctx.fillText(hStr, 340, 275);
-    }
-
-    // Divider Line
-    ctx.strokeStyle = "rgba(205,191,99,0.2)";
-    ctx.beginPath();
-    ctx.moveTo(120, 310);
-    ctx.lineTo(560, 310);
-    ctx.stroke();
-
-    // Balanced Tag Rows (Canvas)
-    const tagRows = getBalancedTagRows(sessionDraftTags);
-    let startY = 370;
-    ctx.font = "bold 20px 'Gowun Batang', serif";
-
-    tagRows.forEach(row => {
-      let rowWidth = 0;
-      const chipWidths = row.map(t => ctx.measureText("#" + t).width + 30);
-      const gap = 12;
-      rowWidth = chipWidths.reduce((a, b) => a + b, 0) + (row.length - 1) * gap;
-      let startX = (680 - rowWidth) / 2;
-
-      row.forEach((t, i) => {
-        const w = chipWidths[i];
-        const h = 38;
-        // Option 3: Soft Fill Badge (No Border)
-        ctx.fillStyle = "rgba(205,191,99,0.16)";
-        ctx.beginPath();
-        ctx.roundRect(startX, startY - 26, w, h, 6);
-        ctx.fill();
-
-        ctx.fillStyle = "#e4d691";
+        // Header Badge
+        ctx.fillStyle = "#cdbf63";
+        ctx.font = "bold 16px 'Space Mono', monospace";
         ctx.textAlign = "center";
-        ctx.fillText("#" + t, startX + w / 2, startY);
+        ctx.fillText("TIME FOR TEA · TASTING NOTE", 340, 110);
 
-        startX += w + gap;
-      });
-      startY += 52;
-    });
+        // Tea Name
+        const rawName = customTitle || (tea().name + " · " + vessel().name);
+        const emoji = getTeaEmoji(rawName);
+        ctx.fillStyle = "#efe6d6";
+        ctx.font = "bold 38px 'Gowun Batang', serif";
+        ctx.fillText(emoji + " " + rawName, 340, 185);
 
-    // Note Quote Box
-    const noteText = sessionDraftNote.trim() || "차 한 잔의 평화로운 순간";
-    const quoteY = Math.max(startY + 30, 560);
+        // Infusion Info
+        ctx.fillStyle = "#e4d691";
+        ctx.font = "22px 'Gowun Batang', serif";
+        ctx.fillText(`${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`, 340, 235);
 
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
-    ctx.fillRect(80, quoteY, 520, 140);
-    ctx.strokeStyle = "#cdbf63";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(80, quoteY);
-    ctx.lineTo(80, quoteY + 140);
-    ctx.stroke();
+        // History times
+        if (infusionHistory.length > 0) {
+          ctx.fillStyle = "#9c8f78";
+          ctx.font = "17px 'Space Mono', monospace";
+          const hStr = infusionHistory.map(h => `${h.n}포:${h.sec}초`).join("  ");
+          ctx.fillText(hStr, 340, 275);
+        }
 
-    ctx.fillStyle = "#efe6d6";
-    ctx.font = "italic 22px 'Gowun Batang', serif";
-    ctx.textAlign = "left";
-    
-    // Multi-line note text wrapping
-    const words = noteText.split("");
-    let line = "";
-    let lineY = quoteY + 45;
-    for(let n = 0; n < words.length; n++){
-      const testLine = line + words[n];
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > 460 && n > 0) {
-        ctx.fillText(line, 110, lineY);
-        line = words[n];
-        lineY += 36;
-        if(lineY > quoteY + 120) break;
-      } else {
-        line = testLine;
-      }
-    }
-    ctx.fillText(line, 110, lineY);
+        // Divider Line
+        ctx.strokeStyle = "rgba(205,191,99,0.2)";
+        ctx.beginPath();
+        ctx.moveTo(120, 310);
+        ctx.lineTo(560, 310);
+        ctx.stroke();
 
-    // Footer Date & Brand
-    const today = new Date();
-    const dateStr = today.getFullYear() + "." + String(today.getMonth()+1).padStart(2,'0') + "." + String(today.getDate()).padStart(2,'0');
-    ctx.fillStyle = "#7d715c";
-    ctx.font = "18px 'Gowun Batang', serif";
-    ctx.textAlign = "center";
-    ctx.fillText(`${dateStr} · 차 한 잔의 시간`, 340, 830);
+        // Balanced Tag Rows (Canvas)
+        const tagRows = getBalancedTagRows(sessionDraftTags);
+        let startY = 370;
+        ctx.font = "bold 20px 'Gowun Batang', serif";
 
-    // Download PNG
-    try {
-      const link = document.createElement("a");
-      link.download = `tea-feeling-${dateStr}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      showToast("카드 이미지가 저장되었습니다 🖼️");
-    } catch(e) {
-      showToast("이미지 저장 실패");
-    }
-  }
+        tagRows.forEach(row => {
+          let rowWidth = 0;
+          const chipWidths = row.map(t => ctx.measureText("#" + t).width + 30);
+          const gap = 12;
+          rowWidth = chipWidths.reduce((a, b) => a + b, 0) + (row.length - 1) * gap;
+          let startX = (680 - rowWidth) / 2;
 
-  // Brew Button Handler
-  els.brew.onclick=()=>{
-    if(phase==="idle"){ startBrew(); return; }
-    if(phase==="done"){
-      if(!isDrained){
-        els.brew.disabled=true;
-        els.brew.textContent = (vesselId === "piaoyibei") ? "내리는 중…" : "따라내는 중…";
-        drainVessel(()=>{
-          els.brew.disabled=false;
+          row.forEach((t, i) => {
+            const w = chipWidths[i];
+            const h = 38;
+            // Option 3: Soft Fill Badge (No Border)
+            ctx.fillStyle = "rgba(205,191,99,0.16)";
+            ctx.beginPath();
+            ctx.roundRect(startX, startY - 26, w, h, 6);
+            ctx.fill();
+
+            ctx.fillStyle = "#e4d691";
+            ctx.textAlign = "center";
+            ctx.fillText("#" + t, startX + w / 2, startY);
+
+            startX += w + gap;
+          });
+          startY += 52;
         });
-        return;
+
+        // Note Quote Box
+        const noteText = sessionDraftNote.trim() || "차 한 잔의 평화로운 순간";
+        const quoteY = Math.max(startY + 30, 560);
+
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.fillRect(80, quoteY, 520, 140);
+        ctx.strokeStyle = "#cdbf63";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(80, quoteY);
+        ctx.lineTo(80, quoteY + 140);
+        ctx.stroke();
+
+        ctx.fillStyle = "#efe6d6";
+        ctx.font = "italic 22px 'Gowun Batang', serif";
+        ctx.textAlign = "left";
+
+        // Multi-line note text wrapping
+        const words = noteText.split("");
+        let line = "";
+        let lineY = quoteY + 45;
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > 460 && n > 0) {
+            ctx.fillText(line, 110, lineY);
+            line = words[n];
+            lineY += 36;
+            if (lineY > quoteY + 120) break;
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, 110, lineY);
+
+        // Footer Date & Brand
+        const today = new Date();
+        const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
+        ctx.fillStyle = "#7d715c";
+        ctx.font = "18px 'Gowun Batang', serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`${dateStr} · 차 한 잔의 시간`, 340, 830);
+
+        // Download PNG
+        try {
+          const link = document.createElement("a");
+          link.download = `tea-feeling-${dateStr}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+          showToast("카드 이미지가 저장되었습니다 🖼️");
+        } catch (e) {
+          showToast("이미지 저장 실패");
+        }
       }
-      startBrew();
-    }
-  };
 
-  // Session Reset ("우림 끝" Button)
-  $("reset").onclick = () => {
-    if(infusionHistory.length > 0){
-      showToast("오늘의 차 세션을 마감했습니다 🍵");
-    }
-    customTitle = "";
-    sessionDraftNote = "";
-    sessionDraftTags = [];
-    reset();
-  };
+      // Brew Button Handler
+      els.brew.onclick = () => {
+        if (phase === "idle") { startBrew(); return; }
+        if (phase === "done") {
+          if (!isDrained) {
+            els.brew.disabled = true;
+            els.brew.textContent = (vesselId === "piaoyibei") ? "내리는 중…" : "따라내는 중…";
+            drainVessel(() => {
+              els.brew.disabled = false;
+            });
+            return;
+          }
+          startBrew();
+        }
+      };
 
-  $("vesselPrev").onclick=()=>selectVessel(-1);
-  $("vesselNext").onclick=()=>selectVessel(1);
-  $("teaPrev").onclick=()=>selectTea(teaIdx-1);
-  $("teaNext").onclick=()=>selectTea(teaIdx+1);
-  $("mute").onclick=function(){
-    muted=!muted;
-    this.classList.toggle("muted",muted);
-    this.setAttribute("aria-pressed",muted);
-    const label = muted ? "소리 켜기" : "소리 끄기";
-    this.setAttribute("aria-label", label);
-    if($("muteText")) $("muteText").textContent = label;
-    savePreferences();
-    if(!muted) void tone(880,.5,.12);
-  };
+      // Session Reset ("우림 끝" Button)
+      $("reset").onclick = () => {
+        if (infusionHistory.length > 0) {
+          showToast("오늘의 차 세션을 마감했습니다 🍵");
+        }
+        customTitle = "";
+        sessionDraftNote = "";
+        sessionDraftTags = [];
+        reset();
+      };
 
-  // swipe on hero for vessel
-  let sx=0; els.hero.addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; },{passive:true});
-  els.hero.addEventListener("touchend",e=>{ const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) selectVessel(dx<0?1:-1); },{passive:true});
+      $("vesselPrev").onclick = () => selectVessel(-1);
+      $("vesselNext").onclick = () => selectVessel(1);
+      $("teaPrev").onclick = () => selectTea(teaIdx - 1);
+      $("teaNext").onclick = () => selectTea(teaIdx + 1);
+      $("mute").onclick = function () {
+        muted = !muted;
+        this.classList.toggle("muted", muted);
+        this.setAttribute("aria-pressed", muted);
+        const label = muted ? "소리 켜기" : "소리 끄기";
+        this.setAttribute("aria-label", label);
+        if ($("muteText")) $("muteText").textContent = label;
+        savePreferences();
+        if (!muted) void tone(880, .5, .12);
+      };
 
-  // ---- boot ----
-  function boot(){
-    applyVesselFits();
-    buildDots(); buildSegState(); paintTea();
-    sec=adjustedSecFor(infusion); syncSlider(); setInf(); previewIdle();
-    const label = muted ? "소리 켜기" : "소리 끄기";
-    $("mute").classList.toggle("muted",muted);
-    $("mute").setAttribute("aria-pressed",muted);
-    $("mute").setAttribute("aria-label",label);
-    if($("muteText")) $("muteText").textContent = label;
-    requestAnimationFrame(frame);
-  }
-  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(boot); else boot();
+      // swipe on hero for vessel
+      let sx = 0; els.hero.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
+      els.hero.addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) selectVessel(dx < 0 ? 1 : -1); }, { passive: true });
 
-  // ---- service worker (PWA, only when hosted) ----
-  if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
-  }
-})();
-</script>
+      // ---- boot ----
+      function boot() {
+        applyVesselFits();
+        buildDots(); buildSegState(); paintTea();
+        sec = adjustedSecFor(infusion); syncSlider(); setInf(); previewIdle();
+        const label = muted ? "소리 켜기" : "소리 끄기";
+        $("mute").classList.toggle("muted", muted);
+        $("mute").setAttribute("aria-pressed", muted);
+        $("mute").setAttribute("aria-label", label);
+        if ($("muteText")) $("muteText").textContent = label;
+        requestAnimationFrame(frame);
+      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot); else boot();
+
+      // ---- service worker (PWA, only when hosted) ----
+      if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+        navigator.serviceWorker.register("sw.js").catch(() => { });
+      }
+    })();
+  </script>
 </body>
+
 </html>
