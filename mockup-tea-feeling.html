@@ -298,12 +298,18 @@
     chip.onclick = () => chip.classList.toggle('active');
   });
 
+  // 2-category emoji helper: 청차계 (🍃) vs 농차/숙차계 (🍂)
+  function getTeaEmoji(name) {
+    if (/농향|홍차|숙차/.test(name)) return '🍂';
+    return '🍃';
+  }
+
   // Edit Tea Title Inline
   editTitleBtn.onclick = () => {
-    const currentText = teaTitleDisplay.textContent.replace('🍃 ', '');
+    const rawText = teaTitleDisplay.textContent.replace(/^[🍃🍂]\s*/, '');
     const input = document.createElement('input');
     input.className = 'edit-input-inline';
-    input.value = currentText;
+    input.value = rawText;
     teaTitleDisplay.replaceWith(input);
     input.focus();
 
@@ -311,10 +317,11 @@
     input.onkeydown = (e) => { if(e.key === 'Enter') finishEdit(); };
 
     function finishEdit(){
+      const val = input.value.trim() || '청향 우롱 · 개완';
       const newTitle = document.createElement('span');
       newTitle.className = 'tea-title';
       newTitle.id = 'teaTitleDisplay';
-      newTitle.textContent = '🍃 ' + (input.value.trim() || '청향 우롱 · 개완');
+      newTitle.textContent = getTeaEmoji(val) + ' ' + val;
       input.replaceWith(newTitle);
     }
   };
