@@ -56,10 +56,13 @@
   .hdr .sub{ font-family:"Space Mono",monospace; font-size:.62rem; letter-spacing:.18em; color:var(--ink-dim); margin-top:.18rem; }
 
   /* tea first */
-  .tea-picker{ position:relative; z-index:12; flex:0 0 auto; margin-top:.95rem; }
+  .tea-picker{
+    position:relative; z-index:12; flex:0 0 auto; margin-top:.45rem;
+    display:flex; flex-direction:column; align-items:center; width:100%;
+  }
 
   /* hero */
-  .hero{ position:relative; flex:1 1 auto; min-height:190px; display:flex; align-items:center; justify-content:center; margin-top:.8rem; }
+  .hero{ position:relative; flex:1 1 auto; min-height:185px; display:flex; align-items:center; justify-content:center; margin-top:.2rem; }
   .hero svg.stage{ width:100%; height:100%; max-height:40vh; display:block; }
   .halo{ position:absolute; left:50%; top:48%; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; opacity:0; transition:opacity .4s; }
   .halo.h1{ width:54%; aspect-ratio:1; border:2px solid rgba(205,191,99,.5); }
@@ -77,17 +80,17 @@
   .message:empty{ display:none; }
   .message.gold{ color:var(--gold-soft); text-shadow:0 0 12px rgba(228,214,145,.45); }
   .tea-preview{
-    position:absolute; left:50%; top:3.1rem; z-index:5; width:min(70%,270px); aspect-ratio:5/1;
-    transform:translateX(-50%); pointer-events:none; opacity:.9;
+    position:relative; left:auto; top:auto; transform:none; z-index:5; width:min(70%,270px); aspect-ratio:5/1;
+    margin-top:.2rem; margin-bottom:.15rem; pointer-events:none; opacity:.9;
     transition:opacity .24s ease, transform .24s ease; filter:drop-shadow(0 8px 12px rgba(0,0,0,.42));
   }
-  .tea-preview.hide{ opacity:0; transform:translateX(-50%) translateY(-6px); }
+  .tea-preview.hide{ opacity:0; transform:translateY(-6px); }
   .tea-preview .chahe{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:.94; }
   .tea-preview .dry-leaves{
     position:absolute; left:24%; top:14%; width:52%; height:68%; overflow:visible;
     filter:drop-shadow(0 1px 1px rgba(0,0,0,.42));
   }
-  .tea-picker.locked .tea-preview{ opacity:.35; transform:translateX(-50%); }
+  .tea-picker.locked .tea-preview{ opacity:.35; transform:none; }
   .tea-picker.locked .dots, .tea-picker.locked .chev, .tea-picker.locked .ghost{ opacity:0; pointer-events:none; }
   .tea-picker.locked .cur{ color:var(--ink-dim); text-shadow:none; }
   .vessel-nav{
@@ -100,8 +103,8 @@
   .vessel-nav svg{ width:22px; height:22px; }
   /* controls */
   .controls{ flex:0 0 auto; display:flex; flex-direction:column; gap:.55rem; }
-  .carousel{ display:flex; align-items:center; gap:.25rem; padding:0 3rem; }
-  .carousel .chev{ position:absolute; top:3.1rem; z-index:8; transform:translateY(-50%); background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; transition:opacity .2s; }
+  .carousel{ position:relative; display:flex; align-items:center; gap:.25rem; padding:0 3rem; width:100%; }
+  .carousel .chev{ position:absolute; top:50%; z-index:8; transform:translateY(-50%); background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; transition:opacity .2s; }
   .carousel .chev:first-child{ left:0; }
   .carousel .chev:last-child{ right:0; }
   .carousel .chev svg{ width:20px; height:20px; }
@@ -120,7 +123,7 @@
   .carousel .cur .tea-dot{
     width:8px; height:8px; border-radius:50%; flex:none; box-shadow:0 0 8px rgba(228,214,145,.22);
   }
-  .dots{ position:absolute; left:0; right:0; top:6.6rem; display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:0; transition:opacity .2s; }
+  .dots{ position:relative; left:auto; right:auto; top:auto; display:flex; gap:.25rem; justify-content:center; align-items:center; margin-top:.1rem; transition:opacity .2s; }
   .dots i{ width:5px; height:5px; border-radius:50%; background:var(--track); transition:width .2s,background .2s; }
   .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
 
