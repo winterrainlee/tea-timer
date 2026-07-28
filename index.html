@@ -706,31 +706,65 @@
   const preWarn=()=>tone(784,.5,.16);              // G5
   async function chime(){ if(muted||!await ensureAudio()) return; const t=actx.currentTime; bell(659.25,t,2.6,.26); bell(987.77,t+.17,2.9,.2); }
   
-  // Authentic Tea Trickle Sound (다도 특유의 청아한 쪼르르-르-륵 물방울 기포 공명음)
+  // Dual-layer Warm Tea Pouring Sound (200Hz ~ 850Hz 저음 대역 찰랑임 + 다도 찻물 공명음)
   async function playPourSound(durSec = 0.9) {
     if (muted || !await ensureAudio()) return;
     try {
       const t0 = actx.currentTime;
-      const count = Math.floor(durSec * 16);
-      for (let i = 0; i < count; i++) {
-        const timeOffset = t0 + (i / count) * durSec + (Math.random() * 0.025 - 0.012);
-        // 다도 개완/숙우에서 찻물이 쪼르르 튀는 맑은 옥구슬 톤 (1600Hz ~ 3200Hz)
-        const freq = 1600 + Math.random() * 1400 + (i / count) * 350;
-        
+
+      // Layer 1: Pink/Filtered Noise for Liquid Stream (400Hz -> 850Hz)
+      const bufferSize = Math.floor(actx.sampleRate * durSec);
+      const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        data[i] = (b0 + b1 + b2 + white * 0.53568) * 0.1; // Pink noise
+      }
+      const noise = actx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = actx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.Q.value = 3.5;
+      filter.frequency.setValueAtTime(380, t0);
+      filter.frequency.exponentialRampToValueAtTime(850, t0 + durSec * 0.85);
+
+      const noiseGain = actx.createGain();
+      noiseGain.gain.setValueAtTime(0, t0);
+      noiseGain.gain.linearRampToValueAtTime(0.22, t0 + 0.06);
+      noiseGain.gain.setValueAtTime(0.22, t0 + durSec * 0.7);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, t0 + durSec);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(actx.destination);
+      noise.start(t0);
+      noise.stop(t0 + durSec + 0.05);
+
+      // Layer 2: Low-frequency Resonant Water Bubbles (220Hz ~ 500Hz 묵직한 물방울)
+      const bubbleCount = Math.floor(durSec * 8);
+      for (let i = 0; i < bubbleCount; i++) {
+        const timeOffset = t0 + (i / bubbleCount) * durSec + (Math.random() * 0.03 - 0.015);
+        const freq = 220 + Math.random() * 280 + (i / bubbleCount) * 150;
+
         const osc = actx.createOscillator();
         osc.type = "sine";
         osc.frequency.setValueAtTime(freq, timeOffset);
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.72, timeOffset + 0.045);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.65, timeOffset + 0.06);
 
         const g = actx.createGain();
         g.gain.setValueAtTime(0, timeOffset);
-        g.gain.linearRampToValueAtTime(0.14, timeOffset + 0.004);
-        g.gain.exponentialRampToValueAtTime(0.0001, timeOffset + 0.048);
+        g.gain.linearRampToValueAtTime(0.08, timeOffset + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, timeOffset + 0.06);
 
         osc.connect(g);
         g.connect(actx.destination);
         osc.start(timeOffset);
-        osc.stop(timeOffset + 0.05);
+        osc.stop(timeOffset + 0.07);
       }
     } catch(e) {}
   }
