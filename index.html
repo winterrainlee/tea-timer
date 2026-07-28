@@ -507,6 +507,7 @@
     </div>
   </div>
 </div>
+<div class="flash" id="flash"></div>
 <div class="toast" id="toast">복사되었습니다</div>
 
 <!-- Bottom Sheet Component for Tea Feeling Note -->
@@ -1209,8 +1210,7 @@
     if(v.done==="lid") lidTarget=1;
     els.timeLabel.setAttribute('aria-live','assertive');
     els.timeLabel.textContent=v.completion;
-    els.timeLabel.classList.add("gold");
-    $("flash").classList.remove("go"); void $("flash").offsetWidth; $("flash").classList.add("go");
+    const fl=$("flash"); if(fl){ fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go"); }
     void chime();
     clearRing();
     els.slider.disabled=false; els.dec.disabled=false; els.inc.disabled=false; els.brew.disabled=false;
