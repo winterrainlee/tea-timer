@@ -1617,7 +1617,7 @@
       <div class="card-tags" id="cardTagsContainer"></div>
       <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
       <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
-      <button class="btn-close-card" id="closeCardModalBtn">닫기 및 이미지 저장</button>
+      <button class="btn-close-card" id="closeCardModalBtn">공유 또는 이미지 저장</button>
     </div>
   </div>
 
@@ -2568,15 +2568,14 @@ ${emoji} ${rawName}
       };
 
       $("closeCardModalBtn").onclick = () => {
-        // Generate Canvas PNG Image Download
-        renderAndDownloadCanvasCard();
+        renderAndShareCanvasCard();
         $("cardModalBackdrop").classList.remove("active");
       };
       $("cardModalBackdrop").onclick = (e) => {
         if (e.target === $("cardModalBackdrop")) $("cardModalBackdrop").classList.remove("active");
       };
 
-      function renderAndDownloadCanvasCard() {
+      function renderAndShareCanvasCard() {
         const canvas = document.createElement("canvas");
         canvas.width = 680;
         canvas.height = 900;
@@ -2705,13 +2704,31 @@ ${emoji} ${rawName}
         ctx.textAlign = "center";
         ctx.fillText(`${dateStr} · 차 한 잔의 시간`, 340, 830);
 
-        // Download PNG
+        // Share PNG on mobile browsers. This is the reliable save path for installed Safari PWAs.
         try {
+          const filename = `tea-feeling-${dateStr}.png`;
+          const dataUrl = canvas.toDataURL("image/png");
+          const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+          const binary = atob(base64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          const file = new File([bytes], filename, { type: "image/png" });
+          const shareData = { files: [file], title: "차 한 잔의 시간", text: "차 느낌 카드" };
+
+          if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            navigator.share(shareData)
+              .then(() => showToast("카드 이미지 공유를 마쳤습니다 🖼️"))
+              .catch(error => {
+                if (error.name !== "AbortError") showToast("이미지 공유를 열지 못했습니다");
+              });
+            return;
+          }
+
           const link = document.createElement("a");
-          link.download = `tea-feeling-${dateStr}.png`;
-          link.href = canvas.toDataURL("image/png");
+          link.download = filename;
+          link.href = dataUrl;
           link.click();
-          showToast("카드 이미지가 저장되었습니다 🖼️");
+          showToast("카드 이미지 다운로드를 시작했습니다 🖼️");
         } catch (e) {
           showToast("이미지 저장 실패");
         }
