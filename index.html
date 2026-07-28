@@ -57,13 +57,13 @@
 
   /* tea first */
   .tea-picker{
-    position:relative; z-index:12; flex:0 0 auto; margin-top:.45rem;
+    position:relative; z-index:12; flex:0 0 auto; margin-top:1.05rem;
     display:flex; flex-direction:column; align-items:center; width:100%;
   }
 
   /* hero */
-  .hero{ position:relative; flex:1 1 auto; min-height:185px; display:flex; align-items:center; justify-content:center; margin-top:.2rem; }
-  .hero svg.stage{ width:100%; height:100%; max-height:40vh; display:block; }
+  .hero{ position:relative; flex:1 1 auto; min-height:195px; display:flex; align-items:center; justify-content:center; margin-top:.1rem; margin-bottom:.1rem; }
+  .hero svg.stage{ width:100%; height:100%; max-height:42vh; display:block; }
   .halo{ position:absolute; left:50%; top:48%; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; opacity:0; transition:opacity .4s; }
   .halo.h1{ width:54%; aspect-ratio:1; border:2px solid rgba(205,191,99,.5); }
   .halo.h2{ width:40%; aspect-ratio:1; border:1.5px solid rgba(228,214,145,.45); }
@@ -71,7 +71,7 @@
   .urgent .halo.h2{ animation-delay:.25s; }
   @keyframes halo{ 0%,100%{opacity:.2;transform:translate(-50%,-50%) scale(1)} 50%{opacity:.55;transform:translate(-50%,-50%) scale(1.08)} }
 
-  .readout{ position:absolute; left:0; right:0; top:var(--readout-top,31%); transform:translateY(-50%); text-align:center; pointer-events:none; }
+  .readout{ position:absolute; left:0; right:0; top:var(--readout-top,18%); transform:translateY(-50%); text-align:center; pointer-events:none; }
   .readout .time{ font-family:"Space Mono",monospace; font-weight:700; font-size:2.2rem; letter-spacing:.02em; color:var(--ink); text-shadow:0 1px 8px rgba(0,0,0,.78); transition:color .3s; }
   .readout.done .time, .urgent .readout .time{ color:var(--gold-soft); }
   .urgent .readout .time{ animation:num 1s ease-in-out infinite; }
@@ -102,7 +102,7 @@
   .vessel-nav.next{ right:-.25rem; }
   .vessel-nav svg{ width:22px; height:22px; }
   /* controls */
-  .controls{ flex:0 0 auto; display:flex; flex-direction:column; gap:.55rem; }
+  .controls{ flex:0 0 auto; display:flex; flex-direction:column; gap:.42rem; }
   .carousel{ position:relative; display:flex; align-items:center; gap:.25rem; padding:0 3rem; width:100%; }
   .carousel .chev{ position:absolute; top:50%; z-index:8; transform:translateY(-50%); background:none; border:none; color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; transition:opacity .2s; }
   .carousel .chev:first-child{ left:0; }
@@ -128,22 +128,22 @@
   .dots i.on{ width:13px; border-radius:3px; background:var(--gold); }
 
   .slider-row{ padding:.08rem 0 .12rem; margin-top:0; }
-  .slider-row .top{ display:flex; align-items:center; justify-content:center; gap:.45rem; font-size:1.032rem; color:var(--ink-dim); margin-bottom:.12rem; }
+  .slider-row .top{ display:flex; align-items:center; justify-content:center; gap:.45rem; font-size:.96rem; color:var(--ink-dim); margin-bottom:.08rem; }
   .slider-row .temp-hint{
     font-family:"Space Mono",monospace; font-size:.768rem; letter-spacing:.05em; color:var(--gold-soft);
     opacity:.86; transform:translateY(.02rem);
   }
   .infusion-line{
-    min-height:1.15rem; margin-bottom:.28rem; color:var(--ink-faint); font-size:.96rem; text-align:center;
+    min-height:1rem; margin-bottom:.18rem; color:var(--ink-faint); font-size:.92rem; text-align:center;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em;
   }
   .slider-row .val{
     display:block; text-align:center; font-family:"Gowun Batang",serif; font-weight:700;
-    font-size:2.64rem; line-height:1; color:var(--gold-soft); margin:0 0 .42rem;
+    font-size:2.25rem; line-height:1; color:var(--gold-soft); margin:0 0 .28rem;
     text-shadow:0 1px 10px rgba(0,0,0,.45);
   }
   .slider-row .val .val-suffix{
-    font-size:1.1rem; font-weight:400; color:var(--ink-dim); margin-left:.45rem; letter-spacing:.06em;
+    font-size:1.05rem; font-weight:400; color:var(--ink-dim); margin-left:.45rem; letter-spacing:.06em;
   }
   .slider-line{ display:flex; align-items:center; gap:.75rem; }
   .range-wrap{ position:relative; flex:1; display:flex; align-items:center; }
@@ -153,7 +153,7 @@
     box-shadow:0 0 0 1px rgba(18,13,9,.45);
     transform:translate(-50%,-50%); pointer-events:none;
   }
-  .step{ width:48px; height:48px; flex:none; border-radius:50%; border:0.5px solid var(--line); background:rgba(255,255,255,.02); color:var(--ink-dim); font-size:1.35rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .step{ width:44px; height:44px; flex:none; border-radius:50%; border:0.5px solid var(--line); background:rgba(255,255,255,.02); color:var(--ink-dim); font-size:1.35rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .step:active{ background:rgba(255,255,255,.06); }
   .step:disabled{ opacity:.45; cursor:default; }
   input[type=range]{
@@ -164,11 +164,11 @@
   input[type=range]::-moz-range-thumb{ width:30px; height:30px; border-radius:50%; background:var(--gold-soft); border:2px solid #2a2414; cursor:pointer; }
   input[type=range]:disabled{ opacity:.45; }
 
-  .brew{ width:100%; font-family:"Gowun Batang",serif; font-weight:700; letter-spacing:.1em; font-size:1.02rem; color:var(--bg-0); background:linear-gradient(180deg,var(--gold-soft),var(--gold)); border:none; border-radius:999px; padding:.9rem 0; cursor:pointer; transition:filter .15s,transform .1s,opacity .2s; }
+  .brew{ width:100%; font-family:"Gowun Batang",serif; font-weight:700; letter-spacing:.1em; font-size:.98rem; color:var(--bg-0); background:linear-gradient(180deg,var(--gold-soft),var(--gold)); border:none; border-radius:999px; padding:.75rem 0; cursor:pointer; transition:filter .15s,transform .1s,opacity .2s; }
   .brew:active{ transform:translateY(1px); }
   .brew[disabled]{ opacity:.5; filter:grayscale(.25); cursor:default; background:none; border:0.5px solid var(--line); color:var(--ink-dim); }
 
-  .footer{ display:flex; align-items:center; justify-content:space-between; font-size:.88rem; color:var(--ink-dim); padding-top:.1rem; }
+  .footer{ display:flex; align-items:center; justify-content:space-between; font-size:.88rem; color:var(--ink-dim); margin-top:1.05rem; padding-bottom:.45rem; }
   .footer button{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-family:"Gowun Batang",serif; font-size:.88rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center; gap:.35rem; min-height:44px; padding:0 .2rem; }
   .footer button:active{ color:var(--gold-soft); }
   .footer button svg{ width:16px; height:16px; }
@@ -602,11 +602,11 @@
     {id:"shou",   name:"보이 숙차",   cjk:"熟普洱", temp:100, base:20, add:8,  light:[122,58,30],   strong:[74,31,14],    peak:.90},
   ];
   const VESSELS=[
-    {id:"teapot", name:"티팟", label:"서양 티팟 · 도자 · 탕색 안 보임", family:"closed-pot", culture:"western", material:"porcelain", silhouette:"round-large", vis:"none", round:true, readoutTop:"31%", done:"pour", completion:"따라내세요 · 出湯", asset:"assets/vessels/teapot.png", requiresSeparationAction:false},
-    {id:"eastern-pot", name:"동양식 다호", shortName:"다호", label:"동양식 다호 · 자사 · 탕색 안 보임", family:"closed-pot", culture:"gongfu", material:"zisha-clay", silhouette:"compact", vis:"none", round:true, readoutTop:"31%", done:"pour", completion:"바로 따라내세요 · 出湯", asset:"assets/vessels/eastern-pot-zisha.png", requiresSeparationAction:false},
-    {id:"gaiwan", name:"개완", label:"개완 蓋碗 · 유리 · 탕색 보임", family:"lidded-bowl", culture:"gongfu", material:"glass", silhouette:"bowl", vis:"liquid", round:false, readoutTop:"31%", done:"lid", completion:"뚜껑 열고 따르세요 · 開蓋", asset:"assets/vessels/gaiwan-glass.png", requiresSeparationAction:false},
-    {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"31%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
-    {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"tall", vis:"chamber", round:false, readoutTop:"31%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true, steepOffset:5},
+    {id:"teapot", name:"티팟", label:"서양 티팟 · 도자 · 탕색 안 보임", family:"closed-pot", culture:"western", material:"porcelain", silhouette:"round-large", vis:"none", round:true, readoutTop:"18%", done:"pour", completion:"따라내세요 · 出湯", asset:"assets/vessels/teapot.png", requiresSeparationAction:false},
+    {id:"eastern-pot", name:"동양식 다호", shortName:"다호", label:"동양식 다호 · 자사 · 탕색 안 보임", family:"closed-pot", culture:"gongfu", material:"zisha-clay", silhouette:"compact", vis:"none", round:true, readoutTop:"18%", done:"pour", completion:"바로 따라내세요 · 出湯", asset:"assets/vessels/eastern-pot-zisha.png", requiresSeparationAction:false},
+    {id:"gaiwan", name:"개완", label:"개완 蓋碗 · 유리 · 탕색 보임", family:"lidded-bowl", culture:"gongfu", material:"glass", silhouette:"bowl", vis:"liquid", round:false, readoutTop:"18%", done:"lid", completion:"뚜껑 열고 따르세요 · 開蓋", asset:"assets/vessels/gaiwan-glass.png", requiresSeparationAction:false},
+    {id:"mug", name:"머그", label:"머그컵 · 도자 · 윗면만 보임", family:"cup", culture:"casual", material:"porcelain", silhouette:"tall-cup", vis:"top", round:false, readoutTop:"18%", done:"glow", completion:"드세요 · 出湯", asset:"assets/vessels/mug.png", requiresSeparationAction:false},
+    {id:"piaoyibei", name:"표일배", label:"표일배 飄逸杯 · 유리 · 버튼 배수", family:"separator", culture:"gongfu", material:"glass", silhouette:"silhouette", vis:"chamber", round:false, readoutTop:"18%", done:"button", completion:"버튼 눌러 내리세요 · 出湯", asset:"assets/vessels/piaoyibei-glass.png", requiresSeparationAction:true, steepOffset:5},
   ];
   const PREF_KEY="teaTimer.preferences.v1", PREF_VERSION=1;
   function loadPreferences(){
