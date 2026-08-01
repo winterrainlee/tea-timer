@@ -6,7 +6,7 @@
 끓는 물을 부은 뒤 수십 초 동안 "지금 따라낼 때"를 시각·청각·화면으로 깨닫게 하는 모바일 PWA 타이머. **빌드 없음**: `index.html`(바닐라 JS + PNG 도구 자산 + 인라인 SVG 효과 + WebAudio 합성음) + `assets/vessels/*.png` + `manifest.webmanifest` + `sw.js`.
 
 ## ⚠️ 개발 함정 (먼저 읽기)
-- **서비스워커가 cache-first**(`sw.js`) → `index.html` 수정 후 그냥 새로고침하면 **옛 버전이 캐시에서 뜬다**. 반드시 SW 등록 해제 + 캐시 삭제 후 리로드:
+- **서비스워커는 문서 network-first·정적 자산 cache-first**(`sw.js`)다. 다만 로컬 브라우저에 구버전 SW가 이미 설치된 수동 검증에서는 옛 `index.html`이 먼저 보일 수 있으므로, 결과가 코드와 어긋나면 SW 등록 해제 + 캐시 삭제 후 리로드:
   ```js
   (async()=>{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k);location.reload();})()
   ```
@@ -16,7 +16,7 @@
 
 ## 코드 지도 (`index.html` 안)
 - **데이터**: `TEAS[]`(7종: 녹차·백차·청향우롱·생보이·농향우롱·홍차·숙보이, 각 `light/strong` RGB·`base`·`add`·`peak`·`temp`), `VESSELS[]`(5종), `VICONS`(세그먼트 미니 아이콘).
-- **상태 머신**: `idle → pour → steep → done`. 핵심 함수: `startBrew → enterSteep → finishSteep`, 매 프레임 `frame()` → `render()`. 회차는 `infusion`(표기 **泡**, `infText`/`koInf`).
+- **상태 머신**: `idle → pour → steep → done → draining → done(ready)`. 핵심 함수: `startBrew → enterSteep → finishSteep → drainVessel`. 단일 상태 스케줄러가 진행 중 30fps, 완료 대기 12fps로 `frame()` → `render()`를 호출하며 idle·배수 완료에는 정지한다. 회차는 `infusion`(표기 **泡**, `infText`/`koInf`).
 - **렌더 구조**: 도구 본체는 `assets/vessels/*.png`를 SVG `<image>`로 배치하고, 동적 현상만 SVG로 합성한다.
 - **렌더 훅(도구별)**: `render()`가 분기 — 개완=찻물(`applyLiquor` + `#g-liquid/#g-surface`)·찻잎(`drawLeaves`/`#g-leaves`)·뚜껑 하이라이트(`#g-lid`, `lidTarget`→`lidLift` 스무딩), 표일배=윗챔버(`#py-chamber`)→버튼 배수(`drainPiao`, `#py-lower`/`drain`), 머그=수면색(`#mug-surface`), 불투명(티팟·동양식 다호)=`#ambient` 글로우. 김은 `setSteam`.
 - **시간 링**: `#ring-prog`(둥근 도구만; `vessel().round`). 평소 가는 헤어라인, 막바지 `urgent`에 밝기·굵기↑(`setRing`). **세로 도구(표일배·머그)는 링 생략, 숫자 중심.**

@@ -1422,9 +1422,11 @@
             <stop offset=".35" stop-color="#fff7e0" stop-opacity=".45" />
             <stop offset="1" stop-color="#fff7e0" stop-opacity=".82" />
           </linearGradient>
-          <filter id="steamBlur" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="1.8" />
-          </filter>
+          <radialGradient id="steamPuff" cx="50%" cy="46%" r="54%">
+            <stop offset="0" stop-color="#fff7e0" stop-opacity=".24" />
+            <stop offset=".5" stop-color="#fff7e0" stop-opacity=".10" />
+            <stop offset="1" stop-color="#fff7e0" stop-opacity="0" />
+          </radialGradient>
           <filter id="vesselShadow" x="-30%" y="-30%" width="160%" height="170%">
             <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#000" flood-opacity=".34" />
           </filter>
@@ -1508,7 +1510,7 @@
         </g>
 
         <!-- steam -->
-        <g id="steam" filter="url(#steamBlur)"></g>
+        <g id="steam"></g>
 
         <!-- time ring -->
         <circle id="ring-track" cx="100" cy="118" r="92" fill="none" stroke="var(--track)" stroke-width="2"
@@ -1623,14 +1625,25 @@
 
   <script>
     (() => {
-      let reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', e => { reduce = e.matches; });
+      const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+      let reduce = motionQuery.matches;
+      motionQuery.addEventListener('change', e => { reduce = e.matches; kickFrame(); });
       const SVGNS = "http://www.w3.org/2000/svg";
       const $ = id => document.getElementById(id);
       const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => v < a ? a : v > b ? b : v;
       const mix = (c1, c2, t) => [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
       const rgb = c => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
       const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const svgAttrCache = new WeakMap();
+      function setSvgAttr(el, name, value) {
+        if (!el) return;
+        const next = String(value);
+        let attrs = svgAttrCache.get(el);
+        if (!attrs) { attrs = Object.create(null); svgAttrCache.set(el, attrs); }
+        if (attrs[name] === next) return;
+        attrs[name] = next;
+        el.setAttribute(name, next);
+      }
       const SAT_K = 3.2, SAT_D = 1 - Math.exp(-SAT_K);
       const sat = t => (1 - Math.exp(-SAT_K * t)) / SAT_D;   // 추출 포화 곡선: 초반 빠르게, 후반 완만
       const cjk = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
@@ -1692,10 +1705,12 @@
       let teaIdx = Math.max(0, TEAS.findIndex(t => t.id === preferences.lastTeaId));
       let vesselId = preferences.lastVesselId, infusion = 1, sec = 20, pyDrained = false;
       let infusionHistory = [], activeBrew = null;
-      let phase = "idle"; // idle | pour | steep | done
+      let phase = "idle"; // idle | pour | steep | done | draining
       let pourStart = 0, steepStart = 0, steepMs = 0, lastNow = performance.now();
       let level = 0, curAlpha = 0, strengthT = 0, openEff = 0, lidLift = 0, lidTarget = 0, glow = 0, drain = 0;
       let preWarnSec = 5, preWarned = false, lastTick = -1, isUrgent = false, agitate = 0;
+      let frameTimer = 0, frameRequest = 0, drainStart = 0, drainDuration = 0, drainCallback = null;
+      let displayedTime = "", displayedMessage = "", displayedUrgent = null;
       let lastNoteFocus = null;
       // Alpha-margin fit: keeps mug/piaoyibei visible tops aligned with the gaiwan readout lane.
       const VESSEL_FITS = {
@@ -1735,8 +1750,20 @@
       }
 
       // ---- audio ----
-      let actx = null, muted = preferences.muted;
+      let actx = null, muted = preferences.muted, audioSuspendTimer = 0;
+      function clearAudioSuspend() { if (audioSuspendTimer) clearTimeout(audioSuspendTimer); audioSuspendTimer = 0; }
+      function suspendAudioWhenIdle(delay = 3300) {
+        clearAudioSuspend();
+        audioSuspendTimer = setTimeout(() => {
+          audioSuspendTimer = 0;
+          if (actx && actx.state === "running" && phase !== "pour" && phase !== "steep" && phase !== "draining") {
+            void actx.suspend().catch(() => { });
+          }
+        }, delay);
+      }
       async function ensureAudio() {
+        if (muted) return false;
+        clearAudioSuspend();
         try {
           if (!actx || actx.state === "closed") actx = new (window.AudioContext || window.webkitAudioContext)();
           if (actx.state !== "running") await actx.resume(); // iOS Safari may return from another app as "interrupted"
@@ -1750,19 +1777,27 @@
           const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq * r; o.detune.value = i ? (Math.random() * 8 - 4) : 0;
           const ge = actx.createGain(); ge.gain.setValueAtTime(0, t0); ge.gain.linearRampToValueAtTime(g, t0 + .006);
           ge.gain.exponentialRampToValueAtTime(.0001, t0 + dur * (1 - i * .12));
+          o.onended = () => { try { o.disconnect(); ge.disconnect(); } catch (e) { } };
           o.connect(ge).connect(master); o.start(t0); o.stop(t0 + dur + .1);
         });
+        setTimeout(() => { try { master.disconnect(); } catch (e) { } }, Math.ceil((dur + .25) * 1000));
       }
-      async function tone(freq, dur, gain) { if (muted || !await ensureAudio()) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
+      async function tone(freq, dur, gain) { if (muted || !await ensureAudio()) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); o.onended = () => { try { o.disconnect(); ge.disconnect(); } catch (e) { } if (phase !== "pour" && phase !== "steep" && phase !== "draining") suspendAudioWhenIdle(0); }; o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
       const tick = () => tone(1320, .06, .12);
       const preWarn = () => tone(784, .5, .16);              // G5
-      async function chime() { if (muted || !await ensureAudio()) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); }
+      async function chime() { if (muted || !await ensureAudio()) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); suspendAudioWhenIdle(); }
 
       // ---- wake lock ----
       let wakeLock = null;
       async function reqWake() { try { if ("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) { } }
       function relWake() { try { wakeLock && wakeLock.release(); } catch (e) { } wakeLock = null; }
-      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { if (actx) void ensureAudio(); if (phase === "pour" || phase === "steep") reqWake(); } });
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          if (!muted && actx && (phase === "pour" || phase === "steep")) void ensureAudio();
+          if (phase === "pour" || phase === "steep") reqWake();
+          kickFrame();
+        } else stopFrameLoop();
+      });
 
       // ---- leaves ----
       function buildLeaves(groupId, anchors) {
@@ -1853,11 +1888,11 @@
             const ang = L.base + (i - (n - 1) / 2) * spread + flutter;
             const p = L.el.children[i];
             const col = (profile.kind === "bud-leaf" && i === 0) ? mix(profile.budDry, profile.budWet, lo) : mix(dry, wet, lo);
-            p.setAttribute("fill", `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${alpha.toFixed(3)})`);
-            p.setAttribute("d", leafPath(profile, lo, i));
-            p.setAttribute("transform", `rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
+            setSvgAttr(p, "fill", `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${alpha.toFixed(3)})`);
+            setSvgAttr(p, "d", leafPath(profile, lo, i));
+            setSvgAttr(p, "transform", `rotate(${ang.toFixed(2)}) scale(${scale.toFixed(3)})`);
           }
-          L.el.setAttribute("transform", `translate(${(L.x + dx).toFixed(2)} ${(L.y + dy).toFixed(2)}) rotate(${(sway + swirl).toFixed(2)})`);
+          setSvgAttr(L.el, "transform", `translate(${(L.x + dx).toFixed(2)} ${(L.y + dy).toFixed(2)}) rotate(${(sway + swirl).toFixed(2)})`);
         });
       }
 
@@ -2056,12 +2091,12 @@
       function applyLiquor(rectEl, surfEl, alpha, strength, top, full) {
         const col = mix(tea().light, tea().strong, strength);
         if (rectEl) {
-          els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .45)));   // 수면 쪽 옅음
-          els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .4)));   // 바닥 쪽 진함
-          rectEl.setAttribute("fill", "url(#liquorGrad)"); rectEl.setAttribute("opacity", alpha.toFixed(3));
-          rectEl.setAttribute("y", top); rectEl.setAttribute("height", Math.max(0, full - top));
+          setSvgAttr(els.liquorTop, "stop-color", rgb(mix(col, tea().light, .45)));   // 수면 쪽 옅음
+          setSvgAttr(els.liquorBot, "stop-color", rgb(mix(col, tea().strong, .4)));   // 바닥 쪽 진함
+          setSvgAttr(rectEl, "fill", "url(#liquorGrad)"); setSvgAttr(rectEl, "opacity", alpha.toFixed(3));
+          setSvgAttr(rectEl, "y", top); setSvgAttr(rectEl, "height", Math.max(0, full - top));
         }
-        if (surfEl) { surfEl.setAttribute("fill", rgb(mix(col, [255, 248, 210], .18))); surfEl.setAttribute("opacity", (alpha * 1.05).toFixed(3)); surfEl.setAttribute("cy", top); }
+        if (surfEl) { setSvgAttr(surfEl, "fill", rgb(mix(col, [255, 248, 210], .18))); setSvgAttr(surfEl, "opacity", (alpha * 1.05).toFixed(3)); setSvgAttr(surfEl, "cy", top); }
       }
       function gaiwanWallAt(y) {
         if (y <= 152) {
@@ -2111,30 +2146,30 @@
       }
       function applyGaiwanLiquor(alpha, strength, top, lvl) {
         const col = mix(tea().light, tea().strong, strength);
-        els.liquorTop.setAttribute("stop-color", rgb(mix(col, tea().light, .48)));
-        els.liquorBot.setAttribute("stop-color", rgb(mix(col, tea().strong, .35)));
-        els.gLiquid.setAttribute("fill", "url(#liquorGrad)");
-        els.gLiquid.setAttribute("opacity", alpha.toFixed(3));
-        els.gLiquid.setAttribute("d", gaiwanLiquidPath(top, lvl));
-        els.gMeniscus.setAttribute("d", gaiwanMeniscusPath(top, lvl));
-        els.gMeniscus.setAttribute("stroke", rgb(mix(col, [255, 248, 210], .35)));
-        els.gMeniscus.setAttribute("opacity", (alpha * .42).toFixed(3));
-        els.gWallLeft.setAttribute("d", gaiwanWallWashPath(top, -1));
-        els.gWallRight.setAttribute("d", gaiwanWallWashPath(top, 1));
+        setSvgAttr(els.liquorTop, "stop-color", rgb(mix(col, tea().light, .48)));
+        setSvgAttr(els.liquorBot, "stop-color", rgb(mix(col, tea().strong, .35)));
+        setSvgAttr(els.gLiquid, "fill", "url(#liquorGrad)");
+        setSvgAttr(els.gLiquid, "opacity", alpha.toFixed(3));
+        setSvgAttr(els.gLiquid, "d", gaiwanLiquidPath(top, lvl));
+        setSvgAttr(els.gMeniscus, "d", gaiwanMeniscusPath(top, lvl));
+        setSvgAttr(els.gMeniscus, "stroke", rgb(mix(col, [255, 248, 210], .35)));
+        setSvgAttr(els.gMeniscus, "opacity", (alpha * .42).toFixed(3));
+        setSvgAttr(els.gWallLeft, "d", gaiwanWallWashPath(top, -1));
+        setSvgAttr(els.gWallRight, "d", gaiwanWallWashPath(top, 1));
         [els.gWallLeft, els.gWallRight].forEach(el => {
-          el.setAttribute("fill", rgb(mix(col, tea().strong, .38)));
-          el.setAttribute("opacity", (alpha * .62 * Math.min(1, lvl * 1.6)).toFixed(3));
+          setSvgAttr(el, "fill", rgb(mix(col, tea().strong, .38)));
+          setSvgAttr(el, "opacity", (alpha * .62 * Math.min(1, lvl * 1.6)).toFixed(3));
         });
       }
       function setRing(remaining, total, urgent) {
         const frac = clamp(remaining / total, 0, 1);
-        els.ringProg.setAttribute("stroke-dashoffset", (ringC * (1 - frac)).toFixed(1));
-        els.ringTrack.setAttribute("opacity", ".25");
-        els.ringProg.setAttribute("opacity", urgent ? ".9" : ".4");
-        els.ringProg.setAttribute("stroke", urgent ? "#e4d691" : "#8c7f63");
-        els.ringProg.setAttribute("stroke-width", urgent ? "3" : "2");
+        setSvgAttr(els.ringProg, "stroke-dashoffset", (ringC * (1 - frac)).toFixed(1));
+        setSvgAttr(els.ringTrack, "opacity", ".25");
+        setSvgAttr(els.ringProg, "opacity", urgent ? ".9" : ".4");
+        setSvgAttr(els.ringProg, "stroke", urgent ? "#e4d691" : "#8c7f63");
+        setSvgAttr(els.ringProg, "stroke-width", urgent ? "3" : "2");
       }
-      function clearRing() { els.ringProg.setAttribute("opacity", "0"); els.ringTrack.setAttribute("opacity", "0"); }
+      function clearRing() { setSvgAttr(els.ringProg, "opacity", "0"); setSvgAttr(els.ringTrack, "opacity", "0"); }
 
       // 김 분출구: 주전자=뚜껑+꼭지, 개완·표일배=뚜껑 테두리 틈새 양쪽, 머그=수면. dx=가로 드리프트
       function steamPorts() {
@@ -2149,24 +2184,32 @@
       }
       function setSteam(intensity) {
         const g = els.steam, ports = steamPorts();
-        const perPort = Math.round(intensity * 3), want = ports.length * perPort;   // 포트당 최대 3가닥
-        while (g.children.length < want) { const e = document.createElementNS(SVGNS, "ellipse"); e._t = Math.random(); e._s = 0.7 + Math.random() * 0.6; g.appendChild(e); }
-        while (g.children.length > want) g.removeChild(g.lastChild);
+        const perPort = Math.round(intensity * 3), want = ports.length * perPort, steamTime = performance.now() / 3300;   // 포트당 최대 3가닥
         [...g.children].forEach((e, i) => {
+          const visible = i < want;
+          if (e._visible !== visible) { e._visible = visible; e.style.display = visible ? "" : "none"; }
+          if (!visible) return;
           const port = ports[i % ports.length], k = Math.floor(i / ports.length);
-          e._t = (e._t + 0.005) % 1; const t = e._t, sway = Math.sin(t * 6.28 + i) * 5;
-          e.setAttribute("cx", (port.x + port.dx * t * 22 + sway + (k - perPort / 2) * 5).toFixed(1));
-          e.setAttribute("cy", (port.y - 6 - t * 46).toFixed(1));
-          e.setAttribute("rx", (4 + t * 9 * e._s).toFixed(1)); e.setAttribute("ry", (6 + t * 13 * e._s).toFixed(1));
-          e.setAttribute("fill", "#fff7e0"); e.setAttribute("opacity", (Math.sin(Math.PI * t) * 0.21).toFixed(3));
+          const t = (e._seed + steamTime) % 1, sway = Math.sin(t * 6.28 + i) * 5;
+          setSvgAttr(e, "cx", (port.x + port.dx * t * 22 + sway + (k - perPort / 2) * 5).toFixed(1));
+          setSvgAttr(e, "cy", (port.y - 6 - t * 46).toFixed(1));
+          setSvgAttr(e, "rx", (4 + t * 9 * e._s).toFixed(1)); setSvgAttr(e, "ry", (6 + t * 13 * e._s).toFixed(1));
+          setSvgAttr(e, "fill", "url(#steamPuff)"); setSvgAttr(e, "opacity", (Math.sin(Math.PI * t) * 0.48).toFixed(3));
         });
+      }
+      function initSteam() {
+        while (els.steam.children.length < 6) {
+          const e = document.createElementNS(SVGNS, "ellipse");
+          e._seed = Math.random(); e._s = 0.7 + Math.random() * 0.6; e._visible = false; e.style.display = "none";
+          els.steam.appendChild(e);
+        }
       }
       // 수면 일렁임: 시간 기반으로 ellipse 크기를 미세 진동(임박 구간 amp↑)
       function shimmerSurf(el, baseRx, baseRy, lvl) {
         if (!el) return;
         const tt = performance.now() / 1000, amp = reduce ? 0 : (0.4 + 0.7 * (isUrgent ? 1 : 0)) * Math.min(1, lvl);
-        el.setAttribute("rx", (baseRx + Math.sin(tt * 1.7) * amp * 1.4).toFixed(2));
-        el.setAttribute("ry", (baseRy + Math.sin(tt * 2.3 + 1) * amp).toFixed(2));
+        setSvgAttr(el, "rx", (baseRx + Math.sin(tt * 1.7) * amp * 1.4).toFixed(2));
+        setSvgAttr(el, "ry", (baseRy + Math.sin(tt * 2.3 + 1) * amp).toFixed(2));
       }
       function pyLowerPath(top, amount) {
         const cx = 97, bottom = 190, t = clamp(amount, 0, 1);
@@ -2186,15 +2229,16 @@
 
       function render() {
         const v = vessel();
-        const activeLevel = (phase === "done" && vesselId !== "piaoyibei") ? level * (1 - drain) : level;
-        const activeAlpha = (phase === "done" && vesselId !== "piaoyibei") ? curAlpha * (1 - drain) : curAlpha;
+        const pouringOut = phase === "draining" || (phase === "done" && isDrained);
+        const activeLevel = (pouringOut && vesselId !== "piaoyibei") ? level * (1 - drain) : level;
+        const activeAlpha = (pouringOut && vesselId !== "piaoyibei") ? curAlpha * (1 - drain) : curAlpha;
 
         // gaiwan
         if (vesselId === "gaiwan") {
           const top = lerp(166, 130, activeLevel);
           applyGaiwanLiquor(activeAlpha * Math.min(1, activeLevel * 1.4) * .92, strengthT, top, activeLevel);
           drawLeaves(gLeaves, openEff, { baseAlpha: .55, peakAlpha: .24, minSpread: 6, maxSpread: 30, minScale: .38, maxScale: .42 });
-          els.gLid.setAttribute("opacity", "0");
+          setSvgAttr(els.gLid, "opacity", "0");
         } else if (vesselId === "piaoyibei") {
           // steep: chamber fills (level), color deepens; drain: chamber empties, lower fills
           const chTop = lerp(136, 108, level), chAlpha = curAlpha * (1 - drain);
@@ -2202,47 +2246,49 @@
           shimmerSurf(els.pyChSurf, lerp(11, 21, level), 4.8, level);
           const lowTop = lerp(190, 154, drain);   // 손잡이 하단 살짝 밑까지 차오름
           const lowCol = rgb(mix(tea().light, tea().strong, strengthT));
-          [...els.pyLowerGrad.children].forEach(s => s.setAttribute("stop-color", lowCol)); // 깊이 그라데이션(바닥 페이드)
-          els.pyLower.setAttribute("d", pyLowerPath(lowTop, drain));
-          els.pyLower.setAttribute("opacity", drain > 0 ? ".42" : "0");
-          els.pyLowerSurf.setAttribute("cy", lowTop);
-          els.pyLowerSurf.setAttribute("rx", lerp(0, 23, drain).toFixed(2));
-          els.pyLowerSurf.setAttribute("opacity", drain > .05 ? ".34" : "0");
+          [...els.pyLowerGrad.children].forEach(s => setSvgAttr(s, "stop-color", lowCol)); // 깊이 그라데이션(바닥 페이드)
+          setSvgAttr(els.pyLower, "d", pyLowerPath(lowTop, drain));
+          setSvgAttr(els.pyLower, "opacity", drain > 0 ? ".42" : "0");
+          setSvgAttr(els.pyLowerSurf, "cy", lowTop);
+          setSvgAttr(els.pyLowerSurf, "rx", lerp(0, 23, drain).toFixed(2));
+          setSvgAttr(els.pyLowerSurf, "opacity", drain > .05 ? ".34" : "0");
           drawLeaves(pyLeaves, openEff, { baseAlpha: .55, peakAlpha: .24, minSpread: 6, maxSpread: 32, minScale: .38, maxScale: .42 });
         } else if (vesselId === "mug") {
           const col = mix(tea().light, tea().strong, strengthT);
           const visible = activeAlpha * Math.min(1, activeLevel * 1.4);
-          els.mugSurfCenter.setAttribute("stop-color", rgb(mix(col, [255, 248, 218], .18)));
-          els.mugSurfEdge.setAttribute("stop-color", rgb(mix(col, tea().strong, .08)));
-          els.mugSurf.setAttribute("opacity", (visible * .78).toFixed(3));
+          setSvgAttr(els.mugSurfCenter, "stop-color", rgb(mix(col, [255, 248, 218], .18)));
+          setSvgAttr(els.mugSurfEdge, "stop-color", rgb(mix(col, tea().strong, .08)));
+          setSvgAttr(els.mugSurf, "opacity", (visible * .78).toFixed(3));
         }
         // ambient glow for opaque vessels — 따뜻한 앰버 글로우
         if (v.vis === "none" || v.vis === "top") {
-          let amb = glow * 0.30 * (phase === "done" ? (1 - drain) : 1);
+          let amb = glow * 0.30 * (pouringOut ? (1 - drain) : 1);
           if (isUrgent && !reduce) amb *= 0.8 + 0.4 * (0.5 + 0.5 * Math.sin(performance.now() / 220));
-          els.ambient.setAttribute("opacity", amb.toFixed(3));
-          els.ambient.setAttribute("cy", v.round ? 124 : 120);
-        } else els.ambient.setAttribute("opacity", "0");
+          setSvgAttr(els.ambient, "opacity", amb.toFixed(3));
+          setSvgAttr(els.ambient, "cy", v.round ? 124 : 120);
+        } else setSvgAttr(els.ambient, "opacity", "0");
 
         // pour: 물줄기 하강 + 착지 잔물결 (붓는 중에만)
         if (phase === "pour") {
           const land = pourLandY();
-          els.pour.setAttribute("opacity", "1");
-          els.pourStream.setAttribute("height", Math.max(0, (land - 48) * clamp(level * 2, 0, 1)).toFixed(1));
+          setSvgAttr(els.pour, "opacity", "1");
+          setSvgAttr(els.pourStream, "height", Math.max(0, (land - 48) * clamp(level * 2, 0, 1)).toFixed(1));
           const rip = clamp((level - 0.4) / 0.6, 0, 1);
-          els.pourRipple.setAttribute("cy", land);
-          els.pourRipple.setAttribute("rx", (rip * 22).toFixed(1)); els.pourRipple.setAttribute("ry", (rip * 5).toFixed(1));
-          els.pourRipple.setAttribute("opacity", ((1 - rip) * 0.5).toFixed(3));
-        } else els.pour.setAttribute("opacity", "0");
+          setSvgAttr(els.pourRipple, "cy", land);
+          setSvgAttr(els.pourRipple, "rx", (rip * 22).toFixed(1)); setSvgAttr(els.pourRipple, "ry", (rip * 5).toFixed(1));
+          setSvgAttr(els.pourRipple, "opacity", ((1 - rip) * 0.5).toFixed(3));
+        } else setSvgAttr(els.pour, "opacity", "0");
 
-        const steamFactor = (phase === "steep" ? (0.3 + 0.7 * strengthT) : phase === "done" ? 0.7 * (1 - drain) : 0);
+        const steamFactor = phase === "steep" ? (0.3 + 0.7 * strengthT) : phase === "done" ? 0.7 * (isDrained ? 0 : 1) : phase === "draining" ? 0.7 * (1 - drain) : 0;
         setSteam(steamFactor);
       }
 
       function previewIdle() {
+        stopFrameLoop();
         level = 0; curAlpha = 0; strengthT = 0; openEff = 0; glow = 0; drain = 0;
         lidLift = 0; lidTarget = 0; isUrgent = false; agitate = 0;
-        els.time.textContent = fmt(sec * 1000); els.timeLabel.textContent = "";
+        displayedTime = fmt(sec * 1000); displayedMessage = ""; displayedUrgent = false;
+        els.time.textContent = displayedTime; els.timeLabel.textContent = "";
         els.timeLabel.setAttribute('aria-live', 'polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
         setTeaPickerActive(true);
         clearRing(); render();
@@ -2250,15 +2296,18 @@
 
       // ---- phases ----
       function startBrew() {
-        void ensureAudio(); reqWake();
+        if (!muted) void ensureAudio(); reqWake();
         setTeaPickerActive(false);
         activeBrew = { n: infusion, sec };
         updateInfusionLine();
         preWarnSec = clamp(Math.round(sec * 0.2), 3, 5); preWarned = false; lastTick = -1; drain = 0;
         els.brew.disabled = true; els.slider.disabled = true; els.dec.disabled = true; els.inc.disabled = true;
-        els.timeLabel.setAttribute('aria-live', 'polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done");
-        if (reduce) { level = 1; enterSteep(performance.now()); return; }
+        displayedTime = fmt(sec * 1000); displayedMessage = ""; displayedUrgent = false;
+        els.time.textContent = displayedTime; els.timeLabel.textContent = "";
+        els.timeLabel.setAttribute('aria-live', 'polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
+        if (reduce) { level = 1; enterSteep(performance.now()); kickFrame(); return; }
         phase = "pour"; pourStart = performance.now(); level = 0; els.brew.textContent = "물 붓는 중…";
+        kickFrame();
       }
       function enterSteep(now) {
         phase = "steep"; steepStart = now; steepMs = sec * 1000; level = 1; lidTarget = 0;
@@ -2270,35 +2319,33 @@
         phase = "done"; curAlpha = tea().peak; strengthT = 1; openEff = 1; glow = 1; isUrgent = false; agitate = 0;
         isDrained = false; drain = 0;
         setTeaPickerActive(true);
-        els.time.textContent = "0:00";
+        displayedTime = "0:00"; displayedUrgent = false; els.time.textContent = displayedTime;
         els.hero.classList.remove("urgent"); els.readout.classList.add("done");
         const v = vessel();
         recordActiveBrew();
         if (v.done === "lid") lidTarget = 1;
         els.timeLabel.setAttribute('aria-live', 'assertive');
-        els.timeLabel.textContent = v.completion;
+        displayedMessage = v.completion; els.timeLabel.textContent = displayedMessage;
         const fl = $("flash"); if (fl) { fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go"); }
         void chime();
         clearRing();
         els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.disabled = false;
         els.brew.textContent = (vesselId === "piaoyibei") ? "버튼 눌러 내리기" : "차 따라내기";
-        relWake(); render();
+        relWake();
       }
 
       function drainVessel(cb) {
-        const t0 = performance.now(), dur = reduce ? 1 : 1400;
-        (function step(now) {
-          drain = clamp((now - t0) / dur, 0, 1);
-          render();
-          if (drain < 1) requestAnimationFrame(step);
-          else {
-            isDrained = true;
-            prepareNextInfusion();
-            els.timeLabel.textContent = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
-            els.brew.textContent = "다음 泡 우리기";
-            cb && cb();
-          }
-        })(t0);
+        phase = "draining"; drainStart = performance.now(); drainDuration = reduce ? 1 : 1400; drainCallback = cb;
+        if (reduce) { drain = 1; finishDrain(); render(); return; }
+        kickFrame();
+      }
+      function finishDrain() {
+        phase = "done"; isDrained = true; drain = 1;
+        prepareNextInfusion();
+        displayedMessage = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
+        els.timeLabel.textContent = displayedMessage;
+        els.brew.textContent = "다음 泡 우리기";
+        const cb = drainCallback; drainCallback = null; cb && cb();
       }
 
       function reset() {
@@ -2306,6 +2353,7 @@
         setInf(); syncSlider(); previewIdle();
         els.brew.disabled = false; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = "우리기 시작";
         relWake();
+        if (actx && actx.state === "running") suspendAudioWhenIdle(0);
       }
       function setInf() { $("infLabel").textContent = infText(infusion); $("infKo").textContent = koInf(infusion); }
       function recordActiveBrew() {
@@ -2321,14 +2369,43 @@
         setInf(); syncSlider();
       }
 
-      // ---- loop ----
+      // ---- single, state-aware render scheduler ----
+      const ACTIVE_FRAME_MS = 1000 / 30, DONE_FRAME_MS = 1000 / 12;
+      function stopFrameLoop() {
+        if (frameTimer) clearTimeout(frameTimer);
+        if (frameRequest) cancelAnimationFrame(frameRequest);
+        frameTimer = 0; frameRequest = 0;
+      }
+      function scheduleFrame(delay = 0) {
+        if (frameTimer || frameRequest || document.visibilityState !== "visible") return;
+        frameTimer = setTimeout(() => {
+          frameTimer = 0;
+          frameRequest = requestAnimationFrame(now => { frameRequest = 0; frame(now); });
+        }, Math.max(0, delay));
+      }
+      function kickFrame() {
+        stopFrameLoop();
+        if (document.visibilityState !== "visible" || phase === "idle" || (phase === "done" && isDrained)) return;
+        lastNow = performance.now(); scheduleFrame(0);
+      }
+      function nextFrameDelay(now) {
+        if (document.visibilityState !== "visible") return null;
+        if (phase === "pour" || phase === "draining") return ACTIVE_FRAME_MS;
+        if (phase === "steep") {
+          if (!reduce) return ACTIVE_FRAME_MS;
+          const remaining = Math.max(0, steepMs - (now - steepStart));
+          return clamp(remaining % 1000 + 20, 80, 1000);
+        }
+        if (phase === "done" && !isDrained && !reduce) return DONE_FRAME_MS;
+        return null;
+      }
       function frame(now) {
         const dt = Math.min(now - lastNow, 60); lastNow = now;
         lidLift += (lidTarget - lidLift) * (reduce ? 1 : 0.1);
         if (phase === "pour") {
           const t = clamp((now - pourStart) / 900, 0, 1); level = ease(t); glow = Math.min(1, glow + dt * 0.002);
           agitate = clamp((now - pourStart) / 250, 0, 1);                       // 붓는 즉시 난류 최고조
-          if (t >= 1) enterSteep(now);
+          if (t >= 1) enterSteep(pourStart + 900);
         } else if (phase === "steep") {
           const elapsed = now - steepStart, remaining = steepMs - elapsed;
           const lin = clamp(elapsed / steepMs, 0, 1);
@@ -2336,22 +2413,31 @@
           const col = reduce ? 1 : sat(lin);   // 탕색/농도: 초반 빠른 추출
           const opn = reduce ? 1 : ease(lin);  // 찻잎 펼침: 완만한 재수화
           curAlpha = lerp(0, tea().peak, col); strengthT = Math.min(1, col); openEff = clamp(opn * 1.15, 0, 1); glow = Math.min(1, 0.3 + col);
-          els.time.textContent = fmt(remaining);
+          const timeText = fmt(remaining);
+          if (displayedTime !== timeText) { displayedTime = timeText; els.time.textContent = timeText; }
           const urgent = remaining <= preWarnSec * 1000 + 50;
           isUrgent = urgent && !reduce;
           setRing(remaining, steepMs, urgent);
-          els.hero.classList.toggle("urgent", urgent && !reduce);
-          els.timeLabel.textContent = urgent ? "곧 따라낼 준비" : "";
-          els.timeLabel.classList.toggle("gold", urgent);
+          if (displayedUrgent !== urgent) {
+            displayedUrgent = urgent;
+            els.hero.classList.toggle("urgent", urgent && !reduce);
+            els.timeLabel.classList.toggle("gold", urgent);
+          }
+          const message = urgent ? "곧 따라낼 준비" : "";
+          if (displayedMessage !== message) { displayedMessage = message; els.timeLabel.textContent = message; }
           const remSec = Math.ceil(remaining / 1000);
           if (!preWarned && remaining <= preWarnSec * 1000) { preWarned = true; preWarn(); lastTick = remSec; }
           else if (preWarned && remSec !== lastTick && remSec > 0 && remSec <= preWarnSec) { lastTick = remSec; tick(); }
           if (remaining <= 0) finishSteep();
+        } else if (phase === "draining") {
+          drain = clamp((now - drainStart) / drainDuration, 0, 1);
+          if (drain >= 1) finishDrain();
         } else if (phase === "done") {
           glow = Math.max(0.6, glow);
         }
-        if (phase !== "done" || vesselId !== "piaoyibei") render();
-        requestAnimationFrame(frame);
+        render();
+        const delay = nextFrameDelay(now);
+        if (delay !== null) scheduleFrame(delay);
       }
 
       // ---- Tea Feeling Notes & Preferences ----
@@ -2575,7 +2661,7 @@ ${emoji} ${rawName}
         if (e.target === $("cardModalBackdrop")) $("cardModalBackdrop").classList.remove("active");
       };
 
-      function renderAndShareCanvasCard() {
+      async function renderAndShareCanvasCard() {
         const canvas = document.createElement("canvas");
         canvas.width = 680;
         canvas.height = 900;
@@ -2707,30 +2793,32 @@ ${emoji} ${rawName}
         // Share PNG on mobile browsers. This is the reliable save path for installed Safari PWAs.
         try {
           const filename = `tea-feeling-${dateStr}.png`;
-          const dataUrl = canvas.toDataURL("image/png");
-          const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
-          const binary = atob(base64);
-          const bytes = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          const file = new File([bytes], filename, { type: "image/png" });
+          const blob = await new Promise((resolve, reject) => {
+            canvas.toBlob(result => result ? resolve(result) : reject(new Error("PNG encoding failed")), "image/png");
+          });
+          const file = new File([blob], filename, { type: "image/png" });
           const shareData = { files: [file], title: "차 한 잔의 시간", text: "차 느낌 카드" };
 
           if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-            navigator.share(shareData)
-              .then(() => showToast("카드 이미지 공유를 마쳤습니다 🖼️"))
-              .catch(error => {
-                if (error.name !== "AbortError") showToast("이미지 공유를 열지 못했습니다");
-              });
-            return;
+            try {
+              await navigator.share(shareData);
+              showToast("카드 이미지 공유를 마쳤습니다 🖼️");
+              return;
+            } catch (shareError) {
+              if (shareError.name === "AbortError") return;
+              // 일부 iOS PWA는 비동기 PNG 인코딩 뒤 공유 제스처를 잃는다. 다운로드로 복구한다.
+            }
           }
 
+          const objectUrl = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.download = filename;
-          link.href = dataUrl;
+          link.href = objectUrl;
           link.click();
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
           showToast("카드 이미지 다운로드를 시작했습니다 🖼️");
         } catch (e) {
-          showToast("이미지 저장 실패");
+          if (e.name !== "AbortError") showToast("이미지 저장 실패");
         }
       }
 
@@ -2773,7 +2861,8 @@ ${emoji} ${rawName}
         this.setAttribute("aria-label", label);
         if ($("muteText")) $("muteText").textContent = label;
         savePreferences();
-        if (!muted) void tone(880, .5, .12);
+        if (muted) { clearAudioSuspend(); if (actx && actx.state === "running") void actx.suspend().catch(() => { }); }
+        else void tone(880, .5, .12);
       };
 
       // swipe on hero for vessel
@@ -2783,6 +2872,7 @@ ${emoji} ${rawName}
       // ---- boot ----
       function boot() {
         applyVesselFits();
+        initSteam();
         buildDots(); buildSegState(); paintTea();
         sec = adjustedSecFor(infusion); syncSlider(); setInf(); previewIdle();
         const label = muted ? "소리 켜기" : "소리 끄기";
@@ -2790,7 +2880,6 @@ ${emoji} ${rawName}
         $("mute").setAttribute("aria-pressed", muted);
         $("mute").setAttribute("aria-label", label);
         if ($("muteText")) $("muteText").textContent = label;
-        requestAnimationFrame(frame);
       }
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot); else boot();
 
