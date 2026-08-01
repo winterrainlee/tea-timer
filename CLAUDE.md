@@ -17,7 +17,7 @@
 ## 코드 지도 (`index.html` 안)
 - **데이터**: `TEAS[]`(7종: 녹차·백차·청향우롱·생보이·농향우롱·홍차·숙보이, 각 `light/strong` RGB·`base`·`add`·`peak`·`temp`), `VESSELS[]`(5종), `VICONS`(세그먼트 미니 아이콘).
 - **상태 머신**: `idle → pour → steep → done → draining → done(ready)`. 핵심 함수: `startBrew → enterSteep → finishSteep → drainVessel`. 단일 상태 스케줄러가 진행 중 30fps, 완료 대기 12fps로 `frame()` → `render()`를 호출하며 idle·배수 완료에는 정지한다. 회차는 `infusion`(표기 **泡**, `infText`/`koInf`).
-- **렌더 구조**: 도구 본체는 `assets/vessels/*.png`를 SVG `<image>`로 배치하고, 동적 현상만 SVG로 합성한다.
+- **렌더 구조**: 도구 본체는 `assets/vessels/*.png`를 SVG `<image data-src>`로 배치하고 정상 대기 상태에서는 현재 선택 다구만 `href`를 활성화한다. 전환 중에는 `Image.decode()` 뒤 숨긴 대상 SVG의 실제 `load`까지 확인하고 한 프레임을 교체한 다음 이전 `href`를 제거한다. 동적 현상만 SVG로 합성한다.
 - **렌더 훅(도구별)**: `render()`가 분기 — 개완=찻물(`applyLiquor` + `#g-liquid/#g-surface`)·찻잎(`drawLeaves`/`#g-leaves`)·뚜껑 하이라이트(`#g-lid`, `lidTarget`→`lidLift` 스무딩), 표일배=윗챔버(`#py-chamber`)→버튼 배수(`drainPiao`, `#py-lower`/`drain`), 머그=수면색(`#mug-surface`), 불투명(티팟·동양식 다호)=`#ambient` 글로우. 김은 `setSteam`.
 - **시간 링**: `#ring-prog`(둥근 도구만; `vessel().round`). 평소 가는 헤어라인, 막바지 `urgent`에 밝기·굵기↑(`setRing`). **세로 도구(표일배·머그)는 링 생략, 숫자 중심.**
 - **신호**: 예고음 `preWarnSec = clamp(round(sec*0.2),3,5)`, 이후 매초 `tick()`, 완료 `chime()`(E5+B5 합성) + `.flash` + Wake Lock. 메시지(`#timeLabel`)는 **시간 숫자 위, 도구 위쪽**(`.message`)에 표시.

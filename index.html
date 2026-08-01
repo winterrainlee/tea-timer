@@ -1448,17 +1448,17 @@
 
         <!-- ===== RASTER VESSEL LAYERS + SVG EFFECTS ===== -->
         <g id="v-teapot" class="vessel" style="display:none" filter="url(#vesselShadow)">
-          <image href="assets/vessels/teapot.png" x="8" y="44" width="184" height="184"
+          <image data-src="assets/vessels/teapot.png" x="8" y="44" width="184" height="184"
             preserveAspectRatio="xMidYMid meet" />
         </g>
 
         <g id="v-eastern-pot" class="vessel" style="display:none" filter="url(#vesselShadow)">
-          <image href="assets/vessels/eastern-pot-zisha.png" x="16" y="48" width="168" height="168"
+          <image data-src="assets/vessels/eastern-pot-zisha.png" x="16" y="48" width="168" height="168"
             preserveAspectRatio="xMidYMid meet" />
         </g>
 
         <g id="v-gaiwan" class="vessel" filter="url(#vesselShadow)">
-          <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172"
+          <image data-src="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172"
             preserveAspectRatio="xMidYMid meet" />
           <g clip-path="url(#gBowl)" style="mix-blend-mode:multiply">
             <ellipse cx="100" cy="148" rx="46" ry="22" fill="url(#softTeaGlow)" opacity=".38" />
@@ -1469,7 +1469,7 @@
             <path id="g-wall-right" d="M100 166 Z" fill="#cdbf63" opacity="0" />
           </g>
           <g id="g-leaves" clip-path="url(#gBowl)" style="mix-blend-mode:multiply"></g>
-          <image href="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172"
+          <image data-src="assets/vessels/gaiwan-glass.png" x="14" y="55" width="172" height="172"
             preserveAspectRatio="xMidYMid meet" opacity=".46" />
           <g id="g-lid" opacity="0" style="display:none">
             <path d="M62 97 C74 91 88 88 100 88 C112 88 126 91 138 97" fill="none" stroke="rgba(255,250,232,.28)"
@@ -1479,13 +1479,13 @@
         </g>
 
         <g id="v-mug" class="vessel" style="display:none" filter="url(#vesselShadow)">
-          <image href="assets/vessels/mug.png" x="24" y="43" width="160" height="160"
+          <image data-src="assets/vessels/mug.png" x="24" y="43" width="160" height="160"
             preserveAspectRatio="xMidYMid meet" />
           <ellipse id="mug-surface" cx="96" cy="83" rx="34" ry="7.4" fill="url(#mugSurfGrad)" opacity="0" />
         </g>
 
         <g id="v-piaoyibei" class="vessel" style="display:none" filter="url(#vesselShadow)">
-          <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178"
+          <image data-src="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178"
             preserveAspectRatio="xMidYMid meet" />
           <g clip-path="url(#pyOut)" style="mix-blend-mode:multiply">
             <path id="py-lower" d="M97 194 Z" fill="url(#pyLowerGrad)" opacity="0" />
@@ -1498,7 +1498,7 @@
           <ellipse id="py-chSurf" cx="97" cy="112" rx="23" ry="4.8" fill="#ded284" opacity="0"
             style="mix-blend-mode:multiply" />
           <g id="py-leaves" clip-path="url(#pyIn)" style="mix-blend-mode:multiply"></g>
-          <image href="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178"
+          <image data-src="assets/vessels/piaoyibei-glass.png" x="22" y="38" width="156" height="178"
             preserveAspectRatio="xMidYMid meet" opacity=".54" />
         </g>
 
@@ -1711,6 +1711,7 @@
       let preWarnSec = 5, preWarned = false, lastTick = -1, isUrgent = false, agitate = 0;
       let frameTimer = 0, frameRequest = 0, drainStart = 0, drainDuration = 0, drainCallback = null;
       let displayedTime = "", displayedMessage = "", displayedUrgent = null;
+      let vesselLoading = false;
       let lastNoteFocus = null;
       // Alpha-margin fit: keeps mug/piaoyibei visible tops aligned with the gaiwan readout lane.
       const VESSEL_FITS = {
@@ -1751,7 +1752,12 @@
 
       // ---- audio ----
       let actx = null, muted = preferences.muted, audioSuspendTimer = 0;
+      const activeAudioSources = new Set();
       function clearAudioSuspend() { if (audioSuspendTimer) clearTimeout(audioSuspendTimer); audioSuspendTimer = 0; }
+      function stopActiveAudio() {
+        activeAudioSources.forEach(source => { try { source.stop(); } catch (e) { } });
+        activeAudioSources.clear();
+      }
       function suspendAudioWhenIdle(delay = 3300) {
         clearAudioSuspend();
         audioSuspendTimer = setTimeout(() => {
@@ -1767,6 +1773,10 @@
         try {
           if (!actx || actx.state === "closed") actx = new (window.AudioContext || window.webkitAudioContext)();
           if (actx.state !== "running") await actx.resume(); // iOS Safari may return from another app as "interrupted"
+          if (muted) {
+            if (actx.state === "running") await actx.suspend();
+            return false;
+          }
           return actx.state === "running";
         } catch (e) { return false; }
       }
@@ -1777,15 +1787,16 @@
           const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq * r; o.detune.value = i ? (Math.random() * 8 - 4) : 0;
           const ge = actx.createGain(); ge.gain.setValueAtTime(0, t0); ge.gain.linearRampToValueAtTime(g, t0 + .006);
           ge.gain.exponentialRampToValueAtTime(.0001, t0 + dur * (1 - i * .12));
-          o.onended = () => { try { o.disconnect(); ge.disconnect(); } catch (e) { } };
+          activeAudioSources.add(o);
+          o.onended = () => { activeAudioSources.delete(o); try { o.disconnect(); ge.disconnect(); } catch (e) { } };
           o.connect(ge).connect(master); o.start(t0); o.stop(t0 + dur + .1);
         });
         setTimeout(() => { try { master.disconnect(); } catch (e) { } }, Math.ceil((dur + .25) * 1000));
       }
-      async function tone(freq, dur, gain) { if (muted || !await ensureAudio()) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); o.onended = () => { try { o.disconnect(); ge.disconnect(); } catch (e) { } if (phase !== "pour" && phase !== "steep" && phase !== "draining") suspendAudioWhenIdle(0); }; o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
+      async function tone(freq, dur, gain) { if (muted || !await ensureAudio() || muted) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); activeAudioSources.add(o); o.onended = () => { activeAudioSources.delete(o); try { o.disconnect(); ge.disconnect(); } catch (e) { } if (phase !== "pour" && phase !== "steep" && phase !== "draining") suspendAudioWhenIdle(0); }; o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
       const tick = () => tone(1320, .06, .12);
       const preWarn = () => tone(784, .5, .16);              // G5
-      async function chime() { if (muted || !await ensureAudio()) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); suspendAudioWhenIdle(); }
+      async function chime() { if (muted || !await ensureAudio() || muted) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); suspendAudioWhenIdle(); }
 
       // ---- wake lock ----
       let wakeLock = null;
@@ -1960,8 +1971,8 @@
         const { showPreview = active } = options;
         if (els.teaPicker) els.teaPicker.classList.toggle("locked", !active);
         if (active && els.teaPreview) els.teaPreview.classList.toggle("hide", !showPreview);
-        $("teaPrev").disabled = !active;
-        $("teaNext").disabled = !active;
+        $("teaPrev").disabled = !active || vesselLoading;
+        $("teaNext").disabled = !active || vesselLoading;
       }
       function openNoteModal() {
         lastNoteFocus = document.activeElement;
@@ -2037,16 +2048,121 @@
       function paintVesselPicker() {
         $("vesselName").textContent = vesselLabel(vessel());
       }
-      function selectVessel(delta) {
-        if (phase === "pour" || phase === "steep") return;
+      function activateVesselAssets(activeId) {
+        VESSELS.forEach(v => {
+          const group = $("v-" + v.id);
+          if (!group) return;
+          group.querySelectorAll("image[data-src]").forEach(image => {
+            const src = image.getAttribute("data-src");
+            if (v.id === activeId) image.setAttribute("href", src);
+            else image.removeAttribute("href");
+          });
+        });
+      }
+      function preloadVesselAsset(src) {
+        return new Promise(resolve => {
+          const image = new Image();
+          let settled = false;
+          const finish = ok => {
+            if (settled) return;
+            settled = true; clearTimeout(timeout); image.onload = null; image.onerror = null; resolve(ok);
+          };
+          const timeout = setTimeout(() => finish(false), 5000);
+          image.decoding = "async";
+          image.onerror = () => finish(false);
+          image.onload = () => { if (!image.decode) finish(true); };
+          image.src = src;
+          if (image.decode) void image.decode().then(() => finish(true)).catch(() => finish(false));
+        });
+      }
+      function loadSvgVesselImage(image) {
+        return new Promise(resolve => {
+          let settled = false;
+          const finish = ok => {
+            if (settled) return;
+            settled = true; clearTimeout(timeout);
+            image.removeEventListener("load", onLoad); image.removeEventListener("error", onError);
+            resolve(ok);
+          };
+          const onLoad = () => finish(true);
+          const onError = () => finish(false);
+          const timeout = setTimeout(() => finish(false), 5000);
+          image.addEventListener("load", onLoad, { once: true });
+          image.addEventListener("error", onError, { once: true });
+          image.setAttribute("href", image.getAttribute("data-src"));
+        });
+      }
+      async function prepareVesselAssets(v) {
+        const group = $("v-" + v.id);
+        if (!group) return false;
+        const images = [...group.querySelectorAll("image[data-src]")];
+        const sources = [...new Set(images.map(image => image.getAttribute("data-src")))];
+        if (!(await Promise.all(sources.map(preloadVesselAsset))).every(Boolean)) return false;
+
+        // SVGImageElement 자체의 load까지 확인해야 WebKit에서 첫 페인트 재디코드로 깜빡이지 않는다.
+        group.style.display = "";
+        group.style.visibility = "hidden";
+        const loaded = (await Promise.all(images.map(loadSvgVesselImage))).every(Boolean);
+        if (!loaded) {
+          images.forEach(image => image.removeAttribute("href"));
+          group.style.display = "none";
+          group.style.visibility = "";
+        }
+        return loaded;
+      }
+      function discardPreparedVessel(v) {
+        const group = $("v-" + v.id);
+        if (!group || v.id === vesselId) return;
+        group.querySelectorAll("image[data-src]").forEach(image => image.removeAttribute("href"));
+        group.style.display = "none";
+        group.style.visibility = "";
+      }
+      function waitForCommittedPaint() {
+        return new Promise(resolve => {
+          let settled = false;
+          const finish = () => { if (!settled) { settled = true; clearTimeout(timeout); resolve(); } };
+          const timeout = setTimeout(finish, 250);
+          requestAnimationFrame(() => requestAnimationFrame(finish));
+        });
+      }
+      function setVesselLoading(loading) {
+        vesselLoading = loading;
+        $("vesselPrev").disabled = loading; $("vesselNext").disabled = loading;
+        $("teaPrev").disabled = loading || !(phase === "idle" || phase === "done");
+        $("teaNext").disabled = loading || !(phase === "idle" || phase === "done");
+        if (phase === "idle" || phase === "done") els.brew.disabled = loading;
+        els.hero.setAttribute("aria-busy", loading ? "true" : "false");
+      }
+      async function selectVessel(delta) {
+        if (vesselLoading || phase === "pour" || phase === "steep" || phase === "draining") return;
         if (infusionHistory.length > 0) {
           showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
           return;
         }
         const idx = vesselIndex();
-        vesselId = VESSELS[(idx + delta + VESSELS.length) % VESSELS.length].id;
-        savePreferences();
-        reset(); buildSegState();
+        const originVesselId = vesselId;
+        const originPhase = phase;
+        const nextVessel = VESSELS[(idx + delta + VESSELS.length) % VESSELS.length];
+        setVesselLoading(true);
+        try {
+          if (!await prepareVesselAssets(nextVessel)) {
+            showToast("도구 이미지를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+            return;
+          }
+          if (vesselId !== originVesselId || phase !== originPhase || infusionHistory.length > 0) {
+            discardPreparedVessel(nextVessel);
+            return;
+          }
+          vesselId = nextVessel.id;
+          $("v-" + nextVessel.id).style.visibility = "";
+          savePreferences();
+          reset({ allowWhileVesselLoading: true }); buildSegState();
+          // 새 SVG가 한 프레임 표시된 뒤 이전 href를 놓아 빈 프레임 없이 메모리 반환을 허용한다.
+          await waitForCommittedPaint();
+          activateVesselAssets(vesselId);
+        } finally {
+          setVesselLoading(false);
+        }
       }
       function buildSegState() {
         paintVesselPicker();
@@ -2056,7 +2172,7 @@
         applyRingGeom();
       }
       function selectTea(i) {
-        if (phase === "pour" || phase === "steep") return;
+        if (vesselLoading || phase === "pour" || phase === "steep") return;
         if (infusionHistory.length > 0) {
           showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
           return;
@@ -2296,6 +2412,7 @@
 
       // ---- phases ----
       function startBrew() {
+        if (vesselLoading) return;
         if (!muted) void ensureAudio(); reqWake();
         setTeaPickerActive(false);
         activeBrew = { n: infusion, sec };
@@ -2348,12 +2465,15 @@
         const cb = drainCallback; drainCallback = null; cb && cb();
       }
 
-      function reset() {
+      function reset({ allowWhileVesselLoading = false } = {}) {
+        if (vesselLoading && !allowWhileVesselLoading) return false;
         phase = "idle"; infusion = 1; sec = adjustedSecFor(infusion); pyDrained = false; isDrained = false; drain = 0; infusionHistory = []; activeBrew = null;
         setInf(); syncSlider(); previewIdle();
-        els.brew.disabled = false; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = "우리기 시작";
+        els.brew.disabled = vesselLoading; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = "우리기 시작";
         relWake();
+        stopActiveAudio();
         if (actx && actx.state === "running") suspendAudioWhenIdle(0);
+        return true;
       }
       function setInf() { $("infLabel").textContent = infText(infusion); $("infKo").textContent = koInf(infusion); }
       function recordActiveBrew() {
@@ -2824,6 +2944,7 @@ ${emoji} ${rawName}
 
       // Brew Button Handler
       els.brew.onclick = () => {
+        if (vesselLoading) return;
         if (phase === "idle") { startBrew(); return; }
         if (phase === "done") {
           if (!isDrained) {
@@ -2840,6 +2961,7 @@ ${emoji} ${rawName}
 
       // Session Reset ("우림 끝" Button)
       $("reset").onclick = () => {
+        if (vesselLoading) return;
         if (infusionHistory.length > 0) {
           showToast("오늘의 차 세션을 마감했습니다 🍵");
         }
@@ -2861,7 +2983,7 @@ ${emoji} ${rawName}
         this.setAttribute("aria-label", label);
         if ($("muteText")) $("muteText").textContent = label;
         savePreferences();
-        if (muted) { clearAudioSuspend(); if (actx && actx.state === "running") void actx.suspend().catch(() => { }); }
+        if (muted) { clearAudioSuspend(); stopActiveAudio(); if (actx && actx.state === "running") void actx.suspend().catch(() => { }); }
         else void tone(880, .5, .12);
       };
 
@@ -2881,7 +3003,9 @@ ${emoji} ${rawName}
         $("mute").setAttribute("aria-label", label);
         if ($("muteText")) $("muteText").textContent = label;
       }
-      if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot); else boot();
+      // 선택 자산과 UI는 원격 폰트 성공을 기다리지 않고 즉시 준비한다.
+      activateVesselAssets(vesselId);
+      boot();
 
       // ---- service worker (PWA, only when hosted) ----
       if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {

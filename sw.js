@@ -1,5 +1,5 @@
 // 차 한 잔의 시간 · Time for Tea — 문서 갱신 + 정적 자산 cache-first
-const CACHE_VERSION = "v56";
+const CACHE_VERSION = "v57";
 const CACHE_PREFIX = "chahanjan-";
 const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
@@ -93,7 +93,12 @@ async function networkFirst(request) {
     const response = await fetch(request);
     if (isCacheable(response)) {
       await cache.put(key, response.clone()).catch(() => {});
+      return response;
     }
+
+    // 배포 장애나 일시적 서버 오류에서는 마지막 정상 문서를 유지한다.
+    const cached = await cache.match(key);
+    if (cached) return cached;
     return response;
   } catch {
     const cached = await cache.match(key);
