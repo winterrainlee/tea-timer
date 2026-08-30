@@ -4,7 +4,7 @@
 > 구현 기준: `89a5043` (`Load vessel artwork on demand`)
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 통합 대상: 기존 루트 `DESIGN.md`, `archieves/design-v0.1.md`, `archieves/design-v0.2.md`, `archieves/next-checklist.md`, 현재 `index.html`, `help.html`, `settings.html`, `sw.js`, `manifest.webmanifest`, `workers/reactions/` 구현
-> 문서 규칙: 이 파일이 제품·디자인·구현 상태의 단일 기준이다. 남은 작업과 우선순위는 [ROADMAP.md](ROADMAP.md)에서 관리한다. `docs/archieves/` 아래 문서는 히스토리 원문 스냅샷으로만 본다.
+> 문서 규칙: 이 파일이 제품·디자인·구현 상태의 단일 기준이다. 개발 카테고리·남은 작업·우선순위와 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md), 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에서 관리한다. `docs/archieves/` 아래 문서는 히스토리 원문 스냅샷으로만 본다.
 
 ---
 
@@ -423,6 +423,7 @@ stage
 /scripts/generate_icons.py
 /docs/DESIGN.md           # 제품·디자인·구현 상태의 단일 기준
 /docs/ROADMAP.md          # 남은 작업과 우선순위
+/docs/CHANGELOG.md        # 날짜별 개발 상세·관련 커밋·문서 분류 변경 기록
 /docs/design-tea-feeling.md
 /docs/data-portability.md  # 사용자 자산·백업·공개 스키마 설계
 /docs/sensory-vocabulary.md # 개인 감각 단어장 설계
@@ -613,7 +614,7 @@ idle
 
 ## 11. 로드맵
 
-남은 작업, 우선순위, 구현 메모는 [ROADMAP.md](ROADMAP.md)에서 별도로 관리한다. 이 문서는 현재 제품·디자인·구현 기준을 설명하고, 진행 예정 목록은 로드맵 문서로 분리한다.
+개발 카테고리의 정의·경계·앱 철학과의 연결, 남은 작업과 우선순위, 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md)에서 관리한다. 날짜별 구현 상세와 관련 커밋은 [CHANGELOG.md](CHANGELOG.md)에 둔다. 이 문서는 현재 제품·디자인·구현 기준과 중요한 결정 이유를 설명하며, 개별 개발 로그를 중복해서 추가하지 않는다.
 
 ---
 
