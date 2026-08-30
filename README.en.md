@@ -54,9 +54,9 @@ If you want to make your own changes on GitHub, fork this repository first, then
 ## Project Notes
 
 - Main app: `index.html`
-- Design notes: [DESIGN.md](DESIGN.md)
-- Roadmap: [ROADMAP.md](ROADMAP.md)
+- Design notes: [DESIGN.md](docs/DESIGN.md)
+- Roadmap: [ROADMAP.md](docs/ROADMAP.md)
 - Vessel images: `assets/vessels/*.png`
 - Tea preview asset: `assets/tea-preview/chahe.svg`
 
-This is a small personal project, still being shaped as I drink tea with it. Current follow-up work lives in [ROADMAP.md](ROADMAP.md).
+This is a small personal project, still being shaped as I drink tea with it. Current follow-up work lives in [ROADMAP.md](docs/ROADMAP.md).
