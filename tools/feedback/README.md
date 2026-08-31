@@ -4,6 +4,8 @@
 
 The token is read from `FEEDBACK_READ_TOKEN`, or from `workers/reactions/.env.feedback-read-token` (the latter is intentionally git-ignored by the repository integration). The default endpoint is the production HTTPS worker. Tests and local workers may use only `http://127.0.0.1`, `localhost`, or `[::1]` with `/admin/messages`.
 
+Requests identify this client as `TeaTimerFeedbackReader/1.0`. The production edge rejected Python urllib's default user agent with HTTP 403 / Cloudflare 1010; the explicit tool identity avoids that compatibility issue without impersonating a browser or changing authentication, redirect rejection, TLS verification, or endpoint restrictions.
+
 Commands are run from the repository root:
 
 ```sh

@@ -9,6 +9,14 @@
 
 ## 기능 변경
 
+<a id="feedback-reader-production"></a>
+
+### 2026-08-31 — 의견 조회 도구의 운영 연결 확인
+
+운영 Worker의 같은 요청에 시스템 curl은 성공했지만 Python urllib의 기본 User-Agent는 health부터 HTTP 403 / Cloudflare 1010으로 거부됐다. 조회 도구가 실제 이름 `TeaTimerFeedbackReader/1.0`을 명시하도록 수정했다. 브라우저를 사칭하지 않으며 Bearer 인증·TLS 검증·허용 endpoint·리디렉션 차단·로컬 저장 경계는 유지한다.
+
+조회 도구 테스트 12개와 실제 `fetch_page(after=0, limit=3)`로 기존 검증 행 1·2·3을 확인했다. 비밀키·본문 출력과 추가 메시지 생성은 하지 않았다. 프런트엔드 자산과 Worker는 변경하지 않았으므로 SW v83과 운영 Worker 버전을 유지한다. 정기 조회 자동화는 아직 등록하지 않았다.
+
 <a id="tw-feedback-production-ready"></a>
 
 ### 2026-08-31 — 운영 의견함 활성화·배포 전 준비 완료
