@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TW-02 실제 앱 회귀 검증</title>
+<style>
+  body { font: 16px system-ui; margin: 16px; background: #eee; color: #222; }
+  button { min-height: 44px; }
+  iframe { width: 375px; height: 660px; border: 1px solid #888; }
+  pre { white-space: pre-wrap; }
+</style>
+<h1>TW-02 실제 앱 회귀 검증</h1>
+<p>전용 테스트 origin에서만 실행합니다: 저장소 루트에서 <code>python3 -m http.server 8134 --bind 127.0.0.1</code> 실행 후 이 페이지를 엽니다. 이 origin의 설정을 테스트 값으로 교체합니다. 8123의 앱 데이터는 건드리지 않습니다.</p>
+<p>실제 앱 DOM·타이머·PNG를 검증합니다. 합성 키/조합 이벤트는 OS의 실제 한글 IME·스크린리더 검증을 대신하지 않습니다. 실행 중 탭을 활성 상태로 유지합니다.</p>
+<button id="run">회귀 검증 실행</button>
+<a id="png" hidden download="tw02-card.png">검증 PNG 내려받기</a>
+<pre id="result" role="status">대기 중</pre>
+<iframe id="app" title="검증 대상 타이머"></iframe>
+<script>
+  const frame = document.getElementById('app');
+  const output = document.getElementById('result');
+  const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(predicate, description, timeout = 15000) {
+    const start = performance.now();
+    while (!predicate()) {
+      if (performance.now() - start > timeout) throw new Error('시간 초과: ' + description);
+      await pause(30);
+    }
+  }
+  document.getElementById('run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') {
+      output.textContent = '중단: http://127.0.0.1:8134/tests/accessibility.html 에서만 실행할 수 있습니다.';
+      return;
+    }
+    this.disabled = true;
+    const lines = [];
+    const check = (name, condition) => {
+      if (!condition) throw new Error(name);
+      lines.push('PASS ' + name);
+      output.textContent = lines.join('\n');
+    };
+    try {
+      localStorage.setItem('teaTimer.preferences.v1', JSON.stringify({version: 1, lastTeaId: 'oolong', lastVesselId: 'gaiwan', muted: true, secDeltaByTea: {oolong: -15}, customTags: ['단맛', '꽃향', '맑음', '긴사용자태그'.repeat(30)]}));
+      frame.style.width = '375px';
+      frame.src = '../index.html?tw02-test=' + Date.now();
+      await new Promise(resolve => frame.onload = resolve);
+      const w = frame.contentWindow, d = w.document, $ = id => d.getElementById(id);
+      const errors = [];
+      w.addEventListener('error', e => errors.push(e.message));
+      w.addEventListener('unhandledrejection', e => errors.push(String(e.reason)));
+      const click = id => $(id).click();
+      const key = (el, value, options = {}) => el.dispatchEvent(new w.KeyboardEvent('keydown', {key: value, bubbles: true, cancelable: true, ...options}));
+      const fill = (el, value) => { el.value = value; el.dispatchEvent(new w.Event('input', {bubbles:true})); };
+      const focus = id => d.activeElement === $(id);
+      const compose = (el, type) => el.dispatchEvent(new w.CompositionEvent(type, {bubbles: true, data: '차'}));
+      await until(() => !$('brew').disabled, '다구 준비');
+      check('닫힌 레이어 hidden/inert 및 초점 차단', ['sheetBackdrop','cardModalBackdrop'].every(id => {
+        const layer = $(id); layer.querySelector('button').focus();
+        return layer.hidden && layer.inert && !layer.contains(d.activeElement);
+      }));
+      click('note');
+      check('이름 있는 모달과 초기 닫기 포커스', focus('closeSheetBtn') && $('noteDialog').getAttribute('role') === 'dialog' && $('noteDialog').getAttribute('aria-labelledby') === 'noteDialogTitle');
+      $('brew').focus();
+      check('배경 inert/aria-hidden 및 포커스 차단', $('timerApp').inert && $('timerApp').getAttribute('aria-hidden') === 'true' && focus('closeSheetBtn'));
+      key(d.activeElement,'Tab',{shiftKey:true});
+      check('Shift+Tab 역순 순환',focus('cardBtn'));
+      key(d.activeElement,'Tab');
+      check('Tab 순환',focus('closeSheetBtn'));
+      click('editTitleBtn');
+      const title = '  🍵 阿里山 차 원문  ';
+      fill($('teaTitleInput'), title);
+      key($('teaTitleInput'),'Enter');
+      check('Enter/blur 한 번 확정·포커스 복귀',focus('editTitleBtn') && !$('teaTitleInput') && $('teaTitleDisplay').textContent === '🍃 ' + title);
+      click('editTitleBtn');
+      check('공백과 이모지 원문으로 재편집', $('teaTitleInput').value === title);
+      key($('teaTitleInput'),'Tab');
+      check('동적 제목 입력 Tab/blur 뒤 편집 버튼',focus('editTitleBtn') && !$('teaTitleInput'));
+      const note = '첫 모금은 고소했습니다.\n마지막까지 맑았습니다.';
+      fill($('noteInput'),note);
+      const tag = $('tagsGrid').querySelector('button'); tag.click();
+      check('태그 선택 상태 제공',tag.getAttribute('aria-pressed') === 'true');
+      check('시트 조작 44×44px', [...$('noteDialog').querySelectorAll('button')].filter(el => el.getClientRects().length).every(el => {
+        const r = el.getBoundingClientRect(); return r.width >= 44 && r.height >= 44;
+      }));
+      click('cardBtn');
+      check('중첩 카드만 modal/active, 아래 시트 비활성',focus('closeCardModalBtn') && $('sheetBackdrop').inert && !$('cardModalBackdrop').inert && !$('noteDialog').hasAttribute('aria-modal') && $('cardDialog').getAttribute('aria-modal') === 'true');
+      $('noteInput').focus();
+      check('아래 시트 포커스 차단',focus('closeCardModalBtn'));
+      key(d.activeElement,'Tab',{shiftKey:true});
+      check('카드 역순 순환',focus('shareCardBtn'));
+      key(d.activeElement,'Tab');
+      check('카드 정순 순환',focus('closeCardModalBtn'));
+      key(d.activeElement,'Escape');
+      check('첫 Escape 카드만 닫고 진입 버튼 복귀',focus('cardBtn') && $('cardModalBackdrop').hidden && !$('sheetBackdrop').hidden && !$('sheetBackdrop').inert);
+      key(d.activeElement,'Escape');
+      check('두 번째 Escape 시트 닫고 메인 복귀',focus('note') && $('sheetBackdrop').hidden && !$('timerApp').inert);
+      click('note');
+      check('시트 재진입 제목·메모·태그 보존',$('noteInput').value === note && $('teaTitleDisplay').textContent === '🍃 ' + title && $('tagsGrid').querySelector('button').getAttribute('aria-pressed') === 'true');
+      click('cardBtn'); click('closeCardModalBtn');
+      check('별도 카드 닫기 버튼은 공유 없이 닫기',focus('cardBtn'));
+      click('cardBtn'); click('cardModalBackdrop');
+      check('카드 배경은 최상위만 닫기',focus('cardBtn') && !$('sheetBackdrop').hidden);
+      click('editTitleBtn');
+      let input = $('teaTitleInput');
+      compose(input,'compositionstart'); fill(input,'조합 중');
+      key(input,'Enter',{isComposing:true}); key(input,'Escape',{isComposing:true});
+      check('조합 Enter/Escape는 제목·시트를 닫지 않음',input.isConnected && !$('sheetBackdrop').hidden);
+      click('closeSheetBtn');
+      check('조합 완료 전 닫기 지연',!$('sheetBackdrop').hidden);
+      compose(input,'compositionend'); fill(input,'조합 완료 차');
+      await until(() => $('sheetBackdrop').hidden,'조합 후 닫기');
+      click('note');
+      check('최종 IME 입력 보존',$('teaTitleDisplay').textContent === '🍃 조합 완료 차');
+      click('editTitleBtn'); input = $('teaTitleInput');
+      compose(input,'compositionstart'); fill(input,'카드 조합');
+      click('cardBtn'); check('조합 완료 전 카드 열기 지연',$('cardModalBackdrop').hidden);
+      compose(input,'compositionend'); fill(input,'카드 최종 차');
+      await until(() => !$('cardModalBackdrop').hidden,'조합 후 카드');
+      check('카드에 최종 조합 제목 사용',$('cardTeaName').textContent === '🍃 카드 최종 차');
+      click('closeCardModalBtn');
+      compose($('noteInput'),'compositionstart'); fill($('noteInput'),'메모 조합'); click('sheetBackdrop');
+      compose($('noteInput'),'compositionend'); fill($('noteInput'),note + '\n조합 끝');
+      await until(() => $('sheetBackdrop').hidden,'메모 조합 후 닫기');
+      click('note'); check('메모 조합 뒤 배경 닫기 보존',$('noteInput').value.endsWith('조합 끝'));
+      click('closeSheetBtn');
+      // Use the real five-second timer, not an internal state shortcut.
+      fill($('slider'),'5'); click('brew'); click('note');
+      check('우림 중 열린 시트 안내',$('noteDialog').querySelector('[role="status"]').textContent.includes('우리는 중'));
+      click('cardBtn');
+      await until(() => $('brew').textContent === '차 따라내기','5초 우림 완료');
+      check('우림 완료가 중첩 창·포커스를 유지',focus('closeCardModalBtn') && !$('cardModalBackdrop').hidden && $('cardDialog').querySelector('[role="status"]').textContent.includes('우림을 마쳤습니다'));
+      $('cardDialog').querySelector('.return-to-timer').click();
+      check('복귀는 창만 닫고 출탕 버튼으로 이동',focus('brew') && $('sheetBackdrop').hidden && $('cardModalBackdrop').hidden && $('brew').textContent === '차 따라내기');
+      click('brew'); await until(() => $('brew').textContent === '다음 泡 우리기','출탕 완료');
+      click('note'); check('완료된 1포와 초안 유지',$('infusionHistoryDisplay').textContent.includes('총 1포') && $('noteInput').value.endsWith('조합 끝'));
+      click('cardBtn');
+      let pngFile;
+      Object.defineProperty(w.navigator,'canShare',{configurable:true,value:() => true});
+      Object.defineProperty(w.navigator,'share',{configurable:true,value:async data => { pngFile = data.files[0]; throw new w.DOMException('Test cancel','AbortError'); }});
+      click('shareCardBtn');
+      await until(() => pngFile,'실제 Canvas PNG 생성');
+      const pngUrl = URL.createObjectURL(pngFile), img = new Image(); img.src = pngUrl; await img.decode();
+      check('680×900 PNG 생성 및 공유 취소 후 초안 보존',img.naturalWidth === 680 && img.naturalHeight === 900 && focus('cardBtn') && $('noteInput').value.endsWith('조합 끝'));
+      const pngLink = document.getElementById('png');
+      pngLink.href = await new Promise(resolve => {
+        const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.readAsDataURL(pngFile);
+      });
+      URL.revokeObjectURL(pngUrl);
+      pngLink.hidden = false;
+      // Stress only DOM preview; Canvas long-text redesign belongs to later work.
+      click('editTitleBtn'); fill($('teaTitleInput'),'LongTeaName'.repeat(20)); key($('teaTitleInput'),'Enter');
+      fill($('noteInput'),'아주 긴 메모와 공백없는문장'.repeat(120));
+      $('tagsGrid').lastElementChild.click();
+      frame.style.width = '320px'; await pause(50);
+      check('320px 시트 가로 넘침 없음',$('noteDialog').scrollWidth <= $('noteDialog').clientWidth + 1);
+      click('cardBtn');
+      check('320px 긴 카드 가로 넘침 없음',$('cardDialog').scrollWidth <= $('cardDialog').clientWidth + 1);
+      $('shareCardBtn').focus();
+      const shareRect = $('shareCardBtn').getBoundingClientRect();
+      check('긴 카드 하단 조작 스크롤 접근·44px',shareRect.bottom <= w.innerHeight && shareRect.top >= 0 && shareRect.height >= 44);
+      key(d.activeElement,'Tab'); check('긴 카드 하단→상단 순환',focus('closeCardModalBtn'));
+      check('브라우저 예외 없음',errors.length === 0);
+      lines.push('완료: ' + lines.length + '개 통과. 실제 키보드·화면 렌더·OS IME/스크린리더 검증은 별도입니다.');
+      output.textContent = lines.join('\n');
+    } catch (error) { output.textContent = lines.join('\n') + '\nFAIL ' + error.message; }
+    finally { this.disabled = false; }
+  };
+</script>
+</html>

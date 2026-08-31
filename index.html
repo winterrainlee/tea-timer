@@ -1006,11 +1006,14 @@
     .sheet-container {
       width: min(100vw, 440px);
       max-height: 88vh;
+      max-height: 88dvh;
       background: #1a140d;
       border: 1px solid var(--line);
       border-radius: 20px 20px 0 0;
       padding: 1.25rem 1.15rem 1.4rem;
+      padding-bottom: max(1.4rem, env(safe-area-inset-bottom, 0px));
       overflow-y: auto;
+      overscroll-behavior: contain;
       transform: translateY(100%);
       transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
@@ -1050,6 +1053,9 @@
       font-size: 1.4rem;
       cursor: pointer;
       padding: 0.2rem 0.5rem;
+      min-width: 44px;
+      min-height: 44px;
+      flex-shrink: 0;
     }
 
     /* Summary Card */
@@ -1063,6 +1069,8 @@
 
     .summary-top {
       display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.4rem;
@@ -1072,15 +1080,22 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .tea-title {
+      min-width: 0;
+      overflow-wrap: anywhere;
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--ink);
     }
 
     .btn-edit-title {
+      min-width: 44px;
+      min-height: 44px;
+      flex-shrink: 0;
       background: none;
       border: none;
       color: var(--ink-dim);
@@ -1110,10 +1125,12 @@
       border: 1px solid var(--gold-line);
       color: var(--gold-soft);
       font-family: inherit;
-      font-size: 0.95rem;
+      font-size: 1rem;
       padding: 0.2rem 0.4rem;
       border-radius: 4px;
       width: 180px;
+      min-width: 0;
+      min-height: 44px;
     }
 
     /* Section Styles */
@@ -1134,7 +1151,10 @@
     }
 
     .tag-chip {
-      min-height: 30px;
+      min-height: 44px;
+      min-width: 44px;
+      max-width: 100%;
+      overflow-wrap: anywhere;
       padding: 0.22rem 0.55rem;
       border-radius: 4px;
       border: none;
@@ -1167,7 +1187,7 @@
       padding: 0.75rem;
       color: var(--ink);
       font-family: inherit;
-      font-size: 0.88rem;
+      font-size: 1rem;
       line-height: 1.5;
       resize: none;
       outline: none;
@@ -1182,7 +1202,7 @@
     /* Action Buttons */
     .action-grid {
       display: grid;
-      grid-template-columns: 1fr 1.1fr 1.3fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1.3fr);
       gap: 0.45rem;
     }
 
@@ -1283,6 +1303,11 @@
       text-align: center;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
       position: relative;
+      max-height: calc(100vh - 2rem);
+      max-height: calc(100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      overflow-wrap: anywhere;
     }
 
     .card-header-badge {
@@ -1316,12 +1341,14 @@
 
     .card-tags-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.35rem;
       justify-content: center;
       width: 100%;
     }
 
     .card-tag {
+      max-width: 100%;
       font-size: 0.78rem;
       background: rgba(205, 191, 99, 0.14);
       color: var(--gold-soft);
@@ -1348,7 +1375,8 @@
       margin-top: 1.2rem;
     }
 
-    .btn-close-card {
+    .btn-share-card {
+      min-height: 44px;
       margin-top: 1.2rem;
       width: 100%;
       padding: 0.7rem 0;
@@ -1360,11 +1388,26 @@
       font-weight: 700;
       cursor: pointer;
     }
+
+    .sheet-backdrop[hidden], .card-modal-backdrop[hidden] { display: none; }
+    body.has-dialog { overflow: hidden; }
+    .sheet-container :focus-visible, .card-preview-box :focus-visible {
+      outline: 2px solid var(--gold-soft);
+      outline-offset: 3px;
+    }
+    .card-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .card-dialog-title { font-size: .92rem; color: var(--ink-dim); font-weight: 400; }
+    .modal-timer-notice { margin-bottom: 1rem; text-align: left; }
+    .modal-timer-notice p { font-size: .88rem; line-height: 1.6; margin: 0 0 .5rem; }
+    .modal-timer-notice button { padding: .4rem .7rem; }
+    @media (prefers-reduced-motion: reduce) {
+      .sheet-backdrop, .sheet-container, .card-modal-backdrop { transition: none; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="app">
+  <div class="app" id="timerApp">
     <div class="top-actions">
       <button class="reset-top" id="reset">우림 끝</button>
       <a class="help-link" href="help.html" aria-label="사용법 열기" title="사용법">사용법</a>
@@ -1589,12 +1632,16 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- Bottom Sheet Component for Tea Feeling Note -->
-  <div class="sheet-backdrop" id="sheetBackdrop">
-    <div class="sheet-container">
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden inert aria-hidden="true">
+    <div class="sheet-container" id="noteDialog" role="dialog" aria-labelledby="noteDialogTitle" tabindex="-1">
       <div class="sheet-handle"></div>
       <div class="sheet-header">
-        <h2 class="sheet-title">이번 차의 느낌</h2>
-        <button class="btn-close-sheet" id="closeSheetBtn" aria-label="닫기">✕</button>
+        <h2 class="sheet-title" id="noteDialogTitle">이번 차의 느낌</h2>
+        <button class="btn-close-sheet" id="closeSheetBtn" aria-label="차 느낌 닫기">✕</button>
+      </div>
+      <div class="modal-timer-notice" hidden>
+        <p role="status" aria-live="polite" aria-atomic="true"></p>
+        <button class="btn-action return-to-timer">타이머로 돌아가기</button>
       </div>
 
       <!-- Summary Card -->
@@ -1612,13 +1659,13 @@
       </div>
 
       <!-- Tag Chips Grid -->
-      <label class="section-label">오늘 떠오른 단어</label>
-      <div class="tags-grid" id="tagsGrid">
+      <div class="section-label" id="tagsLabel">오늘 떠오른 단어</div>
+      <div class="tags-grid" id="tagsGrid" role="group" aria-labelledby="tagsLabel">
         <!-- js에서 render -->
       </div>
 
       <!-- Note Textarea -->
-      <label class="section-label">조금 더 자세히 적는다면</label>
+      <label class="section-label" for="noteInput">조금 더 자세히 적는다면</label>
       <textarea class="note-textarea" id="noteInput" placeholder="차를 마시며 느낀 점, 나만의 비유, 분위기나 장소를 자유롭게 적어보세요."></textarea>
 
       <!-- Action Buttons -->
@@ -1631,15 +1678,23 @@
   </div>
 
   <!-- Generated Card Preview Modal -->
-  <div class="card-modal-backdrop" id="cardModalBackdrop">
-    <div class="card-preview-box">
+  <div class="card-modal-backdrop" id="cardModalBackdrop" hidden inert aria-hidden="true">
+    <div class="card-preview-box" id="cardDialog" role="dialog" aria-labelledby="cardDialogTitle" tabindex="-1">
+      <div class="card-dialog-header">
+        <h2 class="card-dialog-title" id="cardDialogTitle">카드 미리보기</h2>
+        <button class="btn-close-sheet" id="closeCardModalBtn" aria-label="카드 미리보기 닫기">✕</button>
+      </div>
+      <div class="modal-timer-notice" hidden>
+        <p role="status" aria-live="polite" aria-atomic="true"></p>
+        <button class="btn-action return-to-timer">타이머로 돌아가기</button>
+      </div>
       <div class="card-header-badge">TIME FOR TEA · TASTING NOTE</div>
       <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
       <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
       <div class="card-tags" id="cardTagsContainer"></div>
       <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
       <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
-      <button class="btn-close-card" id="closeCardModalBtn">공유 또는 이미지 저장</button>
+      <button class="btn-share-card" id="shareCardBtn">공유 또는 이미지 저장</button>
     </div>
   </div>
 
@@ -1711,7 +1766,6 @@
       let frameTimer = 0, frameRequest = 0, drainStart = 0, drainDuration = 0, drainCallback = null;
       let displayedTime = "", displayedMessage = "", displayedUrgent = null;
       let vesselLoading = false;
-      let lastNoteFocus = null;
       // Alpha-margin fit: keeps mug/piaoyibei visible tops aligned with the gaiwan readout lane.
       const VESSEL_FITS = {
         mug: { scale: .96, x: 4, y: 8.7 },
@@ -1969,15 +2023,6 @@
         $("teaPrev").disabled = !active || vesselLoading;
         $("teaNext").disabled = !active || vesselLoading;
       }
-      function openNoteModal() {
-        lastNoteFocus = document.activeElement;
-        els.noteModal.hidden = false;
-        $("noteDismiss").focus({ preventScroll: true });
-      }
-      function closeNoteModal() {
-        els.noteModal.hidden = true;
-        if (lastNoteFocus && typeof lastNoteFocus.focus === "function") lastNoteFocus.focus({ preventScroll: true });
-      }
 
       // ---- elements ----
       const els = {
@@ -1993,7 +2038,6 @@
         brew: $("brew"), slider: $("slider"), rangeWrap: $("rangeWrap"), dec: $("dec"), inc: $("inc"), secVal: $("secVal"), infusionLine: $("infusionLine"), tempHint: $("tempHint"),
         teaPicker: document.querySelector(".tea-picker"),
         teaPreview: $("teaPreview"), dryLeaves: $("dryLeaves"),
-        noteModal: $("noteModal"),
       };
       let ringC = 2 * Math.PI * 92;
       els.ringProg.setAttribute("stroke-dasharray", ringC);
@@ -2443,6 +2487,7 @@
         clearRing();
         els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.disabled = false;
         els.brew.textContent = (vesselId === "piaoyibei") ? "버튼 눌러 내리기" : "차 따라내기";
+        updateModalTimerNotice();
         relWake();
       }
 
@@ -2458,6 +2503,7 @@
         els.timeLabel.textContent = displayedMessage;
         els.brew.textContent = "다음 泡 우리기";
         const cb = drainCallback; drainCallback = null; cb && cb();
+        updateModalTimerNotice();
       }
 
       function reset({ allowWhileVesselLoading = false } = {}) {
@@ -2561,6 +2607,132 @@
       let sessionDraftNote = "";
       let sessionDraftTags = [];
 
+      // Only the top dialog is interactive. Keep the timer running behind it.
+      const noteLayer = { backdrop: $("sheetBackdrop"), dialog: $("noteDialog"), close: $("closeSheetBtn") };
+      const cardLayer = { backdrop: $("cardModalBackdrop"), dialog: $("cardDialog"), close: $("closeCardModalBtn") };
+      const modalStack = [];
+      const topModal = () => modalStack[modalStack.length - 1];
+      function syncModalState(focusTarget) {
+        const top = topModal();
+        $("timerApp").inert = !!top;
+        if (!top) $("timerApp").removeAttribute("aria-hidden");
+        document.body.classList.toggle("has-dialog", !!top);
+        for (const layer of [noteLayer, cardLayer]) {
+          layer.backdrop.inert = layer !== top;
+          if (layer === top) {
+            layer.backdrop.removeAttribute("aria-hidden");
+            layer.dialog.setAttribute("aria-modal", "true");
+          }
+          else layer.dialog.removeAttribute("aria-modal");
+        }
+        // Move focus before hiding its former ancestor from assistive technology.
+        if (focusTarget?.isConnected && !focusTarget.closest("[inert], [hidden]") && !focusTarget.disabled) {
+          focusTarget.focus();
+        } else (top?.close || $("note")).focus();
+        if (top) $("timerApp").setAttribute("aria-hidden", "true");
+        else $("timerApp").removeAttribute("aria-hidden");
+        for (const layer of [noteLayer, cardLayer]) {
+          if (layer === top) layer.backdrop.removeAttribute("aria-hidden");
+          else layer.backdrop.setAttribute("aria-hidden", "true");
+        }
+        updateModalTimerNotice();
+      }
+      function openModal(layer, opener) {
+        if (modalStack.includes(layer)) return;
+        layer.opener = opener || document.activeElement;
+        layer.backdrop.hidden = false;
+        layer.backdrop.removeAttribute("aria-hidden");
+        layer.backdrop.classList.add("active");
+        modalStack.push(layer);
+        syncModalState(layer.close);
+        layer.dialog.scrollTop = 0;
+      }
+      function closeModal(layer) {
+        if (topModal() !== layer) return;
+        modalStack.pop();
+        layer.backdrop.classList.remove("active");
+        layer.backdrop.hidden = true;
+        syncModalState(layer.opener);
+      }
+      function modalFocusables(layer) {
+        return [...layer.dialog.querySelectorAll('button, input, textarea, select, a[href], [tabindex]')]
+          .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden], [inert]') && el.getClientRects().length);
+      }
+      document.addEventListener("focusin", e => {
+        const top = topModal();
+        if (top && !top.dialog.contains(e.target)) top.close.focus();
+      });
+      document.addEventListener("keydown", e => {
+        const top = topModal();
+        if (!top || e.isComposing || e.keyCode === 229 || composingInput) return;
+        if (e.key === "Escape") {
+          e.preventDefault();
+          if (top === cardLayer) closeModal(cardLayer);
+          else closeNoteSheet();
+        } else if (e.key === "Tab") {
+          const items = modalFocusables(top);
+          const index = items.indexOf(document.activeElement);
+          const next = index < 0 ? (e.shiftKey ? items.length - 1 : 0)
+            : (index + (e.shiftKey ? -1 : 1) + items.length) % items.length;
+          // Resolve the destination before blur can replace the inline title editor.
+          e.preventDefault();
+          (items[next] || top.dialog).focus();
+        }
+      });
+      function updateModalTimerNotice() {
+        const active = phase === "pour" || phase === "steep" || phase === "draining" || phase === "done";
+        for (const layer of [noteLayer, cardLayer]) {
+          const notice = layer.dialog.querySelector(".modal-timer-notice");
+          notice.hidden = !active;
+          // Only update the exposed live region, so nested dialogs do not announce twice.
+          if (layer !== topModal()) continue;
+          const message = phase === "done" ? (isDrained ? "차를 따라냈습니다. 타이머로 돌아가 다음 우림을 시작할 수 있습니다." : "우림을 마쳤습니다. 타이머로 돌아가 차를 따라낼 수 있습니다.")
+            : phase === "draining" ? "차를 따라내고 있습니다." : "차를 우리는 중입니다. 느낌을 적는 동안에도 타이머는 계속됩니다.";
+          const status = notice.querySelector('[role="status"]');
+          if (status.textContent !== message) status.textContent = message;
+        }
+      }
+      document.querySelectorAll(".return-to-timer").forEach(button => {
+        button.onclick = () => afterComposition(() => {
+          if (topModal() === cardLayer) closeModal(cardLayer);
+          closeNoteSheet();
+          (els.brew.disabled ? $("note") : els.brew).focus();
+        });
+      });
+
+      // Let IME finish writing its final input before replacing an editor or hiding a sheet.
+      let titleEdit = null;
+      let composingInput = null;
+      let pendingCompositionAction = null;
+      noteLayer.dialog.addEventListener("compositionstart", e => { composingInput = e.target; });
+      noteLayer.dialog.addEventListener("compositionend", e => {
+        const input = e.target;
+        setTimeout(() => {
+          if (composingInput !== input) return;
+          composingInput = null;
+          if (titleEdit?.input === input && document.activeElement !== input) finishTitleEdit();
+          const action = pendingCompositionAction;
+          pendingCompositionAction = null;
+          action?.();
+        }, 0);
+      });
+      function afterComposition(action) {
+        if (composingInput) pendingCompositionAction = action;
+        else action();
+      }
+      function finishTitleEdit() {
+        if (!titleEdit || composingInput === titleEdit.input) return;
+        const { input, initialValue } = titleEdit;
+        titleEdit = null; // Enter, blur and sheet close may all request the same commit.
+        if (input.value !== initialValue) customTitle = input.value.trim() ? input.value : "";
+        const display = document.createElement("span");
+        display.className = "tea-title";
+        display.id = "teaTitleDisplay";
+        const name = customTitle || (tea().name + " · " + vessel().name);
+        display.textContent = getTeaEmoji(name) + " " + name;
+        input.replaceWith(display);
+      }
+
       function getTeaEmoji(name) {
         if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
         return '🍃';
@@ -2584,6 +2756,7 @@
           chip.type = "button";
           chip.className = "tag-chip" + (sessionDraftTags.includes(tag) ? " active" : "");
           chip.textContent = "#" + tag;
+          chip.setAttribute("aria-pressed", sessionDraftTags.includes(tag));
           chip.onclick = () => {
             if (sessionDraftTags.includes(tag)) {
               sessionDraftTags = sessionDraftTags.filter(t => t !== tag);
@@ -2592,6 +2765,7 @@
               sessionDraftTags.push(tag);
               chip.classList.add("active");
             }
+            chip.setAttribute("aria-pressed", sessionDraftTags.includes(tag));
           };
           grid.appendChild(chip);
         });
@@ -2616,38 +2790,40 @@
 
       // Inline Title Edit
       $("editTitleBtn").onclick = () => {
+        if (titleEdit) { titleEdit.input.focus(); return; }
         const display = $("teaTitleDisplay");
-        const currentText = display.textContent.replace(/^[🍃🍂]\s*/, '');
         const input = document.createElement("input");
         input.className = "edit-input-inline";
-        input.value = currentText;
+        input.id = "teaTitleInput";
+        input.setAttribute("aria-label", "차 이름");
+        input.value = customTitle || (tea().name + " · " + vessel().name);
+        titleEdit = { input, initialValue: input.value };
         display.replaceWith(input);
         input.focus();
-
-        function finishEdit() {
-          const val = input.value.trim() || (tea().name + " · " + vessel().name);
-          customTitle = val;
-          const emoji = getTeaEmoji(val);
-          const newSpan = document.createElement("span");
-          newSpan.className = "tea-title";
-          newSpan.id = "teaTitleDisplay";
-          newSpan.textContent = emoji + " " + val;
-          input.replaceWith(newSpan);
-        }
-        input.onblur = finishEdit;
-        input.onkeydown = (e) => { if (e.key === "Enter") finishEdit(); };
+        input.onblur = finishTitleEdit;
+        input.onkeydown = e => {
+          if (e.key !== "Enter" || e.isComposing || e.keyCode === 229 || composingInput) return;
+          e.preventDefault();
+          finishTitleEdit();
+          $("editTitleBtn").focus();
+        };
       };
 
       // Open & Close Bottom Sheet
       function openNoteSheet() {
+        if (modalStack.includes(noteLayer)) return;
         renderTagsGrid();
         updateSummaryCard();
         $("noteInput").value = sessionDraftNote;
-        $("sheetBackdrop").classList.add("active");
+        openModal(noteLayer, $("note"));
       }
       function closeNoteSheet() {
-        sessionDraftNote = $("noteInput").value;
-        $("sheetBackdrop").classList.remove("active");
+        afterComposition(() => {
+          if (topModal() !== noteLayer) return;
+          finishTitleEdit();
+          sessionDraftNote = $("noteInput").value;
+          closeModal(noteLayer);
+        });
       }
 
       $("note").onclick = openNoteSheet;
@@ -2712,7 +2888,8 @@ ${emoji} ${rawName}
       }
 
       // Card Image Generation (Canvas 680x900) & Preview
-      $("cardBtn").onclick = () => {
+      $("cardBtn").onclick = () => afterComposition(() => {
+        finishTitleEdit();
         sessionDraftNote = $("noteInput").value;
         const rawName = customTitle || (tea().name + " · " + vessel().name);
         const emoji = getTeaEmoji(rawName);
@@ -2745,15 +2922,16 @@ ${emoji} ${rawName}
           });
         }
 
-        $("cardModalBackdrop").classList.add("active");
-      };
+        openModal(cardLayer, $("cardBtn"));
+      });
 
-      $("closeCardModalBtn").onclick = () => {
+      $("closeCardModalBtn").onclick = () => closeModal(cardLayer);
+      $("shareCardBtn").onclick = () => {
         renderAndShareCanvasCard();
-        $("cardModalBackdrop").classList.remove("active");
+        closeModal(cardLayer);
       };
       $("cardModalBackdrop").onclick = (e) => {
-        if (e.target === $("cardModalBackdrop")) $("cardModalBackdrop").classList.remove("active");
+        if (e.target === $("cardModalBackdrop")) closeModal(cardLayer);
       };
 
       async function renderAndShareCanvasCard() {
