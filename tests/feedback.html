@@ -35,7 +35,7 @@ document.getElementById('run').onclick = async function () {
     const input=$('feedbackMessage'),send=$('feedbackSend');
     const write=value=>{input.value=value;input.dispatchEvent(new w.Event('input',{bubbles:true}));};
     const submit=()=>{$('feedbackForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));};
-    check('제작 AI 활용 별도 고지',d.querySelector('[data-i18n="help.creator.ai"]').textContent.includes('AI'));
+    check('페이지 상단에 제작 AI 활용 고지',d.querySelector('main > [data-i18n="help.intro"]').textContent.includes('AI'));
     const creator=$('feedbackOpen').closest('details');
     creator.querySelector('summary').click();
     $('applause').focus();$('applause').click();
