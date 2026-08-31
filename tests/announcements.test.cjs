@@ -4,10 +4,11 @@ const announcements = require('../scripts/announcements.js');
 const item = id => Object.freeze({ id, titleKey: `title.${id}`, bodyKey: `body.${id}` });
 const batch = (id, ...items) => Object.freeze({ id, items: Object.freeze(items) });
 
-test('current preview shows the four agreed drafts without publishing or empty past sections', () => {
+test('current release shows the four agreed items without draft or empty past sections', () => {
   const sections = announcements.getSections();
-  assert.deepEqual(sections.map(section => section.id), ['draft', 'planned']);
-  assert.equal(announcements.releases.length, 0);
+  assert.deepEqual(sections.map(section => section.id), ['released', 'planned']);
+  assert.equal(announcements.releases.length, 1);
+  assert.equal(announcements.draft.length, 0);
   assert.deepEqual(sections[0].items.map(item => item.id), ['main-ui', 'feeling-words', 'chinese-locales', 'creator-feedback']);
   assert.deepEqual(sections[1].items.map(item => item.id), []);
 });

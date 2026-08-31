@@ -8,7 +8,7 @@
   },
   "vars": {
     "ALLOWED_ORIGINS": "https://winterrainlee.github.io,http://127.0.0.1:8123,http://127.0.0.1:8124,http://localhost:8123,http://localhost:8787",
-    "FEEDBACK_ENABLED": "false"
+    "FEEDBACK_ENABLED": "true"
   },
   "triggers": {
     "crons": ["0 4 * * *"]
