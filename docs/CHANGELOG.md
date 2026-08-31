@@ -26,7 +26,7 @@
 - 실제 짧은/긴 간체·혼합 PNG와 원문 텍스트, 글꼴 다운로드 차단 PNG, 미리보기/공유 픽셀 일치·다운로드 폴백·2/2/3/5 표시 한도를 확인했다. 375px 프레임의 메인/설정/도움말과 320px 메시지 창을 직접 렌더했다. 데스크톱 스크롤바가 있는 읽기 페이지의 실제 본문 폭은 프레임보다 15px 작다.
 - Worker `npm test` **7개**, `npm run test:migration` 보존/빈 DB/전부 삭제 경계 통과. `python3 -m unittest discover -s tools/feedback -p 'test_*.py'` **12개 통과**. 실제 local D1의 스키마·행·migration 기록도 메인 에이전트가 다시 읽어 확인했다.
 
-스크린샷·실제 PNG·검증 로그·D1 조회 증거는 Git 외부 `…/01a05671-a428-7392-940b-09ee1a7816ad/zh-cn-localization/`에 보존한다. 실제 iPhone/Android의 간체 글꼴·OS IME·공유/PWA와 현지인 표현 검수는 미검증이며 기존 방침대로 배포 후 확인한다. 기능 브랜치는 `codex/zh-cn-localization`이다. `main` 반영·원격 푸시·Worker/DB·GitHub Pages 배포·실제 의견/박수 전송·정기 자동화 등록은 하지 않았다.
+스크린샷·실제 PNG·검증 로그·D1 조회 증거는 Git 외부 `…/01a05671-a428-7392-940b-09ee1a7816ad/zh-cn-localization/`에 보존한다. 실제 iPhone/Android의 간체 글꼴·OS IME·공유/PWA와 현지인 표현 검수는 미검증이며 기존 방침대로 배포 후 확인한다. 기능 커밋 `4a0ec05`를 `d987fd6`에서 `codex/tw-readiness`에 병합했다. 통합 상태에서 Node 77개와 실제 5초 우림을 포함한 간체 15개 검사를 다시 통과했다. `main` 반영·원격 푸시·Worker/DB·GitHub Pages 배포·실제 의견/박수 전송·정기 자동화 등록은 하지 않았다.
 
 ### 2026-08-31 — 간체 지역 기준과 동시 지원 범위 검토 (문서만)
 
