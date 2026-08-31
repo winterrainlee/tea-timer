@@ -6,9 +6,7 @@ const TeaAnnouncements = (() => {
     // Prepend a batch when it ships; older batches automatically become history.
     // Editing updatedOn or planned announcements does not archive a release.
     releases: Object.freeze([]),
-    planned: Object.freeze([
-      Object.freeze({ id: "language-menu-preview", titleKey: "announcements.plannedTitle", bodyKey: "announcements.plannedBody" }),
-    ]),
+    planned: Object.freeze([]),
   });
   function getSections({ releases, planned } = content) {
     const published = releases.filter(release => release.items.length);

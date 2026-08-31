@@ -6,6 +6,8 @@
 일반 스톱워치 앱으로도 시간을 잴 수는 있지만, 안 예뻐서 싫었습니다. 거기다 알람이나 예고 신호가 없어 잠깐 딴생각을 하면 놓치는 게 짜증났습니다. 그렇다고 15초, 20초짜리 우림을 위해 매번 휴대폰 타이머 앱을 열고 시간을 맞추는 것도 번거로워요.
 그래서 만들었습니다.
 
+개발·번역·디자인 과정에서 AI를 활용했으며, 기능과 문구는 제작자가 검토하며 다듬고 있습니다.
+
 ## 스크린샷
 
 <p align="center">
@@ -51,10 +53,12 @@
 ```bash
 git clone https://github.com/winterrainlee/tea-timer.git
 cd tea-timer
-python3 -m http.server 8123
+python3 tools/preview_server.py --port 8123
 ```
 
-그다음 브라우저에서 `http://localhost:8123`을 엽니다.
+그다음 브라우저에서 `http://localhost:8123`을 엽니다. 이 서버는 앱 공개 자산만 제공하며 비밀 설정·Git·검증 도구는 노출하지 않습니다.
+
+의견함까지 로컬에서 확인하려면 [Worker 로컬 실행 안내](workers/reactions/README.md)를 따라 별도 터미널에서 8787 포트의 Worker를 켭니다. 미리보기의 의견은 로컬 DB에만 저장하며, Worker가 꺼져 있으면 실패 안내와 작성 내용을 유지합니다. 운영 주소 이외의 포크·미리보기에서 운영 의견함으로 전송하지 않습니다. [비공개 조회 도구](tools/feedback/README.md)로 로컬 접수도 확인할 수 있습니다.
 
 GitHub에서 직접 수정해 보고 싶다면 먼저 이 저장소를 포크한 뒤, 포크한 저장소를 클론해서 실행하면 됩니다.
 

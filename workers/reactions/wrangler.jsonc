@@ -7,8 +7,22 @@
     "enabled": true
   },
   "vars": {
-    "ALLOWED_ORIGINS": "https://winterrainlee.github.io,http://127.0.0.1:8123,http://127.0.0.1:8124,http://localhost:8123,http://localhost:8787"
+    "ALLOWED_ORIGINS": "https://winterrainlee.github.io,http://127.0.0.1:8123,http://127.0.0.1:8124,http://localhost:8123,http://localhost:8787",
+    "FEEDBACK_ENABLED": "false"
   },
+  "triggers": {
+    "crons": ["0 4 * * *"]
+  },
+  "ratelimits": [
+    {
+      "name": "FEEDBACK_LIMITER",
+      "namespace_id": "2026083101",
+      "simple": {
+        "limit": 3,
+        "period": 60
+      }
+    }
+  ],
   "d1_databases": [
     {
       "binding": "DB",

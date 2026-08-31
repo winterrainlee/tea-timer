@@ -8,7 +8,7 @@ test('current preview has no fabricated releases or empty past section', () => {
   const sections = announcements.getSections();
   assert.deepEqual(sections.map(section => section.id), ['released', 'planned']);
   assert.equal(sections[0].items.length, 0);
-  assert.deepEqual(sections[1].items.map(item => item.id), ['language-menu-preview']);
+  assert.deepEqual(sections[1].items.map(item => item.id), []);
 });
 
 test('publishing a new batch moves all previous current items into past without altering them', () => {

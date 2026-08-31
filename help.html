@@ -59,6 +59,7 @@
   .modal-ghost{ background:transparent; color:var(--ink-dim); }
 </style>
 <link rel="stylesheet" href="styles/ui.css">
+<link rel="stylesheet" href="styles/feedback.css">
 </head>
 <body class="ui-subpage ui-help">
 <div class="page">
@@ -89,6 +90,14 @@
       </div>
     </details>
 
+    <details class="help-section" open>
+      <summary data-i18n="feedback.section">의견 보내기</summary>
+      <div class="help-section-body">
+        <p data-i18n="feedback.intro">사용 소감이나 불편했던 점을 제작자에게 비공개로 보낼 수 있습니다. 이름이나 연락처를 받지 않으며 개별 답장은 제공하지 않습니다.</p>
+        <button type="button" class="feedback-open" id="feedbackOpen" data-i18n="feedback.open">제작자에게 메시지 보내기</button>
+      </div>
+    </details>
+
     <!-- Section 2: 자유롭게 쓰세요 -->
     <details class="help-section">
       <summary data-i18n="help.section.free">자유롭게 쓰세요</summary>
@@ -102,6 +111,7 @@
     <details class="help-section">
       <summary data-i18n="help.section.creator">제작자 이야기 & 응원 박수</summary>
       <div class="help-section-body">
+      <p data-i18n="help.creator.ai">이 웹앱은 개발·번역·디자인 과정에서 AI를 활용해 제작했습니다. 기능과 문구는 제작자가 검토하며 계속 다듬고 있습니다.</p>
       <p style="white-space: pre-line; line-height: 1.75; color: var(--ink);">
         <span data-i18n="help.creator.quote">제가 차 마시려고 만든 이 앱이 당신의 차 마시는 시간을 조금이라도 더 즐겁게 만들어 드렸다면 오른쪽 하단의 박수 버튼을 눌러주세요. 깃허브 스타나 회원가입 같은 건 아무것도 요구하지 않지만, 순수하게 제작자 기분이 매우 좋아집니다. 덧붙여 이 앱은 오픈소스이며, 오픈소스로 공개된다는 조건 하에 누구나 편하게 수정하실 수 있습니다.</span>
       </p>
@@ -119,6 +129,22 @@
   </main>
 
   <div class="foot" data-i18n="common.product">차 한 잔의 시간 · Time for Tea</div>
+</div>
+
+<div class="modal-backdrop" id="feedbackBackdrop" hidden inert>
+  <section class="feedback-dialog" id="feedbackDialog" role="dialog" aria-labelledby="feedbackTitle" aria-describedby="feedbackPrivacy">
+    <button type="button" class="modal-close" id="feedbackClose" data-i18n-aria-label="feedback.close" aria-label="의견 창 닫기">×</button>
+    <h2 id="feedbackTitle" data-i18n="feedback.open">제작자에게 메시지 보내기</h2>
+    <p id="feedbackPrivacy" class="feedback-privacy" data-i18n="feedback.privacy">이름·연락처는 받지 않으며 개별 답장은 제공하지 않습니다. 개인정보는 적지 마십시오. 의견은 Cloudflare 서버에 저장되며 접수 후 90일 동안 조회한 뒤 정기 삭제합니다. 제작자는 Codex 등 AI 도구로 의견을 조회·번역·정리할 수 있으며 검토용 사본이 비공개 작업 공간에 남을 수 있습니다.</p>
+    <form id="feedbackForm" novalidate>
+      <label for="feedbackMessage" data-i18n="feedback.label">전할 내용</label>
+      <textarea id="feedbackMessage" rows="6" aria-describedby="feedbackCount feedbackDraft" data-i18n-placeholder="feedback.placeholder" placeholder="사용 소감이나 불편했던 점을 적어주십시오."></textarea>
+      <div class="feedback-meta"><span id="feedbackCount">0 / 1,000</span><span data-i18n="feedback.limit">최대 1,000자</span></div>
+      <p class="feedback-draft" id="feedbackDraft" data-i18n="feedback.draft">닫았다가 다시 열면 내용이 유지됩니다. 새로고침하거나 이 페이지를 떠나면 지워집니다.</p>
+      <p id="feedbackStatus" class="feedback-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <button type="submit" class="feedback-submit" id="feedbackSend" data-i18n="feedback.send">보내기</button>
+    </form>
+  </section>
 </div>
 
 <button class="clap-button" id="applause" data-i18n-aria-label="help.clap.aria" data-i18n-title="help.clap.title" aria-label="제작자에게 응원의 박수 보내기" title="응원의 박수">👏</button>
@@ -206,5 +232,6 @@
   applyLocale();
 })();
 </script>
+<script src="scripts/feedback.js"></script>
 </body>
 </html>
