@@ -1,7 +1,7 @@
 # 한국어·대만 번체 중국어 — 설계
 
 > 결정일: 2026-08-31
-> 상태: **TW-06 번체 카탈로그·언어별 기본 단어 구현 및 로컬 검증 완료**. 검증·통합 결과는 [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese)을 따른다. TW-07 카드 조판과 TW-08 실기기·PWA 검증은 남아 있으며 현지인 문구 검수는 배포 후 진행한다.
+> 상태: **TW-06 번체 카탈로그·언어별 기본 단어 구현·로컬 검증·통합 완료**. 검증·통합 결과는 [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese)을 따른다. TW-07 카드 조판과 TW-08 실기기·PWA 검증은 남아 있으며 현지인 문구 검수는 배포 후 진행한다.
 > 범위: [ROADMAP의 대만 우선 처리](ROADMAP.md#taiwan-priority). 설정 저장은 [데이터 보존 계약](data-portability.md#preferences-contract), 초안은 [차 느낌 설계](design-tea-feeling.md#draft-policy)를 따른다.
 
 ## 1. 목표와 제외 범위

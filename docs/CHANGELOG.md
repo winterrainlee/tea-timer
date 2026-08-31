@@ -21,7 +21,7 @@
 - 브라우저: 전용 `http://127.0.0.1:8134/tests/`에서 `traditional-chinese.html` **21개**, `localization.html` **49개**, `inline-tags.html` **37개**, `draft-boundaries.html` **66개**, `accessibility.html` **35개**, `session-async.html` **9개**, `announcements.html` **11개**, `ui-consistency.html` **60개**, `offline-assets.html` **14개** 통과. 번체 전환·원문·현재 UI 기본값·실제 5초 우림·완료/출탕/다음 포·IME/공유 유예·초안 보호·44px·작은 화면·캐시 응답을 확인했다. UI 검사는 합성 입력과 플랫폼 대역을 포함하며 실기기 결과와 구분한다.
 - 산출물: 375×660 번체 작성 시트 실제 렌더, 번체 원문 텍스트 복사와 실제 680×900 PNG를 확인했다. `font-preflight.html`에서 한국어·번체·이모지 혼합 입력의 정상/외부 글꼴 차단 PNG 2종을 생성했다. Git 외부 `/Users/kioku/.codex/visualizations/2026/08/31/01a05671-a428-7392-940b-09ee1a7816ad/tw06/`에 로그·원본 PNG·스크린샷을 보관한다. 이미지 보조 검토는 E4B의 일부 OCR 오류·JSON 형식 실패를 기록하고 실제 이미지/Canvas 문자열과 대조했다. 26B는 그 텍스트 근거만 검토했으며 이미지 직접 판독으로 취급하지 않는다.
 - 이번 검증에서는 실제 iPhone·OS IME·스크린리더·OS 공유 시트·오디오 출력·설치형 PWA·서버 중단 오프라인·기존 설치 캐시 업데이트를 완료하지 않았다. 긴 입력의 A안 조판·전체 기기 글꼴 보장은 TW-07·08에 남긴다. Mac/iPhone용 8138 서버는 앱 런타임 파일만 허용하고 문서·테스트·`.git`은 제공하지 않는다. LAN HTTP 확인과 HTTPS가 필요한 검증은 [기기 검증 경계](design-localization.md#device-validation-scope)를 따른다.
-- 기능 브랜치 `codex/tw-06-traditional-chinese`에서 구현·로컬 검증을 마쳤다. 통합 브랜치 병합은 다음 단계이며 `main` 반영·원격 푸시·배포는 하지 않았다.
+- 기능 커밋 `d204174`를 `12a2e81`에서 `codex/tw-readiness`에 충돌 없이 병합했다. 기능 브랜치와 동일한 런타임·테스트를 통합했으며, 통합 후 Node 61개·현지화 49개(실제 5초 우림 포함)·번체 원문/PNG/작은 화면 21개를 다시 통과했다. `codex/tw-06-traditional-chinese`는 이력용으로 보존한다. JS 24개 구문·정적 번역 속성 114개·로컬 문서 링크 192개·전체 diff도 확인했다. `main` 반영·원격 푸시·배포는 하지 않았다.
 
 <a id="feeling-inline-tags"></a>
 
