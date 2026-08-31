@@ -9,6 +9,12 @@
 
 ## 기능 변경
 
+<a id="card-height-review"></a>
+
+### 2026-08-31 — iPhone 카드 표시 확인·짧은 카드 여백 시안
+
+사용자가 카드 미리보기를 확인한 뒤 iPhone 13 mini에서도 잘 표시된다고 보고했다. [검증 환경 기록](design-localization.md#device-validation-scope)에 사용자 확인 범위와 미확인 항목을 구분했다. 짧은 기록의 여백을 줄이는 [세 후보](design-tea-feeling.md#card-height-options)를 Git 외부 비교 시안으로 보존한다. 아직 선택되지 않은 검토안이며 앱 코드·PNG 크기·저장값·서비스워커는 바꾸지 않았다. 시안의 두 언어×세 길이×세 후보 18개 조합에서 폭 680·높이 상한 900·메모/하단 비중첩을 확인했고 375px 화면에서도 가로 넘침 없이 배치됨을 확인했다. 비교 화면과 점검 로그는 Git 외부 `card-height-review/`에 보관한다.
+
 <a id="tw-07-balanced-card"></a>
 
 ### 2026-08-31 — TW-07 A안 카드 조판 구현·로컬 검증
