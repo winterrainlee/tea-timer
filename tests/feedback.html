@@ -12,10 +12,11 @@ document.getElementById('run').onclick = async function () {
   const tick=()=>new Promise(r=>setTimeout(r,35));
   try {
     const source=await(await fetch('../help.html',{cache:'no-store'})).text();
-    const fixture=`window.fixture={calls:[],mode:'failure'};
+    const fixture=`window.fixture={calls:[],reactions:[],mode:'failure'};
       const realFetch=window.fetch.bind(window),realTimeout=window.setTimeout.bind(window);
       window.setTimeout=(f,n,...args)=>realTimeout(f,n===15000?25:n,...args);
       window.fetch=(url,options)=>{
+        if(url==='https://tea-timer-reactions.winterrain-lee.workers.dev/reaction'){window.fixture.reactions.push(JSON.parse(options.body));return Promise.resolve(new Response('{}'));}
         if(url!=='/api/messages') return realFetch(url,options);
         const f=window.fixture;f.calls.push(JSON.parse(options.body));
         if(f.mode==='pending')return new Promise(resolve=>f.resolve=resolve);
@@ -37,6 +38,17 @@ document.getElementById('run').onclick = async function () {
     check('제작 AI 활용 별도 고지',d.querySelector('[data-i18n="help.creator.ai"]').textContent.includes('AI'));
     const creator=$('feedbackOpen').closest('details');
     creator.querySelector('summary').click();
+    $('applause').focus();$('applause').click();
+    check('박수 열기는 전송 없이 배경 비활성',!$('clapModal').hidden&&d.querySelector('.page').inert&&f.reactions.length===0);
+    $('clapNo').focus();d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));
+    check('박수 Tab은 창 안에서 순환',d.activeElement===$('clapClose'));
+    d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+    check('박수 Escape는 해당 버튼으로 복귀',d.activeElement===$('applause')&&!d.querySelector('.page').inert&&f.reactions.length===0);
+    $('applause').click();$('clapYes').click();
+    check('확인한 박수만 기존 payload로 전송',f.reactions.length===1&&JSON.stringify(f.reactions[0])===JSON.stringify({app:'tea-timer',reaction:'clap'})&&!$('clapDone').hidden);
+    $('clapDismiss').click();$('applause').click();$('clapNo').click();
+    check('괜찮습니다는 기존 down 유지',f.reactions.length===2&&f.reactions[1].reaction==='down');
+    $('clapDismiss').click();
     $('feedbackOpen').focus();$('feedbackOpen').click();
     check('대화상자 진입과 배경 비활성',!$('feedbackBackdrop').hidden&&d.querySelector('.page').inert&&$('applause').inert);
     check('초기 X 포커스·44px 터치',d.activeElement===$('feedbackClose')&&$('feedbackClose').getBoundingClientRect().height>=44&&send.getBoundingClientRect().height>=44);
