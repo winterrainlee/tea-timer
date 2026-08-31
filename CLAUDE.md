@@ -11,7 +11,7 @@
   (async()=>{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k);location.reload();})()
   ```
 - **헤드리스 미리보기는 비활성 시 `requestAnimationFrame`을 멈춘다** → eval만으로 시간 진행을 보면 우림이 pour/steep에서 멈춘 듯 보인다(버그 아님). 카운트다운·애니메이션 검증은 **스크린샷으로 페인트를 유발**하거나 실제 브라우저에서 한다. 정적 스타일/레이아웃은 eval로 DOM을 직접 바꿔 스크린샷으로 확인.
-- **소리·Wake Lock·서비스워커는 `http(s)`에서만** 동작(`file://` 불가). 로컬은 `python3 -m http.server 8123`(설정: [.claude/launch.json](.claude/launch.json); 4173은 점유돼 있어 8123 사용).
+- **로컬 검증은 `file://` 대신 HTTP 서버를 사용한다.** `python3 -m http.server 8123`(설정: [.claude/launch.json](.claude/launch.json); 4173은 점유돼 있어 8123 사용). Wake Lock·서비스워커·Web Share는 보안 컨텍스트가 필요하다. 맥 자신의 `http://localhost`와 아이폰에서 접근하는 `http://<맥의 LAN IP>`는 다르며, 후자의 해당 기능 검증에는 신뢰할 수 있는 HTTPS가 필요하다. [실기기 검증 범위](docs/design-localization.md#device-validation-scope)를 따른다.
 - 오디오는 첫 사용자 제스처(`ensureAudio`)에서 언락. 음소거는 `muted` 플래그.
 
 ## 코드 지도 (`index.html` 안)
