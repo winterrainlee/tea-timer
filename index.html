@@ -1434,7 +1434,6 @@
     #announcementDate { margin-left: .22rem; font: .6rem "Space Mono", monospace; color: var(--ink-dim); vertical-align: super; }
     .announcements-box { text-align: left; padding: 1.2rem; width: min(100%, 420px); }
     .announcements-box h2 { font-size: 1.18rem; color: var(--gold-soft); font-weight: 400; }
-    .announcement-updated { color: var(--ink-dim); font-size: .75rem; margin: .5rem 0 1rem; }
     .announcements-box h3 { color: var(--ink-dim); font-size: .83rem; font-weight: 400; margin: 1.5rem 0 .65rem; }
     .announcements-box .announcement-empty { color: var(--ink-dim); font-size: .88rem; line-height: 1.65; }
     .announcements-box details { margin: .3rem 0 1rem; }
@@ -1694,10 +1693,9 @@
   <div class="card-modal-backdrop" id="announcementsBackdrop" hidden inert aria-hidden="true">
     <section class="card-preview-box announcements-box" id="announcementsDialog" role="dialog" aria-labelledby="announcementsTitle" tabindex="-1">
       <div class="card-dialog-header">
-        <h2 id="announcementsTitle" data-i18n="announcements.title">공지사항</h2>
+        <h2 id="announcementsTitle">공지사항</h2>
         <button type="button" class="btn-close-sheet" id="closeAnnouncementsBtn" aria-label="공지사항 닫기" data-i18n-aria-label="announcements.close">✕</button>
       </div>
-      <p class="announcement-updated" id="announcementUpdated"></p>
       <div class="modal-timer-notice" hidden><p role="status" aria-live="polite" aria-atomic="true"></p><button type="button" class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button></div>
       <div id="announcementContent"></div>
     </section>
@@ -3456,7 +3454,7 @@ ${emoji} ${rawName}
         const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
         const displayDate = validDate ? date.replaceAll("-", ".") : "";
         $("announcementDate").textContent = validDate && TeaAnnouncements.items.length ? date.slice(5).replace("-", "") : "";
-        $("announcementUpdated").textContent = validDate ? t("nav.updated", { date: displayDate }) : "";
+        $("announcementsTitle").textContent = validDate ? t("announcements.datedTitle", { date: displayDate }) : t("announcements.title");
         if (validDate && TeaAnnouncements.items.length) $("announcementsButton").setAttribute("aria-description", t("nav.updated", { date: displayDate }));
         else $("announcementsButton").removeAttribute("aria-description");
         $("teaName").textContent = tea().name; $("teaCur").textContent = tea().name;
