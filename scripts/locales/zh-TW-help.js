@@ -3,7 +3,6 @@
   TeaI18n.register("zh-TW", {
     "help.title": "使用說明 · 차 한 잔의 시간",
     "help.back": "回到首頁",
-    "help.settings": "開啟個人設定",
     "help.heading": "使用說明",
     "help.section.guide": "使用方式",
     "help.intro": "這是一個簡潔的計時器，幫你在注入熱水後不錯過「現在該倒茶了」的時刻。自在使用，也分享給喜歡茶的朋友吧。（沒有廣告、沒有註冊，開放原始碼）",

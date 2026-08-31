@@ -44,7 +44,7 @@
           check(width+' '+page+' 메뉴 글자·행 높이·아이콘 통일', menu.every(el=>{const s=w.getComputedStyle(el);return s.fontSize===style.fontSize && s.lineHeight===style.lineHeight && s.fontWeight===style.fontWeight && [...el.querySelectorAll('svg')].every(icon=>close(box(icon).width,19)&&close(box(icon).height,19));}));
           check(width+' '+page+' 같은 행 수직 중앙', nav.every(el=>close(box(el).top+box(el).height/2,box(nav[0]).top+box(nav[0]).height/2)));
           check(width+' '+page+' 최대 460px 프레임 가운데', frameRect.width <=460 && close(center(frameRect),d.documentElement.clientWidth/2));
-          observations[page] = {font:style.fontSize,line:style.lineHeight,top:box(nav[0]).top,left:box(nav[0]).left-frameRect.left,right:frameRect.right-box(nav.at(-1)).right};
+          observations[page] = {font:style.fontSize,line:style.lineHeight,top:box(nav[0]).top,left:box(nav[0]).left-frameRect.left,right:frameRect.right-box(main ? nav.at(-1) : d.querySelector(".top")).right};
           if (main) {
             const f = footer.map(box);
             check(width+' 메인 상하단 좌우 기준선 일치', close(f[0].left,box(nav[0]).left) && close(f.at(-1).right,box(nav.at(-1)).right));
