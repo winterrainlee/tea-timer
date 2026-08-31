@@ -1,6 +1,6 @@
 # 제작자 비공개 의견함
 
-상태: 2026-08-31 구현 및 로컬 통합 검증 완료. 사용자 확정은 이름·연락처 없는 비공개 의견함, 이메일 대신 Codex 조회, 웹앱 제작 및 의견 검토의 AI 사용 고지다. 후속 운영 배포 승인으로 D1 migration과 접수 비활성 Worker를 반영했으며 새 비밀키 등록 승인은 대기 중이다. [운영 단계 기록](CHANGELOG.md#tw-worker-staged-deployment)을 따른다. 실제 메시지 접수 활성화·정적 앱 공개 배포·정기 자동화 등록은 아직 수행하지 않았다.
+상태: 2026-08-31 구현·로컬 통합 검증과 운영 의견함 활성화를 완료했다. 운영 Worker에 `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET`을 등록하고 `FEEDBACK_ENABLED=true`로 배포했으며 기존 `ADMIN_TOKEN`과 D1 `0001`·`0002` 적용을 유지한다. 운영 health·인증·세 언어 테스트 메시지·동일 UUID 재시도·조회 응답을 확인했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready)). 실제 박수 POST와 만료 행 삭제는 운영에서 미검증이다. 정적 앱 공개 배포·정기 자동화 등록은 아직 수행하지 않았다.
 
 ## 범위와 입력
 
@@ -43,14 +43,14 @@
 
 - 운영 GitHub Pages origin만 운영 Worker에 연결하며 나머지는 같은 origin의 `/api/messages`로 연결한다. 사용자 8138은 `tools/preview_server.py`가 loopback 8787 Worker로만 중계하고 테스트 8134는 harness가 전송을 대체한다. 프록시는 공개 앱 자산만 제공하고 클라이언트가 보낸 IP 헤더·관리자 경로를 전달하지 않는다. 운영 관리자 인증키를 사용하지 않는다.
 - 검증: 본문/크기/Origin/인증/빈도 제한, 저장 실패, 같은 요청 재시도·경합, 페이지 커서·보관 만료·기존 박수 회귀, 세 언어의 IME·포커스·실패/오프라인/재시도·화면 렌더를 포함한다.
-- 서버 migration·키·바인딩·정리 스케줄·허용 Origin을 준비하고 먼저 Worker를 반영한 뒤 정적 앱을 배포한다. 미반영 서버에서 전송 성공으로 표시하지 않는다. 기능 배포 공지는 실제 서버 준비 후에 게시한다.
-- 초기 구현 요청과 운영 반영을 구분한다. 후속 사용자 승인으로 Worker·D1 운영 반영을 시작했으며 현재 차단 지점과 실제 수행 범위는 [배포 실행 기록](tw-implementation-plan.md#release-execution)을 따른다. 정기 자동화 등록은 별도다.
+- 서버 migration·키·바인딩·정리 스케줄·허용 Origin을 준비하고 먼저 Worker를 반영한 뒤 정적 앱을 배포한다. 운영 Worker는 활성화됐으며, 실제 수행 범위는 [운영 준비 기록](CHANGELOG.md#tw-feedback-production-ready)을 따른다. 정적 앱 배포 전에는 공지 후보의 게시 상태를 점검한다.
+- 초기 구현 요청과 운영 반영을 구분한다. 운영 의견함 활성화와 정적 앱 배포는 별도 단계이며, 정기 조회 자동화 등록도 별도다.
 
 ## 배포 순서와 남은 확인
 
 1. 사용자가 기존 의견함 동작이 잘 됨을 확인했다. 세부 언어·보조 기술 조합까지 확인한 것으로 확대하지 않는다. 이번 배치 변경 후 진입 경로는 `이용 안내 → 제작자 소개 / 의견 보내기 → 제작자에게 메시지 보내기`다.
-2. [Worker 안내](../workers/reactions/README.md)의 추가 migration, 별도 읽기/빈도 비밀키, 계정 내 namespace ID 중복 여부, cron과 Origin을 확인한다. `FEEDBACK_ENABLED=false`인 현재 설정을 그대로 배포해서 활성화됐다고 보고하지 않는다. 키와 DB가 준비되면 실제 배포 설정을 true로 맞춘다.
-3. 운영 서버의 접수·인증 조회·재시도·삭제 스케줄을 확인한 뒤 아래 네 문구를 `scripts/announcements.js`의 첫 `releases` 묶음에 연결하고 `updatedOn`을 실제 공지 갱신일로 맞춘다. 현재 런타임 releases는 비어 있으며 사용자 요청에 따라 네 항목을 `draft`의 ‘업데이트 초안’으로 로컬에서 검토한다. ‘예정된 업데이트’에는 준비 중 문구만 노출한다. 운영 준비 후 draft를 비우고 첫 releases 묶음으로 옮긴다. 새로 공개할 때 SW를 다시 갱신한다.
+2. [Worker 안내](../workers/reactions/README.md)의 운영 반영 결과와 cron·Origin을 확인한다. 운영 Worker는 `FEEDBACK_ENABLED=true`이며 세 언어 테스트 메시지와 인증 조회를 확인했다. 일일 `0 4 * * *` 스케줄은 등록 확인만 했고 실제 만료 행 삭제는 미검증으로 남긴다.
+3. 네 문구는 `scripts/announcements.js`의 첫 `releases` 묶음 `tw-readiness-2026-08-31`로 전환하고 `draft`를 비운 후보와 SW v83을 준비했다. `main` 반영·push·GitHub Pages 배포 전이므로 실제 공개 게시로 기록하지 않는다. 배포 전 격리 브라우저 검증을 통과했으며 공개 주소 검증과 실기기 확인은 배포 후 진행한다.
 4. 정적 앱 배포 후 HTTPS Safari/PWA 검증을 수행한다. Codex 정기 조회는 수동 조회 권한과 주기를 확정한 뒤 별도로 등록한다.
 
 | 공지 순서 | 이미 준비한 한국어·번체·간체 카탈로그 키 |

@@ -9,9 +9,21 @@
 
 ## 기능 변경
 
+<a id="tw-feedback-production-ready"></a>
+
+### 2026-08-31 — 운영 의견함 활성화·배포 전 준비 완료
+
+사용자 승인 후 운영 Worker에 `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET`을 등록하고 `FEEDBACK_ENABLED=true`로 배포했다. 비밀키 값은 노출·기록하지 않았으며 기존 `ADMIN_TOKEN`은 유지했다. 운영 D1의 `0001`·`0002` migration은 앞서 적용된 상태임을 확인했다. 현재 운영 Worker 버전은 `06cc86c5-7b80-44af-9b07-f6f2682bb686`이다.
+
+운영 curl 검증에서 health는 200, 무인증 관리자 조회는 401이며 CORS 헤더가 없었다. 한국어·번체·간체 테스트 메시지 ID 1·2·3의 생성, 같은 UUID 재시도 시 같은 행 유지, 해당 행의 인증 조회 성공과 `Cache-Control: no-store`·CORS 없음까지 확인했다. 실제 박수 POST는 보내지 않았다. 일일 `0 4 * * *` 삭제 스케줄 등록도 확인했지만 실제 만료 행 삭제는 운영에서 아직 검증하지 않았다.
+
+코드 공지 네 항목은 현재 `releases`의 첫 묶음 `tw-readiness-2026-08-31`로 전환하고 `draft`를 비운 후보를 준비했으며, SW v83도 준비했다. 이 후보는 아직 `main` 반영·원격 push·GitHub Pages 배포 전이다. 최신 로컬 자동 검증은 Node 77개·Worker 7개·조회 도구 12개(총 96개)와 migration 원문·ID·sequence 보존을 통과했다. 격리 브라우저 8154에서 캐시 v83 갱신, 공지 11개·캐시 20개·언어 전환/타이머 49개·카드 PNG 138개(총 218개)도 통과했지만 공개 배포 후 검증은 아니다. iPhone 13 mini 한국어 화면은 사용자가 확인했지만 세 언어 설치형 PWA 완료로 확대하지 않는다. 공개 HTTPS 실기기/PWA, 기존 설치 업데이트, 오프라인·오디오 복귀, 글꼴·OS IME·실제 공유, 현지인 문구 검수와 정기 조회 자동화는 남아 있다.
+
+운영 Worker와 앱 배포를 구분해 기록하며, 이전의 승인 대기 상태는 [단계별 역사 기록](#tw-worker-staged-deployment)으로 보존한다.
+
 <a id="tw-worker-staged-deployment"></a>
 
-### 2026-08-31 — 운영 D1·접수 비활성 Worker 반영, 비밀키 등록 승인 대기
+### 2026-08-31 — 운영 D1·접수 비활성 Worker 반영, 비밀키 등록 승인 대기 (이전 상태)
 
 사용자가 Cloudflare 재로그인과 운영 Worker 배포·D1 변경을 명시적으로 승인했다. 필요한 account/user 읽기·Workers/스크립트 쓰기·D1 쓰기 권한으로 인증을 갱신하고 운영 계정·대상 DB·Worker를 확인했다. 계정 내 Worker는 하나이며 신규 요청 제한 namespace와의 충돌은 없었다. 초기 운영 Worker 버전과 D1 Time Travel bookmark를 Git에서 제외한 `.local/deployment/2026-08-31/`에 기록했다. Wrangler의 `migrations list`는 migration 관리 테이블을 생성하므로 순수 조회만 수행한 것으로 기록하지 않는다. 사용자 박수 데이터는 변경하지 않았다.
 

@@ -1,7 +1,7 @@
 # 차 한 잔의 시간 · Time for Tea — Roadmap
 
 > 기준일: 2026-08-31
-> 구현 기준: TW-01–03·TW-05·TW-06·간체 구현·로컬 검증·통합. [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese), [간체 기록](CHANGELOG.md#simplified-chinese-local)
+> 구현 기준: TW-01–03·TW-05·TW-06·간체 구현·로컬 검증·통합, 운영 의견함 활성화·검증. [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese), [간체 기록](CHANGELOG.md#simplified-chinese-local), [운영 기록](CHANGELOG.md#tw-feedback-production-ready)
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 문서 역할: 앱 철학에 따른 개발 방향·카테고리·우선순위와 완료 아이템의 색인. 제품·디자인·현재 구현 기준은 [DESIGN.md](DESIGN.md)를 따르고, 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에 둔다.
 > 상세 설계: [차 느낌](design-tea-feeling.md), [감각 단어장](sensory-vocabulary.md), [사용자 데이터·백업](data-portability.md), [한국어·번체·간체](design-localization.md), [화면 배치·메뉴 표현](design-navigation.md).
@@ -16,7 +16,7 @@
 
 Phase A 전체 완료나 Phase B·C의 장기 저장·백업을 기다리지 않는다. 아래 묶음을 현재 실행 우선순위로 사용하며, 기존 Phase는 범위와 후속 계획을 설명하는 분류로 유지한다. **TW-01–03은 구현·로컬 검증 완료, TW-04는 보류, TW-05는 한국어 구현·로컬 검증·사용자 화면 검토 완료, TW-06과 간체는 구현·로컬 검증·통합 완료, TW-07은 A안 구현·로컬 검증 후 실기기 확인 대기, TW-08은 GitHub Pages 배포 후 실기기 검증 예정**다. TW-04는 이번 묶음의 선행 조건·완료 기준에서 제외하며, 로컬 검증·배포 준비 뒤 GitHub Pages에 배포하고, 전체 묶음 완료는 배포 후 TW-07·08의 필수 실기기 검증까지 확인한 뒤 판단한다.
 
-**진행 상태(2026-08-31):** 통합 브랜치 `codex/tw-readiness`에서 [개발 흐름](../AGENTS.md)에 따라 기능별 분기·검증·병합한다. TW-01–03과 [TW-05 한국어 공통 기반·UI](CHANGELOG.md#tw-05-close), [TW-06 번체 문구·독립 기본 단어](CHANGELOG.md#tw-06-traditional-chinese), [간체 카탈로그·독립 기본 단어·의견함 확장](CHANGELOG.md#simplified-chinese-local)을 구현·로컬 검증·통합했다. TW-07 A안 카드 조판도 구현·로컬 검증했다([기록](CHANGELOG.md#tw-07-balanced-card)). 실기기 확인과 TW-08은 남아 있다. 공지 4개는 초안 상태이고 런타임 `releases[]`는 비어 있으며, 운영 의견함은 DB·접수 비활성 Worker까지 반영한 `FEEDBACK_ENABLED=false` 상태다. TW-04는 [실사용 수요에 따라 보류](DESIGN.md#early-pour-policy)하며, `main` 반영·원격 푸시·정적 앱 배포는 하지 않았다.
+**진행 상태(2026-08-31):** 통합 브랜치 `codex/tw-readiness`에서 [개발 흐름](../AGENTS.md)에 따라 기능별 분기·검증·병합한다. TW-01–03과 [TW-05 한국어 공통 기반·UI](CHANGELOG.md#tw-05-close), [TW-06 번체 문구·독립 기본 단어](CHANGELOG.md#tw-06-traditional-chinese), [간체 카탈로그·독립 기본 단어·의견함 확장](CHANGELOG.md#simplified-chinese-local)을 구현·로컬 검증·통합했다. TW-07 A안 카드 조판도 구현·로컬 검증했다([기록](CHANGELOG.md#tw-07-balanced-card)). 운영 의견함은 `FEEDBACK_ENABLED=true`로 활성화하고 curl 검증까지 완료했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready)). 공지 4개는 `tw-readiness-2026-08-31` 첫 releases 묶음과 SW v83 후보로 준비했지만, 아직 `main` 반영·원격 push·GitHub Pages 배포 전이다. 공개 주소의 브라우저·실기기/PWA 검증과 현지인 검수는 남아 있다. TW-04는 [실사용 수요에 따라 보류](DESIGN.md#early-pour-policy)한다.
 
 ### 우선 아이템과 완료 확인
 
@@ -35,11 +35,11 @@ TW-02의 [공통 토스트 C·문구 통일](CHANGELOG.md#common-toast)에 이�
 
 2026-08-31 [로컬 최종 점검](CHANGELOG.md#tw-08-local-final-check)에서 Node 67개·브라우저 404개와 앱 서버 중단 시 캐시 복구를 통과했다. 실제 배포 공지 적용·배포 준비와 사용자의 실기기 결과는 남아 있다. 이 결과만으로 TW-07/08 전체 완료를 표시하지 않는다.
 
-간체·의견함·최신 UI를 합친 [후속 최종 점검](CHANGELOG.md#tw-release-readiness)은 자동 테스트 96개·브라우저 500개와 DB 이관 검사를 통과했다. [배포 실행 체크리스트](tw-implementation-plan.md#release-execution)와 공지 게시 후보를 준비했다. 이후 인증과 Worker·D1 배포 승인을 받아 [운영 DB·접수 비활성 Worker](CHANGELOG.md#tw-worker-staged-deployment)를 반영했으며, 현재는 새 비밀키 등록 승인 대기다. 의견함 활성화와 정적 앱 배포는 아직 수행하지 않았다.
+간체·의견함·최신 UI를 합친 [후속 최종 점검](CHANGELOG.md#tw-release-readiness)은 자동 테스트 96개·브라우저 500개와 DB 이관 검사를 통과했다. [배포 실행 체크리스트](tw-implementation-plan.md#release-execution)와 공지 게시 후보를 준비했다. 이후 운영 Worker에 비밀키를 등록하고 `FEEDBACK_ENABLED=true`로 활성화해 health·인증·세 언어 테스트 메시지 검증을 완료했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready)). 실제 박수 POST와 만료 행 삭제는 미검증이며, 정적 앱 배포와 공개 주소의 브라우저/실기기/PWA 검증은 아직이다.
 
-**첫 배포 공지 검토 후 추가 범위(2026-08-31):** 이름·연락처 없는 비공개 의견함과 이메일 대신 Codex 조회를 [구현·로컬 검증](CHANGELOG.md#creator-feedback-local)했다. [의견함 설계](creator-feedback.md)에 따라 이용 안내의 메시지 작성, AI 제작·검토 고지, Worker/D1 접수·비공개 조회, 로컬 조회 도구를 준비했다. 네 항목의 한국어·번체·간체 공지 초안을 준비했지만 런타임 `releases[]`는 비어 있고, 예정 항목은 ‘준비 중’으로 정리된 상태다. 운영 의견함은 `FEEDBACK_ENABLED=false`로 비활성 상태이며 사용자가 로컬 의견함 동작을 확인했다([기록](CHANGELOG.md#feedback-creator-section)). **남은 단계:** 운영 비밀키 등록·접수 활성화와 서버 확인, 네 항목 공지 게시, GitHub Pages 배포, 배포 후 HTTPS 실기기 검증. 정기 조회 자동화는 주기를 정할 때 별도로 등록한다.
+**첫 배포 공지 검토 후 추가 범위(2026-08-31):** 이름·연락처 없는 비공개 의견함과 이메일 대신 Codex 조회를 [구현·로컬 검증](CHANGELOG.md#creator-feedback-local)했다. [의견함 설계](creator-feedback.md)에 따라 이용 안내의 메시지 작성, AI 제작·검토 고지, Worker/D1 접수·비공개 조회, 로컬 조회 도구를 준비했다. 운영 Worker 활성화와 curl 검증은 완료했으며, 네 항목은 `tw-readiness-2026-08-31` 첫 `releases` 묶음·SW v83 후보로 준비했다. 아직 `main` 반영·push·GitHub Pages 배포 전이다. 박수 POST는 집계 오염 방지를 위해 보내지 않았다. 운영 만료 행 삭제 확인, 배포 후 HTTPS 실기기/PWA·브라우저 검증, 현지인 검수와 정기 조회 자동화는 남아 있다.
 
-**간체 추가(2026-08-31):** 사용자 승인에 따라 중국 대륙 간체와 별도 기본 단어 15개·의견함을 [구현·로컬 검증](CHANGELOG.md#simplified-chinese-local)했다. 공지 4개 초안도 세 언어로 준비했으나 `releases[]` 게시와 운영 의견함 활성화(`FEEDBACK_ENABLED=false`)는 남아 있다. 간체 실기기 확인은 배포 후 범위에 추가하며 영어·일본어는 후속으로 유지한다.
+**간체 추가(2026-08-31):** 사용자 승인에 따라 중국 대륙 간체와 별도 기본 단어 15개·의견함을 [구현·로컬 검증](CHANGELOG.md#simplified-chinese-local)했다. 운영 의견함은 활성화·검증했으며 공지 4개는 첫 `releases` 묶음 후보로 준비했다. 간체 실기기/PWA 확인은 Pages 배포 후 범위이며 영어·일본어는 후속으로 유지한다.
 
 TW-01의 설정 보존 계약을 TW-05에 반영하고, TW-05의 번역 키·기본 태그 구분 뒤 TW-06을 적용한다. TW-02·03의 새 문구도 번역 범위에 포함하며, 보류한 TW-04의 문구는 포함하지 않는다. 번체 문구 초안 검토는 안정화와 함께 진행할 수 있지만, TW-07·08은 통합된 버전으로 확인한다.
 
