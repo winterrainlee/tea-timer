@@ -124,11 +124,45 @@ const TeaPreferences = (() => {
       try { getStorage().setItem(KEY, JSON.stringify(next)); return { ok: true, reason: null }; }
       catch { return { ok: false, reason: "storage" }; }
     }
+    function addTag(item) {
+      // Input shaping (trimming, marker removal, and length limits) belongs to the UI.
+      // This boundary only accepts a nonempty custom string and stores it verbatim.
+      if (!isObject(item) || item.kind !== "custom" || typeof item.text !== "string" || item.text.length === 0) {
+        return { ok: false, reason: "invalid" };
+      }
+      const { raw, writable, reason } = readRaw();
+      if (!writable) return { ok: false, reason };
+      // A present but invalid canonical list may be a newer schema. Do not replace it
+      // with the legacy fallback merely to append a tag.
+      if (own(raw, "tagItems") && (!tags || !tags.isValidItems(raw.tagItems))) {
+        return { ok: false, reason: "protected" };
+      }
+      if (!tags) return { ok: false, reason: "protected" };
+      const storedItems = own(raw, "tagItems")
+        ? raw.tagItems
+        : isTags(raw.customTags)
+          ? raw.customTags.map(text => ({ kind: "custom", text }))
+          : tags.defaults();
+      const items = tags.resolve(storedItems);
+      const identity = tags.key(item);
+      if (items.some(existing => tags.key(existing) === identity)) {
+        return { ok: true, reason: null, added: false, items };
+      }
+      // Preserve forward-compatible metadata on existing raw items. `items` above is
+      // still the normalized projection the caller uses at runtime.
+      const nextStoredItems = [...storedItems, tags.normalize(item)];
+      const nextItems = tags.resolve(nextStoredItems);
+      const next = { ...raw, tagItems: nextStoredItems };
+      try {
+        getStorage().setItem(KEY, JSON.stringify(next));
+        return { ok: true, reason: null, added: true, items: nextItems };
+      } catch { return { ok: false, reason: "storage" }; }
+    }
     function reset() {
       try { getStorage().removeItem(KEY); return { ok: true, reason: null }; }
       catch { return { ok: false, reason: "storage" }; }
     }
-    return { read, patch, restoreTags, reset };
+    return { read, patch, restoreTags, addTag, reset };
   }
   return Object.freeze({ KEY, TEA_IDS, VESSEL_IDS, DEFAULT_TAGS, LOCALES, localeChanged, createStore });
 })();

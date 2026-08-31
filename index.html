@@ -1132,6 +1132,18 @@
       font-weight: 700;
     }
 
+    .tag-add-toggle { color: var(--gold-soft); background: transparent; border: 1px dashed var(--gold-line); }
+    .tag-add-editor { margin: -0.5rem 0 1.25rem; }
+    .tag-add-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag-add-input {
+      flex: 1 1 100%; min-width: 0; min-height: 44px; padding: 0.6rem 0.7rem;
+      border: 1px solid var(--gold-line); border-radius: 6px;
+      color: var(--ink); background: rgba(0, 0, 0, 0.25); font: inherit; font-size: 1rem;
+    }
+    .tag-add-hint, .tag-add-status { font-size: 0.8rem; line-height: 1.6; color: var(--ink-dim); margin: 0.5rem 0 0; }
+    .tag-add-status:empty { display: none; }
+    .tag-add-status { color: var(--gold-soft); }
+
     /* Note Textarea */
     .note-textarea {
       width: 100%;
@@ -1686,7 +1698,18 @@
       <!-- Tag Chips Grid -->
       <div class="section-label" id="tagsLabel" data-i18n="note.tagsLabel">오늘 떠오른 단어</div>
       <div class="tags-grid" id="tagsGrid" role="group" aria-labelledby="tagsLabel">
-        <!-- js에서 render -->
+        <button type="button" class="tag-chip tag-add-toggle" id="addFeelingTagBtn" aria-expanded="false" aria-controls="feelingTagEditor" data-i18n="tag.add.open">+ 단어 추가</button>
+      </div>
+
+      <div class="tag-add-editor" id="feelingTagEditor" hidden>
+        <label class="section-label" for="feelingTagInput" data-i18n="tag.add.label">새 단어</label>
+        <div class="tag-add-row">
+          <input class="tag-add-input" id="feelingTagInput" type="text" maxlength="10" data-i18n-placeholder="tag.add.placeholder" placeholder="예: 빙탕, 훈연향" aria-describedby="feelingTagHint feelingTagStatus" enterkeyhint="done" autocomplete="off">
+          <button type="button" class="tag-chip" id="confirmFeelingTagBtn" data-i18n="tag.add.confirm">추가</button>
+          <button type="button" class="tag-chip" id="cancelFeelingTagBtn" data-i18n="tag.add.cancel">취소</button>
+        </div>
+        <p class="tag-add-hint" id="feelingTagHint" data-i18n="tag.add.hint">이번 카드에 선택하고 설정에도 저장합니다.</p>
+        <p class="tag-add-status" id="feelingTagStatus" role="status" aria-live="polite"></p>
       </div>
 
       <p id="tagProtectionNotice" hidden data-i18n="tag.protected"></p>
@@ -2673,7 +2696,6 @@
       }
 
       // ---- Tea Feeling Notes & Preferences ----
-      const customTags = TeaTags.dedupe(preferences.tagItems);
       const tagText = item => TeaTags.label(item, t);
       const selectedTagTexts = () => sessionDraftTags.map(tagText);
       let customTitle = "";
@@ -2798,6 +2820,7 @@
           const action = pendingCompositionAction;
           pendingCompositionAction = null;
           action?.();
+          if (modalStack.includes(noteLayer)) renderTagsGrid();
           flushPendingLocale();
         }, 0);
       });
@@ -2822,7 +2845,7 @@
       function hasContentDraft() {
         const title = titleEdit && titleEdit.input.value !== titleEdit.initialValue ? titleEdit.input.value : customTitle;
         const note = modalStack.includes(noteLayer) ? $("noteInput").value : sessionDraftNote;
-        return !!(title.trim() || sessionDraftTags.length || note.trim());
+        return !!(title.trim() || sessionDraftTags.length || note.trim() || $("feelingTagInput").value.trim());
       }
       function blockSelectionForDraft() {
         if (!hasContentDraft()) return false;
@@ -2858,8 +2881,11 @@
       function renderTagsGrid() {
         const grid = $("tagsGrid");
         const focusedKey = grid.contains(document.activeElement) ? document.activeElement.dataset.tagKey : null;
-        grid.replaceChildren();
-        customTags.forEach(tag => {
+        const fresh = preferenceStore.read().values;
+        // A settings edit must not remove words already selected for this card.
+        const items = TeaTags.dedupe([...fresh.tagItems, ...sessionDraftTags]);
+        grid.querySelectorAll("[data-tag-key]").forEach(chip => chip.remove());
+        items.forEach(tag => {
           const identity = TeaTags.key(tag);
           const isSelected = () => sessionDraftTags.some(item => TeaTags.key(item) === identity);
           const chip = document.createElement("button");
@@ -2879,11 +2905,67 @@
             chip.setAttribute("aria-pressed", isSelected());
             flushPendingLocale();
           };
-          grid.appendChild(chip);
+          grid.insertBefore(chip, $("addFeelingTagBtn"));
           if (identity === focusedKey) chip.focus();
         });
-        $("tagProtectionNotice").hidden = !preferences.tagItemsProtected;
+        $("tagProtectionNotice").hidden = !fresh.tagItemsProtected;
+        $("addFeelingTagBtn").disabled = fresh.tagItemsProtected;
+        $("confirmFeelingTagBtn").disabled = fresh.tagItemsProtected;
+        if (focusedKey && !items.some(item => TeaTags.key(item) === focusedKey)) {
+          (fresh.tagItemsProtected ? $("noteInput") : $("addFeelingTagBtn")).focus();
+        }
       }
+
+      function closeTagEditor() {
+        $("feelingTagInput").value = "";
+        $("feelingTagStatus").textContent = "";
+        $("feelingTagEditor").hidden = true;
+        $("addFeelingTagBtn").setAttribute("aria-expanded", "false");
+      }
+      $("addFeelingTagBtn").onclick = () => {
+        $("feelingTagEditor").hidden = false;
+        $("addFeelingTagBtn").setAttribute("aria-expanded", "true");
+        $("feelingTagInput").focus();
+      };
+      $("cancelFeelingTagBtn").onclick = () => afterComposition(() => {
+        closeTagEditor();
+        $("addFeelingTagBtn").focus();
+        flushPendingLocale();
+      });
+      $("confirmFeelingTagBtn").onclick = () => afterComposition(() => {
+        const input = $("feelingTagInput");
+        const text = input.value.trim().replace(/^#/, "").trim();
+        if (!text) {
+          $("feelingTagStatus").textContent = t("tag.add.empty");
+          input.focus();
+          return;
+        }
+        const tag = { kind: "custom", text };
+        const result = preferenceStore.addTag(tag);
+        if (!result.ok) {
+          $("feelingTagStatus").textContent = t(result.reason === "protected" ? "tag.add.protected" : "tag.add.failed");
+          input.focus();
+          return;
+        }
+        const identity = TeaTags.key(tag);
+        if (!sessionDraftTags.some(item => TeaTags.key(item) === identity)) sessionDraftTags.push(tag);
+        closeTagEditor();
+        renderTagsGrid();
+        [...$("tagsGrid").querySelectorAll("[data-tag-key]")].find(chip => chip.dataset.tagKey === identity)?.focus();
+        showToast(t(result.added ? "tag.add.saved" : "tag.add.selected"));
+      });
+      $("feelingTagInput").addEventListener("input", () => {
+        $("feelingTagStatus").textContent = "";
+        flushPendingLocale();
+      });
+      $("feelingTagEditor").addEventListener("keydown", e => {
+        if (e.isComposing || e.keyCode === 229 || composingInput) return;
+        if (e.key === "Escape") {
+          e.preventDefault(); e.stopPropagation(); $("cancelFeelingTagBtn").click();
+        } else if (e.key === "Enter" && e.target === $("feelingTagInput")) {
+          e.preventDefault(); $("confirmFeelingTagBtn").click();
+        }
+      });
 
       function updateSummaryCard() {
         const rawName = customTitle || (tea().name + " · " + vessel().name);
@@ -3268,6 +3350,7 @@ ${emoji} ${rawName}
         customTitle = "";
         sessionDraftNote = "";
         sessionDraftTags = [];
+        closeTagEditor();
         $("noteInput").value = "";
         reset();
         flushPendingLocale();
@@ -3359,6 +3442,7 @@ ${emoji} ${rawName}
       });
       window.addEventListener("storage", event => {
         if (event.key !== TeaPreferences.KEY && event.key !== null) return;
+        if (!composingInput && modalStack.includes(noteLayer)) renderTagsGrid();
         // A time/tag-only save must not overwrite a language choice awaiting IME/PNG.
         if (event.key !== null && !TeaPreferences.localeChanged(event.oldValue, event.newValue)) return;
         requestLocale(preferenceStore.read().values.locale, false);

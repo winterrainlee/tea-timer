@@ -211,7 +211,6 @@
 
   let prefs = preferenceStore.read().values;
   let isComposing = false;
-  let unsavedTagItems = false;
   let pendingLocale = null;
   const unsavedFields = new Set();
   const clampTime = value => Math.max(5, Math.min(120, value));
@@ -312,7 +311,7 @@
 
   function tagState() {
     const fresh = preferenceStore.read().values;
-    if (!unsavedTagItems && Array.isArray(fresh.tagItems)) prefs.tagItems = fresh.tagItems;
+    if (Array.isArray(fresh.tagItems)) prefs.tagItems = fresh.tagItems;
     prefs.tagItemsProtected = Boolean(fresh.tagItemsProtected);
   }
 
@@ -320,6 +319,7 @@
   function renderTagEdits() {
     tagState();
     const grid = $("tagEditGrid");
+    const focusedKey = grid.contains(document.activeElement) ? document.activeElement.dataset.tagKey : null;
     grid.replaceChildren();
     const protectedItems = Boolean(prefs.tagItemsProtected);
     $("tagDamagedNotice").hidden = !protectedItems;
@@ -344,39 +344,45 @@
       delBtn.className = "btn-del-tag";
       delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
       delBtn.type = "button";
+      delBtn.dataset.tagKey = TeaTags.key(item);
       delBtn.setAttribute("aria-label", t("settings.tags.delete", { tag: label }));
       delBtn.disabled = protectedItems;
       delBtn.onclick = () => {
         // A legacy duplicate custom entry is one logical word: remove every exact identity.
-        prefs.tagItems = prefs.tagItems.filter(candidate => TeaTags.key(candidate) !== TeaTags.key(item));
-        const result = savePrefs({ tagItems: prefs.tagItems });
-        unsavedTagItems = !result.ok;
+        tagState();
+        const items = prefs.tagItems.filter(candidate => TeaTags.key(candidate) !== TeaTags.key(item));
+        const result = savePrefs({ tagItems: items });
         renderTagEdits();
+        // Failed deletion stays visible for an explicit retry, never a stale future write.
+        if (!result.ok) return;
         const buttons = grid.querySelectorAll("button");
         (buttons[Math.min(index, buttons.length - 1)] || $("newTagInput")).focus();
       };
 
       chip.appendChild(delBtn);
       grid.appendChild(chip);
+      if (focusedKey === TeaTags.key(item) && !protectedItems) delBtn.focus({ preventScroll: true });
     });
+    if (focusedKey && document.activeElement === document.body) {
+      (protectedItems ? $("restoreTagsBtn") : $("newTagInput")).focus({ preventScroll: true });
+    }
   }
 
   $("addTagBtn").onclick = () => {
     const input = $("newTagInput");
-    const text = input.value.trim().replace(/^#/, '');
+    if (isComposing) return;
+    tagState();
+    const text = input.value.trim().replace(/^#/, '').trim();
     if (!text) return;
-    const item = { kind: "custom", text };
-    if ((prefs.tagItems || []).some(existing => TeaTags.key(existing) === TeaTags.key(item))) {
-      $("preferenceSaveStatus").textContent = t("settings.tags.duplicate");
-      return;
-    }
-    if (TeaTags.isValidItems([item])) {
-      prefs.tagItems = [...(prefs.tagItems || []), item];
-      const result = savePrefs({ tagItems: prefs.tagItems });
-      unsavedTagItems = !result.ok;
-      renderTagEdits();
+    const result = preferenceStore.addTag({ kind: "custom", text });
+    if (result.ok) {
+      prefs.tagItems = result.items;
+      unsavedFields.delete("tagItems");
       input.value = "";
-    }
+      renderTagEdits();
+    } else unsavedFields.add("tagItems");
+    updateSaveStatus();
+    if (result.ok && !result.added && !unsavedFields.size) $("preferenceSaveStatus").textContent = t("settings.tags.duplicate");
   };
   $("newTagInput").addEventListener("compositionstart", () => { isComposing = true; });
   $("newTagInput").addEventListener("compositionend", () => {
@@ -393,7 +399,7 @@
     input.setSelectionRange(...selection);
   });
   $("newTagInput").onkeydown = (e) => {
-    if (e.key === "Enter" && !e.isComposing) $("addTagBtn").click();
+    if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229 && !isComposing) $("addTagBtn").click();
   };
 
   $("restoreTagsBtn").onclick = () => {
@@ -407,7 +413,6 @@
       const fresh = preferenceStore.read().values;
       prefs.tagItems = fresh.tagItems;
       prefs.tagItemsProtected = fresh.tagItemsProtected;
-      unsavedTagItems = false;
       unsavedFields.delete("tagItems");
       updateSaveStatus();
     }
@@ -445,6 +450,7 @@
   });
   window.addEventListener("storage", event => {
     if (event.key !== TeaPreferences.KEY && event.key !== null) return;
+    if (!isComposing) renderTagEdits();
     if (event.key !== null && !TeaPreferences.localeChanged(event.oldValue, event.newValue)) return;
     const next = preferenceStore.read().values.locale;
     if (isComposing) { pendingLocale = { locale: next, explicit: false }; return; }

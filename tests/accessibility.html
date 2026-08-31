@@ -150,7 +150,7 @@
       // Stress only DOM preview; Canvas long-text redesign belongs to later work.
       click('editTitleBtn'); fill($('teaTitleInput'),'LongTeaName'.repeat(20)); key($('teaTitleInput'),'Enter');
       fill($('noteInput'),'아주 긴 메모와 공백없는문장'.repeat(120));
-      $('tagsGrid').lastElementChild.click();
+      [...$('tagsGrid').querySelectorAll('[data-tag-key]')].at(-1).click();
       frame.style.width = '320px'; await pause(50);
       check('320px 시트 가로 넘침 없음',$('noteDialog').scrollWidth <= $('noteDialog').clientWidth + 1);
       click('cardBtn');

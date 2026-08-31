@@ -96,15 +96,15 @@
 
       // No tag-related field: default IDs are rendered but a read never creates storage.
       seed(); app = await load(); ({ w, d, $ } = app);
-      check('새 설치 기본 15 ID 표시·저장 없음', localStorage.getItem(KEY) === null && $('note').click() === undefined && d.querySelectorAll('#tagsGrid button').length === 15);
+      check('새 설치 기본 15 ID 표시·저장 없음', localStorage.getItem(KEY) === null && $('note').click() === undefined && d.querySelectorAll('#tagsGrid [data-tag-key]').length === 15);
       click($('closeSheetBtn'));
 
       // Existing literal data is never inferred as a builtin. Empty is an intentional empty list.
       seed(base({ customTags:['단맛', '단맛'] })); app = await load(); ({ w, d, $ } = app);
-      click($('note')); check('legacy 문자열은 중복 포함 custom 원문', d.querySelectorAll('#tagsGrid button').length === 1 && $('tagsGrid').textContent.includes('내 단어'));
+      click($('note')); check('legacy 문자열은 중복 포함 custom 원문', d.querySelectorAll('#tagsGrid [data-tag-key]').length === 1 && $('tagsGrid').textContent.includes('내 단어'));
       click($('closeSheetBtn'));
       seed(base({ tagItems:[] })); app = await load(); ({ w, d, $ } = app);
-      click($('note')); check('명시적 빈 tagItems는 빈 목록', d.querySelectorAll('#tagsGrid button').length === 0); click($('closeSheetBtn'));
+      click($('note')); check('명시적 빈 tagItems는 빈 목록', d.querySelectorAll('#tagsGrid [data-tag-key]').length === 0); click($('closeSheetBtn'));
 
       // Builtin and same-text custom carry distinct keys and can be selected independently.
       const dual = [{kind:'builtin', id:'taste.sweet'}, {kind:'custom', text:'단맛'}];
@@ -113,7 +113,7 @@
       Object.defineProperty(w.navigator, 'clipboard', { configurable:true, value:{ writeText: async text => { copied = text; } } });
       Object.defineProperty(w.navigator, 'canShare', { configurable:true, value:() => true });
       Object.defineProperty(w.navigator, 'share', { configurable:true, value:async data => { shared.push(data.files[0]); throw new w.DOMException('cancel', 'AbortError'); } });
-      click($('note')); const tagButtons = [...d.querySelectorAll('#tagsGrid button')];
+      click($('note')); const tagButtons = [...d.querySelectorAll('#tagsGrid [data-tag-key]')];
       click(tagButtons[0]); click(tagButtons[1]);
       check('같은 표시 builtin/custom 독립 선택', tagButtons[0].dataset.tagKey !== tagButtons[1].dataset.tagKey && d.querySelectorAll('#tagsGrid [aria-pressed="true"]').length === 2);
       click($('editTitleBtn')); input(w, $('teaTitleInput'), '사용자 차 이름'); keyboard(w, $('teaTitleInput'), 'Enter');
@@ -161,7 +161,7 @@
       check('밖 클릭은 opener로 포커스를 훔치지 않음', $('languagePopover').hidden && d.activeElement !== $('languageButton'));
 
       // A deferred external locale applies once the final note and selected tag are cleared and the sheet closes.
-      click($('note')); const pendingTag = d.querySelector('#tagsGrid button'); click(pendingTag); input(w, $('noteInput'), '곧 지울 메모');
+      click($('note')); const pendingTag = d.querySelector('#tagsGrid [data-tag-key]'); click(pendingTag); input(w, $('noteInput'), '곧 지울 메모');
       const pendingExternal = { ...JSON.parse(localStorage.getItem(KEY)), locale:'zh-TW' }; localStorage.setItem(KEY, JSON.stringify(pendingExternal));
       w.dispatchEvent(new w.StorageEvent('storage', { key:KEY, newValue:JSON.stringify(pendingExternal), storageArea:w.localStorage }));
       check('draft 중 external locale 유예', d.documentElement.lang === 'ko');
