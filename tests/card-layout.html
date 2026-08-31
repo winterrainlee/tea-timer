@@ -15,6 +15,8 @@ body{margin:16px;font:16px system-ui;background:#eee;color:#222}button{min-heigh
   const samples={
     ko:{title:'아리산 금훤 · 봄날의 차',tags:['꽃향','단맛','깔끔함','부드러움','긴 여운'],note:'따뜻할 때는 꽃향이 먼저 올라왔다.\n식으니 배를 베어 문 듯 달았다.\n천천히 마시기 좋은 오후의 차.'},
     'zh-TW':{title:'阿里山金萱・春日茶記',tags:['花香','甜香','果香','清爽','細膩','餘韻感'],note:'熱的時候，先聞到淡淡的花香。\n稍微放涼後，像咬了一口熟梨。\n適合在午後慢慢喝的一杯茶。'},
+    'zh-CN':{title:'阿里山金萱・春日茶记',tags:['花香','甜香','果香','清爽','细腻','余韵感'],note:'热的时候，先闻到淡淡的花香。\n稍微放凉后，像咬了一口熟梨。\n适合在午后慢慢喝的一杯茶。'},
+    'zh-CN-long':{title:'阿里山石棹高山金萱・春茶笔记 — 雨后的午后，和朋友慢慢品尝，再次打开的春日香气',tags:['花香','甜香','果香','焙香','鲜','甜','清爽','细腻','余韵感','成熟的梨子','刚出炉的面包','温暖的木质香','柔和的蜂蜜香','浓稠','淡淡的桂花香','最后一口的余韵'],note:'雨停后，坐在窗边慢慢喝茶。\n第一泡的花香很清楚，第二泡开始有成熟梨子的甜味。茶汤稍微放凉，留下像刚出炉面包一样温暖的香气。\n这次把浸泡时间缩短，苦味少了，口中的细腻感更明显。最后一杯像在温水里加了一滴蜂蜜。下次想减少一点茶叶，让第一泡多泡几秒，再比较香气的变化。'},
     'ko-long':{title:'아리산에서 가져온 봄 금훤 — 비가 그친 오후 친구와 천천히 다시 꺼내 마신 차의 기록',tags:['꽃향','잘 익은 배','달콤한 향','부드러움','갓 구운 빵','단맛','꿀 같은 향','촉촉한 질감','깔끔함','묵직함','긴 여운','따뜻한 나무향','복숭아 껍질','맑은 풀향','마지막 한 모금'],note:'비가 그친 오후, 창가에서 천천히 마셨다.\n처음에는 꽃향이 맑게 올라오다가 두 번째 우림부터 잘 익은 배 같은 단맛이 났다. 찻잔이 식으니 갓 구운 빵처럼 포근한 향이 남았다.\n평소보다 시간을 짧게 잡으니 쓴맛은 줄고 입안의 부드러움이 또렷했다. 마지막 잔은 따뜻한 물에 꿀을 한 방울 풀어 놓은 듯했다. 다음에는 찻잎을 조금 덜 넣고 첫 우림을 길게 해 보고 싶다.'},
     'zh-TW-long':{title:'阿里山石棹高山金萱・春茶筆記 — 雨後的午後，和朋友慢慢品嚐，再次打開的春日香氣',tags:['花香','甜香','果香','焙香','鮮','甜','清爽','細膩','餘韻感','成熟的梨子','剛出爐的麵包','溫暖的木質香','柔和的蜂蜜香','濃稠','淡淡的桂花香','最後一口的餘韻'],note:'雨停後，坐在窗邊慢慢喝茶。\n第一泡的花香很清楚，第二泡開始有成熟梨子的甜味。茶湯稍微放涼，留下像剛出爐麵包一樣溫暖的香氣。\n這次把浸泡時間縮短，苦味少了，口中的細膩感更明顯。最後一杯像在溫水裡加了一滴蜂蜜。下次想減少一點茶葉，讓第一泡多泡幾秒，再比較香氣的變化。'},
     mixed:{title:'阿里山 봄차 🍃 👩🏽‍🌾 — 한국어와繁體中文으로 함께 적은 긴 차 이름'.repeat(3),tags:['桂花香','잘 익은 배','奶香','👩🏽‍🌾 새싹','긴단어와長單詞'.repeat(20),'蜜香','촉촉함','餘韻感','가벼움','花香'],note:'한글과繁體中文을 함께 적었다. 👨‍👩‍👧‍👦\n朋友說：「有一點桂花香，喝完很舒服。」\n'+ '가나다라마바사阿里山高山茶'.repeat(20)},
@@ -28,9 +30,9 @@ body{margin:16px;font:16px system-ui;background:#eee;color:#222}button{min-heigh
     const check=(name,ok)=>{if(!ok)throw Error(name);lines.push('PASS '+name);out.textContent=lines.join('\n');};
     try{
       const source=await (await fetch('../index.html',{cache:'no-store'})).text();
-      const cases=sampleParam?[{id:sampleParam}]:[{id:'ko'},{id:'zh-TW'},{id:'ko-long'},{id:'zh-TW-long'},{id:'mixed'},{id:'empty'},{id:'ko-long',blocked:true},{id:'zh-TW-long',blocked:true}];
+      const cases=sampleParam?[{id:sampleParam}]:[{id:'ko'},{id:'zh-TW'},{id:'ko-long'},{id:'zh-TW-long'},{id:'mixed'},{id:'empty'},{id:'ko-long',blocked:true},{id:'zh-TW-long',blocked:true},{id:'zh-CN'},{id:'zh-CN-long'},{id:'zh-CN-long',blocked:true}];
       for(const test of cases){
-        const sample=samples[test.id],locale=test.id.startsWith('zh-TW')?'zh-TW':'ko';
+        const sample=samples[test.id],locale=test.id.startsWith('zh-CN')?'zh-CN':test.id.startsWith('zh-TW')?'zh-TW':'ko';
         const history=test.id==='empty'?[]:(test.id.endsWith('long')||test.id==='mixed'?[20,25,30,35,45,55,70,90,120,150,180,240]:[20,25,30]).map((sec,i)=>({n:i+1,sec}));
         const label=test.id+(test.blocked?'-fallback':'');
         const seed={version:1,locale,muted:true,lastTeaId:'oolong',lastVesselId:'gaiwan',tagItems:sample.tags.map(text=>({kind:'custom',text}))};

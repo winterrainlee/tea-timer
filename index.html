@@ -45,7 +45,7 @@
     body {
       background: radial-gradient(120% 75% at 50% 30%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 82%);
       color: var(--ink);
-      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
+      font-family: var(--ui-font-text);
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -563,7 +563,7 @@
     .slider-row .val {
       display: block;
       text-align: center;
-      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
+      font-family: var(--ui-font-text);
       font-weight: 700;
       font-size: 2.25rem;
       line-height: 1;
@@ -668,7 +668,7 @@
 
     .brew {
       width: 100%;
-      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
+      font-family: var(--ui-font-text);
       font-weight: 700;
       letter-spacing: .1em;
       font-size: .98rem;
@@ -1378,6 +1378,7 @@
         <div role="radiogroup" data-i18n-aria-label="language.label" aria-label="언어">
           <button type="button" class="locale-option" data-locale="ko" role="radio" aria-checked="true" lang="ko">한국어<span class="locale-check" aria-hidden="true">✓</span></button>
           <button type="button" class="locale-option" data-locale="zh-TW" role="radio" aria-checked="false" lang="zh-TW">繁體中文（台灣）<span class="locale-check" aria-hidden="true">✓</span></button>
+          <button type="button" class="locale-option" data-locale="zh-CN" role="radio" aria-checked="false" lang="zh-CN">简体中文<span class="locale-check" aria-hidden="true">✓</span></button>
         </div>
       </div>
       <div class="nav-popover" id="menuPopover" hidden inert>
@@ -1710,6 +1711,7 @@
   <script src="scripts/i18n.js"></script>
   <script src="scripts/locales/ko.js"></script>
   <script src="scripts/locales/zh-TW.js"></script>
+  <script src="scripts/locales/zh-CN.js"></script>
   <script src="scripts/announcements.js"></script>
   <script src="scripts/card-layout.js"></script>
   <script>
@@ -3013,7 +3015,7 @@ ${emoji} ${rawName}
       }
       function paintCardPreview(snapshot) {
         const st = (key, vars) => TeaI18n.translate(snapshot.locale, key, vars);
-        const model = TeaCard.render($("cardCanvas"), snapshot, st, TeaI18n.fontFamily);
+        const model = TeaCard.render($("cardCanvas"), snapshot, st, TeaI18n.fontForLocale(snapshot.locale));
         $("cardTeaName").textContent = model.title.lines.join("\n");
         $("cardInfusions").textContent = model.summary;
         $("cardHistory").textContent = model.history.rows.map(row => row.items.map(item => item.text).join(" · ")).join("\n");
@@ -3026,7 +3028,7 @@ ${emoji} ${rawName}
         const snapshot = cardSnapshot();
         const version = ++cardRenderVersion;
         paintCardPreview(snapshot);
-        TeaI18n.prepareFonts(snapshot.rawName + snapshot.note + snapshot.tags.join(" ")).then(() => {
+        TeaI18n.prepareFonts(snapshot.rawName + snapshot.note + snapshot.tags.join(" "), snapshot.locale).then(() => {
           if (version === cardRenderVersion && modalStack.includes(cardLayer)) paintCardPreview(snapshot);
         });
       }
@@ -3256,7 +3258,7 @@ ${emoji} ${rawName}
       }
       function updateLocaleLabels() {
         TeaI18n.apply();
-        $("languageLabel").textContent = TeaI18n.getLocale() === "zh-TW" ? "繁體" : "한국어";
+        $("languageLabel").textContent = ({ ko: "한국어", "zh-TW": "繁體", "zh-CN": "简体" })[TeaI18n.getLocale()];
         document.querySelectorAll("[data-locale]").forEach(button => {
           const selected = button.dataset.locale === TeaI18n.getLocale();
           button.setAttribute("aria-checked", selected);

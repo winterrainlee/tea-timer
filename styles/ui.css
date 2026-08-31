@@ -31,6 +31,10 @@
   --ui-focus-offset: 3px;
 }
 
+:root:lang(zh-CN) {
+  --ui-font-text: "Noto Serif SC", "Songti SC", "SimSun", "Gowun Batang", "Noto Serif TC", serif;
+}
+
 @media (max-width: 340px) {
   :root { --ui-nav-inset: .7rem; }
 }

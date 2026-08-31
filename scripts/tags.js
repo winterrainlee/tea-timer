@@ -23,6 +23,13 @@ const TeaTags = (() => {
     ["tw.mouthfeel.fresh", "清爽"], ["tw.mouthfeel.fine", "細膩"],
     ["tw.mouthfeel.astringent", "粗澀"], ["tw.mouthfeel.full", "濃稠"],
     ["tw.mouthfeel.aftertaste", "餘韻感"],
+    ["cn.aroma.vegetal", "青香"], ["cn.aroma.floral", "花香"],
+    ["cn.aroma.sweet", "甜香"], ["cn.aroma.fruity", "果香"], ["cn.aroma.roasted", "焙香"],
+    ["cn.taste.umami", "鲜"], ["cn.taste.sweet", "甜"],
+    ["cn.taste.salty", "咸"], ["cn.taste.sour", "酸"], ["cn.taste.bitter", "苦"],
+    ["cn.mouthfeel.fresh", "清爽"], ["cn.mouthfeel.fine", "细腻"],
+    ["cn.mouthfeel.astringent", "粗涩"], ["cn.mouthfeel.full", "浓稠"],
+    ["cn.mouthfeel.aftertaste", "余韵感"],
   ]);
   // Keep every historical builtin readable while exposing the confirmed 15-item set by default.
   const BUILTIN_IDS = Object.freeze(BUILTIN_ITEMS.map(([id]) => id));
@@ -38,6 +45,9 @@ const TeaTags = (() => {
     "tw.mouthfeel.fresh", "tw.mouthfeel.fine", "tw.mouthfeel.astringent", "tw.mouthfeel.full", "tw.mouthfeel.aftertaste",
   ]);
   const TW_DEFAULT_ITEMS = Object.freeze(TW_DEFAULT_IDS.map(id => Object.freeze({ kind: "builtin", id })));
+  // Separate identities, even when a Simplified and Traditional label is identical.
+  const CN_DEFAULT_IDS = Object.freeze(TW_DEFAULT_IDS.map(id => id.replace(/^tw\./, "cn.")));
+  const CN_DEFAULT_ITEMS = Object.freeze(CN_DEFAULT_IDS.map(id => Object.freeze({ kind: "builtin", id })));
   const BUILTIN_LABELS = Object.freeze(Object.fromEntries(BUILTIN_ITEMS));
   const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
   const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -59,7 +69,7 @@ const TeaTags = (() => {
     return isValidItems(items) ? items.map(normalize) : null;
   }
   function defaults(locale = "ko") {
-    return (locale === "zh-TW" ? TW_DEFAULT_ITEMS : DEFAULT_ITEMS).map(normalize);
+    return (locale === "zh-CN" ? CN_DEFAULT_ITEMS : locale === "zh-TW" ? TW_DEFAULT_ITEMS : DEFAULT_ITEMS).map(normalize);
   }
   function key(item) {
     if (!isValidItem(item)) return null;
@@ -82,7 +92,7 @@ const TeaTags = (() => {
   }
 
   return Object.freeze({
-    BUILTIN_IDS, DEFAULT_IDS, DEFAULT_ITEMS, TW_DEFAULT_IDS, TW_DEFAULT_ITEMS, BUILTIN_ITEMS, defaults, isValidItem, isValidItems,
+    BUILTIN_IDS, DEFAULT_IDS, DEFAULT_ITEMS, TW_DEFAULT_IDS, TW_DEFAULT_ITEMS, CN_DEFAULT_IDS, CN_DEFAULT_ITEMS, BUILTIN_ITEMS, defaults, isValidItem, isValidItems,
     resolve, normalize, key, label, dedupe,
   });
 })();

@@ -1,9 +1,9 @@
 <!doctype html><html lang="ko"><meta charset="utf-8"><title>비공개 의견함 검증</title>
 <style>body{font:16px system-ui}button{min-height:44px}iframe{width:375px;height:660px}pre{white-space:pre-wrap}</style>
 <h1>의견함 격리 검증</h1><p>8134 전용. 모든 의견 전송은 가짜 응답으로 처리하며 운영 서버에 보내지 않습니다.</p>
-<button id="run">검증 시작</button><button id="previewKo">한국어 미리보기</button><button id="previewZh">繁體中文預覽</button><pre id="result">대기 중</pre><iframe id="app" title="검증용 이용 안내"></iframe>
+<button id="run">검증 시작</button><button id="previewKo">한국어 미리보기</button><button id="previewZh">繁體中文預覽</button><button id="previewCn">简体中文预览</button><pre id="result">대기 중</pre><iframe id="app" title="검증용 이용 안내"></iframe>
 <script>
-for (const [id,locale] of [['previewKo','ko'],['previewZh','zh-TW']]) document.getElementById(id).onclick=()=>{const frame=document.getElementById('app');if(!frame.contentWindow.changeFixtureLocale)return;document.getElementById('result').hidden=true;frame.contentWindow.changeFixtureLocale(locale);frame.contentDocument.getElementById('feedbackOpen').click();};
+for (const [id,locale] of [['previewKo','ko'],['previewZh','zh-TW'],['previewCn','zh-CN']]) document.getElementById(id).onclick=()=>{const frame=document.getElementById('app');if(!frame.contentWindow.changeFixtureLocale)return;document.getElementById('result').hidden=true;frame.contentWindow.changeFixtureLocale(locale);frame.contentDocument.getElementById('feedbackOpen').click();};
 document.getElementById('run').onclick = async function () {
   const output=document.getElementById('result'), frame=document.getElementById('app'), lines=[];
   if(location.origin!=='http://127.0.0.1:8134') {output.textContent='중단: 8134 전용';return;}
@@ -68,6 +68,11 @@ document.getElementById('run').onclick = async function () {
     w.changeFixtureLocale('zh-TW');check('번체 전환 시 원문·이메일 문의 고지',input.value===first.message&&$('feedbackPrivacy').textContent.includes('電子郵件'));
     f.mode='success';submit();await tick();check('불확실한 재시도 ID·원언어 고정',JSON.stringify(f.calls[1])===JSON.stringify(first));
     check('확인된 성공에만 입력 비움',input.value===''&&$('feedbackStatus').dataset.error==='false');
+    w.changeFixtureLocale('zh-CN');write('  简体意见·繁體原文·한국어 🍵\n保留  ');f.mode='failure';submit();await tick();
+    const cn=f.calls.at(-1);check('간체 새 의견은 원문·zh-CN·보관 고지 유지',cn.locale==='zh-CN'&&cn.message===input.value&&['90','AI','电子邮件'].every(x=>$('feedbackPrivacy').textContent.includes(x)));
+    w.changeFixtureLocale('zh-TW');f.mode='success';submit();await tick();
+    check('간체 실패 뒤 번체에서 재시도해도 ID·원문·locale 유지',JSON.stringify(f.calls.at(-1))===JSON.stringify(cn)&&input.value==='');
+    w.changeFixtureLocale('zh-CN');
     write('두 번째');f.mode='malformed';submit();await tick();check('잘못된 성공 응답은 내용 보존',input.value==='두 번째'&&$('feedbackStatus').dataset.error==='true');
     check('다른 본문은 새 UUID',f.calls.at(-1).requestId!==first.requestId);
     for(const status of [404,413,429,503]){f.mode=String(status);submit();await tick();check(status+' 오류·재시도 입력 유지',input.value==='두 번째'&&!send.disabled&&$('feedbackStatus').dataset.error==='true');}

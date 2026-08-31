@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简体中文三语言回归验证</title>
+<style>
+  body { margin:16px; font:16px system-ui; background:#eee; color:#222; }
+  button { min-height:44px; } iframe { width:375px; height:660px; border:1px solid #888; background:#171510; }
+  pre { max-height:280px; overflow:auto; white-space:pre-wrap; } #artifacts a { display:block; }
+</style>
+<h1>简体中文三语言回归验证</h1>
+<p><code>python3 -m http.server 8134 --bind 127.0.0.1</code> 后在 <strong>http://127.0.0.1:8134</strong> 打开。本 harness 只清除该测试 origin 的设置。</p>
+<p>使用实际应用、5 秒泡茶与 Canvas PNG。合成键盘/IME、clipboard 与 share 仅验证应用边界，不代替 OS IME、PWA 或设备字体检查。</p>
+<button id="run">运行简体中文回归验证</button>
+<pre id="result" role="status">等待中</pre>
+<div id="artifacts"></div>
+<iframe id="app" title="简体中文验证对象"></iframe>
+<script>
+(() => {
+  const frame = document.querySelector('#app'), result = document.querySelector('#result'), artifacts = document.querySelector('#artifacts');
+  const KEY = 'teaTimer.preferences.v1';
+  const CN = ['青香','花香','甜香','果香','焙香','鲜','甜','咸','酸','苦','清爽','细腻','粗涩','浓稠','余韵感'];
+  const errors = [];
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(predicate, name, ms = 14000) { const start = performance.now(); while (!predicate()) { if (performance.now() - start > ms) throw new Error('超时: ' + name); await sleep(25); } }
+  function seed(value) { localStorage.clear(); if (value !== undefined) localStorage.setItem(KEY, JSON.stringify(value)); }
+  async function load(page = 'index.html', width = 375) {
+    frame.style.width = width + 'px'; frame.src = '../' + page + '?cn=' + Date.now(); await new Promise(resolve => frame.onload = resolve);
+    const w = frame.contentWindow, d = w.document;
+    await until(() => page === 'settings.html' ? d.getElementById('newTagInput') : page === 'help.html' ? d.querySelector('main') : d.getElementById('brew'), page + ' boot');
+    w.addEventListener('error', event => errors.push(event.message || String(event.error)));
+    w.addEventListener('unhandledrejection', event => errors.push(String(event.reason)));
+    return { w, d, $: id => d.getElementById(id) };
+  }
+  const click = el => { if (!el) throw new Error('missing target'); el.click(); };
+  const input = (w, el, value) => { el.value = value; el.dispatchEvent(new w.Event('input', { bubbles:true })); el.dispatchEvent(new w.Event('change', { bubbles:true })); };
+  const key = (w, el, value) => el.dispatchEvent(new w.KeyboardEvent('keydown', { key:value, bubbles:true, cancelable:true }));
+  document.querySelector('#run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') { result.textContent = '中止：仅可在 http://127.0.0.1:8134 运行。'; return; }
+    this.disabled = true; artifacts.replaceChildren(); errors.length = 0; const lines = [];
+    const check = (name, ok) => { if (!ok) throw new Error(name); lines.push('PASS ' + name); result.textContent = lines.join('\n'); };
+    try {
+      seed(); let app = await load(); let { w, d, $ } = app;
+      // Roving radio keyboard must cover all three options and wrap at both edges.
+      click($('languageButton')); let options = [...d.querySelectorAll('#languagePopover [role="radio"]')];
+      check('主菜单按顺序提供三种语言', options.map(el => el.dataset.locale).join(',') === 'ko,zh-TW,zh-CN');
+      options[0].focus(); key(w, options[0], 'ArrowUp'); await until(() => d.activeElement.dataset.locale === 'zh-CN', 'keyboard wrap to CN');
+      check('语言键盘向上环绕到简体并选择', d.documentElement.lang === 'zh-CN' && d.activeElement.getAttribute('aria-checked') === 'true');
+      key(w, d.activeElement, 'ArrowDown'); await until(() => d.activeElement.dataset.locale === 'ko', 'keyboard wrap to KO');
+      key(w, d.activeElement, 'End'); await until(() => d.activeElement.dataset.locale === 'zh-CN', 'End CN');
+      check('Home/End 三语言 roving 行为正确', d.documentElement.lang === 'zh-CN' && options.filter(el => el.getAttribute('aria-checked') === 'true').length === 1);
+      key(w, d.activeElement, 'Home'); await until(() => d.activeElement.dataset.locale === 'ko', 'Home KO'); key(w, d.activeElement, 'Escape');
+
+      // A real 5 second brew stays active while only the locale changes; draft and recorded infusion survive.
+      click($('note')); click($('editTitleBtn')); input(w, $('teaTitleInput'), '简体 제목 原文'); key(w, $('teaTitleInput'), 'Enter');
+      input(w, $('noteInput'), '简体·繁體·한국어 原文备注'); const tag = d.querySelector('#tagsGrid [data-tag-key]'); click(tag); click($('closeSheetBtn'));
+      const draftBefore = { title: $('teaTitleDisplay').textContent, note: '简体·繁體·한국어 原文备注', tag: tag.dataset.tagKey, history: $('infusionHistoryDisplay').textContent };
+      $('slider').value = '5'; $('slider').dispatchEvent(new w.Event('input', { bubbles:true })); const brew = $('brew'); click(brew);
+      await until(() => brew.disabled && $('time').textContent === '0:05', '5-second brew started'); await sleep(1250);
+      await until(() => brew.disabled && $('time').textContent !== '0:05', '5-second countdown active', 4000);
+      const rawBeforeLocales = JSON.parse(localStorage.getItem(KEY));
+      async function selectMainLocale(locale) { click($('languageButton')); click(d.querySelector(`[data-locale="${locale}"]`)); await until(() => d.documentElement.lang === locale, 'active brew ' + locale); }
+      await selectMainLocale('zh-CN'); await selectMainLocale('zh-TW'); await selectMainLocale('ko'); await selectMainLocale('zh-CN');
+      const rawAfterLocales = JSON.parse(localStorage.getItem(KEY)); const { locale: beforeLocale, ...beforeWithoutLocale } = rawBeforeLocales; const { locale: afterLocale, ...afterWithoutLocale } = rawAfterLocales;
+      check('5 秒实际泡茶中三语言切换只改变 locale 且草稿不重置', brew.disabled && afterLocale === 'zh-CN' && JSON.stringify(beforeWithoutLocale) === JSON.stringify(afterWithoutLocale) && $('teaTitleDisplay').textContent === draftBefore.title && $('infusionHistoryDisplay').textContent === '没有完成的泡茶记录');
+      await until(() => $('brew').disabled === false && $('time').textContent === '0:00', 'brew completion', 11000); click($('brew')); await sleep(1600);
+      click($('note'));
+      check('完成记录后标题、备注、标签和历史仍保留', $('teaTitleDisplay').textContent.includes('简体 제목 原文') && $('noteInput').value.includes('原文备注') && d.querySelector('#tagsGrid [aria-pressed="true"]') && $('infusionHistoryDisplay').textContent.includes('1'));
+      click($('closeSheetBtn'));
+
+      seed(); app = await load('settings.html', 320); ({ w, d, $ } = app); click($('localeZhCn')); await until(() => d.documentElement.lang === 'zh-CN', 'settings CN');
+      check('320px 简体设置无水平溢出且三语言单选', d.documentElement.scrollWidth <= 320 && d.body.scrollWidth <= 320 && [...d.querySelectorAll('input[name="locale"]')].map(el => el.value).join(',') === 'ko,zh-TW,zh-CN');
+      input(w, $('newTagInput'), '自定义原文'); click($('addTagBtn')); let saved = JSON.parse(localStorage.getItem(KEY));
+      check('无存储列表时追加简体 15 项和原文', saved.tagItems.length === 16 && saved.tagItems[0].id === 'cn.aroma.vegetal' && saved.tagItems.at(-1).text === '自定义原文');
+      const confirm = w.confirm; try { w.confirm = () => false; click($('restoreTagsBtn')); } finally { w.confirm = confirm; }
+      check('恢复取消不改变已保存列表', JSON.parse(localStorage.getItem(KEY)).tagItems.length === 16);
+      try { w.confirm = () => true; click($('restoreTagsBtn')); } finally { w.confirm = confirm; }
+      saved = JSON.parse(localStorage.getItem(KEY)); check('明确恢复使用简体 15 项', saved.tagItems.length === 15 && saved.tagItems[14].id === 'cn.mouthfeel.aftertaste');
+
+      seed({ version:1, locale:'ko' }); app = await load('settings.html'); ({ w, d, $ } = app); input(w, $('newTagInput'), '正在输入的原文');
+      $('newTagInput').closest('details').open = true; $('newTagInput').focus(); $('newTagInput').dispatchEvent(new w.CompositionEvent('compositionstart', { bubbles:true, data:'正' }));
+      $('localeZhCn').checked = true; $('localeZhCn').dispatchEvent(new w.Event('change', { bubbles:true }));
+      check('IME 组合期间延后简体切换', d.documentElement.lang === 'ko' && $('newTagInput').value === '正在输入的原文');
+      $('newTagInput').dispatchEvent(new w.CompositionEvent('compositionend', { bubbles:true, data:'文' })); await until(() => d.documentElement.lang === 'zh-CN', 'IME deferred CN');
+      check('IME 结束后应用简体且保留原文输入', $('newTagInput').value === '正在输入的原文' && d.activeElement === $('newTagInput'));
+
+      seed(); app = await load('settings.html'); ({ w, d, $ } = app); const originalSetItem = w.Storage.prototype.setItem;
+      try { w.Storage.prototype.setItem = () => { throw new Error('locale storage failed'); }; click($('localeZhCn')); } finally { w.Storage.prototype.setItem = originalSetItem; }
+      input(w, $('newTagInput'), '失败后原文'); click($('addTagBtn')); saved = JSON.parse(localStorage.getItem(KEY));
+      check('语言保存失败后追加仍采用当前简体默认项', !Object.hasOwn(saved, 'locale') && saved.tagItems[0].id === 'cn.aroma.vegetal' && saved.tagItems.at(-1).text === '失败后原文');
+
+      seed({ version:1, locale:'zh-CN' }); app = await load('help.html', 375); ({ d } = app);
+      check('375px 简体帮助已渲染且无水平溢出', d.documentElement.lang === 'zh-CN' && d.documentElement.scrollWidth <= 375 && d.body.scrollWidth <= 375 && d.body.textContent.includes('使用说明'));
+
+      seed({ version:1, locale:'zh-CN' }); app = await load(); ({ w, d, $ } = app); click($('note')); click($('editTitleBtn')); input(w, $('teaTitleInput'), '简体 제목 繁體原文'); key(w, $('teaTitleInput'), 'Enter'); input(w, $('noteInput'), '简体备注 繁體備註 한국어'); click(d.querySelector('[data-tag-key="builtin/cn.aroma.vegetal"]'));
+      let copied = ''; Object.defineProperty(w.navigator, 'clipboard', { configurable:true, value:{ writeText:async text => { copied = text; } } }); click($('copyBtn')); await until(() => copied, 'copy text');
+      let shared, drawn = []; const context = w.HTMLCanvasElement.prototype.getContext, canShare = w.navigator.canShare, share = w.navigator.share;
+      w.HTMLCanvasElement.prototype.getContext = function (...args) { const ctx = context.apply(this, args), fillText = ctx.fillText.bind(ctx); ctx.fillText = (...values) => { drawn.push(String(values[0])); return fillText(...values); }; return ctx; };
+      Object.defineProperty(w.navigator, 'canShare', { configurable:true, value: data => !!data.files?.length }); Object.defineProperty(w.navigator, 'share', { configurable:true, value: async data => { shared = data; } });
+      click($('cardBtn')); click($('shareCardBtn')); await until(() => shared?.files?.[0], 'PNG capture');
+      w.HTMLCanvasElement.prototype.getContext = context; Object.defineProperty(w.navigator, 'canShare', { configurable:true, value: canShare }); Object.defineProperty(w.navigator, 'share', { configurable:true, value: share });
+      const file = shared.files[0], url = await new Promise((resolve, reject) => { const reader = new w.FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
+      const dims = await new Promise((resolve, reject) => { const image = new w.Image(); image.onload = () => resolve([image.width, image.height]); image.onerror = reject; image.src = url; });
+      const link = document.createElement('a'); link.href = url; link.download = 'zh-cn-card.png'; link.textContent = 'PNG artifact: 680×900 简体中文 card'; artifacts.append(link);
+      check('文本与实际 PNG 保留简体、繁体、韩文原文', copied.includes('简体 제목 繁體原文') && copied.includes('简体备注 繁體備註 한국어') && copied.includes('#青香') && file.type === 'image/png' && dims[0] === 680 && dims[1] === 900 && drawn.some(text => text.includes('简体 제목 繁體原文')) && drawn.some(text => text.includes('简体备注 繁體備註 한국어')));
+      check('iframe 无脚本错误', errors.length === 0);
+      lines.push('完成：' + lines.filter(line => line.startsWith('PASS ')).length + ' 项通过'); result.textContent = lines.join('\n');
+    } catch (error) { lines.push('FAIL ' + (error.stack || error.message || String(error))); result.textContent = lines.join('\n'); }
+    finally { this.disabled = false; }
+  };
+})();
+</script>

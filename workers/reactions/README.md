@@ -14,7 +14,7 @@ Cloudflare Worker + D1 backend for the private applause/downvote counter and cre
   - Deployment smoke check
 - `POST /messages`
   - Creator feedback endpoint. Requires an allowed `Origin`, `FEEDBACK_ENABLED=true`, D1, the rate-limit binding, `FEEDBACK_RATE_SECRET`, and `FEEDBACK_READ_TOKEN`. Origin checks limit browser callers but are not bot authentication.
-  - Body: `{"app":"tea-timer","requestId":"UUID","message":"raw text","locale":"ko"|"zh-TW"}`
+  - Body: `{"app":"tea-timer","requestId":"UUID","message":"raw text","locale":"ko"|"zh-TW"|"zh-CN"}`
   - The actual request body is limited to 8 KiB; message text is preserved and limited to 1,000 Unicode code points.
   - A matching retry returns its original `{ok:true,id,created_at}` without another insert or rate-limit attempt. `id` is the positive auto-incrementing D1 cursor and `created_at` is UTC ISO 8601. A reused request ID with different text or locale returns `409 conflict`.
 - `GET /admin/messages?after=<id>&limit=<1..100>`
@@ -27,17 +27,18 @@ Cloudflare Worker + D1 backend for the private applause/downvote counter and cre
 npm run db:local
 npm run db:remote
 npm run deploy
+npm run test:migration
 ```
 
 The generated admin token is stored locally in `.env.admin-token`, which is git-ignored.
 
 ## Feedback setup (do not run against production until ready)
 
-Apply the additive migration to the existing D1 database first:
+Apply the existing feedback migration and then the locale-constraint migration through Wrangler's migration runner. Do not edit or reapply `0001`: `0002` rebuilds only `messages` and preserves its IDs, timestamps, request IDs, unique constraint, index, and AUTOINCREMENT high-water mark. Wrangler rolls back a failed migration while retaining earlier successful migrations, so the SQL files deliberately omit unsupported `BEGIN`/`COMMIT` statements.
 
 ```bash
 cd workers/reactions
-npx wrangler d1 execute tea-timer-reactions --remote --file=./migrations/0001_creator_feedback.sql
+npx wrangler d1 migrations apply tea-timer-reactions --remote
 ```
 
 `wrangler.jsonc` binds `FEEDBACK_LIMITER` to the account-defined namespace ID `2026083101`, with a 60-second period and limit 3. Cloudflare namespace IDs are positive integer strings chosen by the account, rather than provisioned resource IDs. Before a first deployment, confirm `2026083101` is unused in the target account; if it is already assigned, choose a different account-unique positive integer consistently in the configuration. The production config intentionally keeps `FEEDBACK_ENABLED` false until the binding and secrets exist. Set the secrets without putting them in this repository:
@@ -54,5 +55,7 @@ For isolated local D1 work, copy `.dev.vars.example` to ignored `.dev.vars`, ini
 ```bash
 cp .dev.vars.example .dev.vars
 npm run db:local
+# Also upgrades an existing local feedback DB; schema.sql alone cannot change its CHECK.
+npx wrangler d1 migrations apply tea-timer-reactions --local
 npx wrangler dev --local --port 8787
 ```

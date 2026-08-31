@@ -20,7 +20,7 @@
   html,body{ min-height:100%; }
   body{
     background:radial-gradient(120% 75% at 50% 18%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 84%);
-    color:var(--ink); font-family:"Gowun Batang","Noto Serif TC","Songti TC","PMingLiU","AppleMyungjo",serif; -webkit-tap-highlight-color:transparent;
+    color:var(--ink); font-family:var(--ui-font-text); -webkit-tap-highlight-color:transparent;
   }
   li{ margin-bottom:0.4rem; }
   a{ color:var(--gold-soft); text-decoration-thickness:.08em; text-underline-offset:.18em; }
@@ -157,7 +157,9 @@
 <script src="scripts/locales/ko.js"></script>
 <script src="scripts/locales/ko-help.js"></script>
 <script src="scripts/locales/zh-TW.js"></script>
+<script src="scripts/locales/zh-CN.js"></script>
 <script src="scripts/locales/zh-TW-help.js"></script>
+<script src="scripts/locales/zh-CN-help.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);

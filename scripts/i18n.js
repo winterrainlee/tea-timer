@@ -3,10 +3,12 @@ const TeaI18n = (() => {
   "use strict";
   const catalogs = Object.create(null);
   const listeners = new Set();
-  const supported = Object.freeze(["ko", "zh-TW"]);
-  const fontFamily = '"Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif';
+  const supported = Object.freeze(["ko", "zh-TW", "zh-CN"]);
+  const traditionalFont = '"Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif';
+  const simplifiedFont = '"Noto Serif SC", "Songti SC", "SimSun", "Gowun Batang", "Noto Serif TC", serif';
   let locale = typeof TeaPreferences !== "undefined" ? TeaPreferences.createStore().read().values.locale || "ko" : "ko";
   const normalize = value => supported.includes(value) ? value : "ko";
+  const fontForLocale = language => language === "zh-CN" ? simplifiedFont : traditionalFont;
   locale = normalize(locale);
   function register(language, entries) {
     if (!supported.includes(language)) throw new Error("Unsupported catalog locale");
@@ -45,8 +47,10 @@ const TeaI18n = (() => {
     return true;
   }
   function onChange(listener) { listeners.add(listener); return () => listeners.delete(listener); }
-  async function prepareFonts(sample = "차 한 잔 阿里山 烏龍茶") {
+  async function prepareFonts(sample, language = locale) {
     if (typeof document === "undefined" || !document.fonts) return false;
+    sample = sample ?? (language === "zh-CN" ? "차 한 잔 乌龙茶 鲜 细腻" : "차 한 잔 阿里山 烏龍茶");
+    const fontFamily = fontForLocale(language);
     let timer;
     try {
       return await Promise.race([
@@ -55,6 +59,7 @@ const TeaI18n = (() => {
       ]);
     } finally { clearTimeout(timer); }
   }
-  return Object.freeze({ t, translate, register, apply, getLocale: () => locale, setLocale, onChange, normalize, supported, fontFamily, prepareFonts });
+  return Object.freeze({ t, translate, register, apply, getLocale: () => locale, setLocale, onChange, normalize, supported,
+    get fontFamily() { return fontForLocale(locale); }, fontForLocale, prepareFonts });
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = TeaI18n;
