@@ -3235,8 +3235,8 @@ ${emoji} ${rawName}
         content.replaceChildren();
         for (const { id: group, items } of TeaAnnouncements.getSections()) {
           const heading = document.createElement("h3"); heading.dataset.i18n = `announcements.${group}`; content.appendChild(heading);
-          if (!items.length && group === "released") {
-            const empty = document.createElement("p"); empty.className = "announcement-empty"; empty.dataset.i18n = "announcements.noReleased"; content.appendChild(empty);
+          if (!items.length && ["released", "planned"].includes(group)) {
+            const empty = document.createElement("p"); empty.className = "announcement-empty"; empty.dataset.i18n = group === "planned" ? "announcements.preparing" : "announcements.noReleased"; content.appendChild(empty);
           }
           if (!items.length) continue;
           const list = document.createElement("ul"); list.className = "announcement-list"; content.appendChild(list);

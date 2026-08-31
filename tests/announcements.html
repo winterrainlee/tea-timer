@@ -21,7 +21,7 @@ document.getElementById('run').onclick = async function () {
       if (!response.ok) throw new Error('fixture source ' + response.status);
       return response.text();
     }));
-    const item = id => ({ id, titleKey: 'fixture.' + id, bodyKey: 'announcements.plannedBody' });
+    const item = id => ({ id, titleKey: 'fixture.' + id, bodyKey: 'announcements.preparing' });
     const first = { id: 'fixture-first', items: [item('old')] };
     const newest = { id: 'fixture-newest', items: [item('new')] };
     for (const fixture of [

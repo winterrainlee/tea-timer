@@ -1,0 +1,72 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>비공개 의견함 검증</title>
+<style>body{font:16px system-ui}button{min-height:44px}iframe{width:375px;height:660px}pre{white-space:pre-wrap}</style>
+<h1>의견함 격리 검증</h1><p>8134 전용. 모든 의견 전송은 가짜 응답으로 처리하며 운영 서버에 보내지 않습니다.</p>
+<button id="run">검증 시작</button><button id="previewKo">한국어 미리보기</button><button id="previewZh">繁體中文預覽</button><pre id="result">대기 중</pre><iframe id="app" title="검증용 이용 안내"></iframe>
+<script>
+for (const [id,locale] of [['previewKo','ko'],['previewZh','zh-TW']]) document.getElementById(id).onclick=()=>{const frame=document.getElementById('app');if(!frame.contentWindow.changeFixtureLocale)return;document.getElementById('result').hidden=true;frame.contentWindow.changeFixtureLocale(locale);frame.contentDocument.getElementById('feedbackOpen').click();};
+document.getElementById('run').onclick = async function () {
+  const output=document.getElementById('result'), frame=document.getElementById('app'), lines=[];
+  if(location.origin!=='http://127.0.0.1:8134') {output.textContent='중단: 8134 전용';return;}
+  this.disabled=true;
+  const check=(label,ok)=>{if(!ok)throw new Error(label);lines.push('PASS '+label);output.textContent=lines.join('\n');};
+  const tick=()=>new Promise(r=>setTimeout(r,35));
+  try {
+    const source=await(await fetch('../help.html',{cache:'no-store'})).text();
+    const fixture=`window.fixture={calls:[],mode:'failure'};
+      const realFetch=window.fetch.bind(window),realTimeout=window.setTimeout.bind(window);
+      window.setTimeout=(f,n,...args)=>realTimeout(f,n===15000?25:n,...args);
+      window.fetch=(url,options)=>{
+        if(url!=='/api/messages') return realFetch(url,options);
+        const f=window.fixture;f.calls.push(JSON.parse(options.body));
+        if(f.mode==='pending')return new Promise(resolve=>f.resolve=resolve);
+        if(f.mode==='timeout')return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new DOMException('timeout','AbortError'))));
+        if(f.mode==='failure')return Promise.reject(new TypeError('offline fixture'));
+        if(f.mode==='malformed')return Promise.resolve(new Response(JSON.stringify({ok:'true',id:1,created_at:'x'})));
+        if(f.mode==='success')return Promise.resolve(new Response(JSON.stringify({ok:true,id:1,created_at:'2026-08-31T00:00:00.000Z'})));
+        return Promise.resolve(new Response(JSON.stringify({ok:false}),{status:Number(f.mode)}));
+      };window.changeFixtureLocale=locale=>TeaI18n.setLocale(locale);`;
+    const closing='<'+'/script>';
+    const load=new Promise(r=>frame.onload=r);
+    frame.srcdoc=source.replace('<head>','<head><base href="/">').replace('<script src="scripts/feedback.js">'+closing,'<script>'+fixture+closing+'<script src="scripts/feedback.js">'+closing);
+    await load;
+    const w=frame.contentWindow,d=frame.contentDocument,$=id=>d.getElementById(id),f=w.fixture;
+    w.changeFixtureLocale('ko');
+    const input=$('feedbackMessage'),send=$('feedbackSend');
+    const write=value=>{input.value=value;input.dispatchEvent(new w.Event('input',{bubbles:true}));};
+    const submit=()=>{$('feedbackForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));};
+    check('제작 AI 활용 별도 고지',d.querySelector('[data-i18n="help.creator.ai"]').textContent.includes('AI'));
+    $('feedbackOpen').focus();$('feedbackOpen').click();
+    check('대화상자 진입과 배경 비활성',!$('feedbackBackdrop').hidden&&d.querySelector('.page').inert&&$('applause').inert);
+    check('초기 X 포커스·44px 터치',d.activeElement===$('feedbackClose')&&$('feedbackClose').getBoundingClientRect().height>=44&&send.getBoundingClientRect().height>=44);
+    check('전송 전 보관·AI·개별 답장 고지',['90일','AI','개별 답장'].every(x=>$('feedbackPrivacy').textContent.includes(x)));
+    d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));check('Tab 입력란 이동',d.activeElement===input);
+    d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));check('빈 입력에서는 X로 순환',d.activeElement===$('feedbackClose'));
+    write('   \n');submit();await tick();check('공백 거부',send.disabled&&f.calls.length===0);
+    write('🍵'.repeat(1000));check('이모지 1000자 허용',!send.disabled&&$('feedbackCount').textContent.startsWith('1,000'));
+    write('🍵'.repeat(1001));submit();check('1001자 차단',send.disabled&&input.getAttribute('aria-invalid')==='true'&&f.calls.length===0);
+    write('  찻잔🍵\n原文  ');input.dispatchEvent(new w.CompositionEvent('compositionstart',{bubbles:true}));submit();check('IME 조합 중 제출 차단',send.disabled&&f.calls.length===0);
+    d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',isComposing:true,bubbles:true}));check('IME Escape는 창 유지',!$('feedbackBackdrop').hidden);
+    input.dispatchEvent(new w.CompositionEvent('compositionend',{bubbles:true}));
+    $('feedbackClose').click();check('닫기 후 포커스와 배경 복귀',d.activeElement===$('feedbackOpen')&&!d.querySelector('.page').inert);
+    $('feedbackOpen').click();check('닫았다 열어도 원문 보존',input.value==='  찻잔🍵\n原文  ');
+    submit();await tick();check('통신 실패 시 원문 보존',input.value==='  찻잔🍵\n原文  '&&!send.disabled&&$('feedbackStatus').dataset.error==='true');
+    const first=f.calls[0];check('원문·언어·UUID 전송 계약',first.message===input.value&&first.locale==='ko'&&/^[a-f0-9-]{36}$/.test(first.requestId));
+    w.changeFixtureLocale('zh-TW');check('번체 전환 시 원문·개별 답장 고지',input.value===first.message&&$('feedbackPrivacy').textContent.includes('個別回覆'));
+    f.mode='success';submit();await tick();check('불확실한 재시도 ID·원언어 고정',JSON.stringify(f.calls[1])===JSON.stringify(first));
+    check('확인된 성공에만 입력 비움',input.value===''&&$('feedbackStatus').dataset.error==='false');
+    write('두 번째');f.mode='malformed';submit();await tick();check('잘못된 성공 응답은 내용 보존',input.value==='두 번째'&&$('feedbackStatus').dataset.error==='true');
+    check('다른 본문은 새 UUID',f.calls.at(-1).requestId!==first.requestId);
+    for(const status of [404,413,429,503]){f.mode=String(status);submit();await tick();check(status+' 오류·재시도 입력 유지',input.value==='두 번째'&&!send.disabled&&$('feedbackStatus').dataset.error==='true');}
+    f.mode='timeout';submit();await tick();check('시간초과 입력 유지',input.value==='두 번째'&&!send.disabled&&$('feedbackStatus').dataset.error==='true');
+    f.mode='pending';const beforePending=f.calls.length;submit();submit();const count=f.calls.length;check('전송 중 재입력·중복 전송 차단',input.readOnly&&send.disabled&&count===beforePending+1);
+    $('feedbackClose').click();$('feedbackOpen').click();check('전송 중 닫고 열기 안전',input.readOnly&&f.calls.length===count);
+    f.resolve(new w.Response(JSON.stringify({ok:true,id:2,created_at:'2026-08-31T00:00:00Z'})));await tick();check('전송 완료 복귀',!input.readOnly&&input.value==='');
+    Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});write('오프라인');submit();await tick();check('오프라인 실제 전송 없음',f.calls.length===count&&input.value==='오프라인');
+    const leave=new w.Event('beforeunload',{cancelable:true});w.dispatchEvent(leave);check('미전송 페이지 이탈 경고',leave.defaultPrevented);
+    write('');$('feedbackClose').click();
+    check('375px 가로 넘침 없음',d.documentElement.scrollWidth<=375);
+    output.textContent=lines.join('\n')+'\n완료: '+lines.length+'개 통과';
+  }catch(error){output.textContent=lines.join('\n')+'\nFAIL '+error.message;}
+  finally{this.disabled=false;}
+};
+</script></html>
