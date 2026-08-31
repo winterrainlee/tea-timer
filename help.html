@@ -90,14 +90,6 @@
       </div>
     </details>
 
-    <details class="help-section" open>
-      <summary data-i18n="feedback.section">의견 보내기</summary>
-      <div class="help-section-body">
-        <p data-i18n="feedback.intro">사용 소감이나 불편했던 점을 제작자에게 비공개로 보낼 수 있습니다. 이름이나 연락처를 받지 않으며 개별 답장은 제공하지 않습니다.</p>
-        <button type="button" class="feedback-open" id="feedbackOpen" data-i18n="feedback.open">제작자에게 메시지 보내기</button>
-      </div>
-    </details>
-
     <!-- Section 2: 자유롭게 쓰세요 -->
     <details class="help-section">
       <summary data-i18n="help.section.free">자유롭게 쓰세요</summary>
@@ -107,9 +99,9 @@
       </div>
     </details>
 
-    <!-- Section 3: 제작자 이야기 & 👏 응원 박수 -->
+    <!-- Section 3: 제작자 소개·메시지·연락처 -->
     <details class="help-section">
-      <summary data-i18n="help.section.creator">제작자 이야기 & 응원 박수</summary>
+      <summary data-i18n="help.section.creator">제작자 소개</summary>
       <div class="help-section-body">
       <p data-i18n="help.creator.ai">이 웹앱은 개발·번역·디자인 과정에서 AI를 활용해 제작했습니다. 기능과 문구는 제작자가 검토하며 계속 다듬고 있습니다.</p>
       <p style="white-space: pre-line; line-height: 1.75; color: var(--ink);">
@@ -117,8 +109,9 @@
       </p>
       <p style="margin-top:0.8rem;">
         <span data-i18n="help.creator.name">제작자: 겨울비</span><br>
-        <span data-i18n="help.creator.contact">쓰다가 궁금한 점이나 바라는 점이 생기면 편하게 연락 주세요.</span>
+        <span data-i18n="help.creator.contact">사용 소감이나 불편했던 점은 비공개 메시지로 보내주시고, 답장이 필요한 경우 이메일로 연락해 주십시오.</span>
       </p>
+      <button type="button" class="feedback-open" id="feedbackOpen" data-i18n="feedback.open">제작자에게 메시지 보내기</button>
       <ul>
         <li><p><a href="https://twitter.com/winterrain_lee" target="_blank" rel="noopener" data-i18n="help.creator.twitter">트위터 (@winterrain_lee)</a></p></li>
         <li><p><a href="https://github.com/winterrainlee/tea-timer" target="_blank" rel="noopener" data-i18n="help.creator.github">깃허브 저장소</a></p></li>
@@ -135,7 +128,7 @@
   <section class="feedback-dialog" id="feedbackDialog" role="dialog" aria-labelledby="feedbackTitle" aria-describedby="feedbackPrivacy">
     <button type="button" class="modal-close" id="feedbackClose" data-i18n-aria-label="feedback.close" aria-label="의견 창 닫기">×</button>
     <h2 id="feedbackTitle" data-i18n="feedback.open">제작자에게 메시지 보내기</h2>
-    <p id="feedbackPrivacy" class="feedback-privacy" data-i18n="feedback.privacy">이름·연락처는 받지 않으며 개별 답장은 제공하지 않습니다. 개인정보는 적지 마십시오. 의견은 Cloudflare 서버에 저장되며 접수 후 90일 동안 조회한 뒤 정기 삭제합니다. 제작자는 Codex 등 AI 도구로 의견을 조회·번역·정리할 수 있으며 검토용 사본이 비공개 작업 공간에 남을 수 있습니다.</p>
+    <p id="feedbackPrivacy" class="feedback-privacy" data-i18n="feedback.privacy">의견은 Cloudflare 서버에 보관되므로 개인정보는 적지 마십시오. 접수 후 90일이 지난 의견은 정기 삭제합니다. 답장이 필요한 경우 이용 안내의 이메일로 연락해 주십시오. 제작자는 Codex 등 AI 도구로 의견을 조회·번역·정리할 수 있으며, 검토용 사본이 비공개 작업 공간에 남을 수 있습니다.</p>
     <form id="feedbackForm" novalidate>
       <label for="feedbackMessage" data-i18n="feedback.label">전할 내용</label>
       <textarea id="feedbackMessage" rows="6" aria-describedby="feedbackCount feedbackDraft" data-i18n-placeholder="feedback.placeholder" placeholder="사용 소감이나 불편했던 점을 적어주십시오."></textarea>
