@@ -92,7 +92,8 @@ def fetch_page(endpoint: str, token: str, after: int | None = None, limit: int =
     else:
         query.pop("after", None)
     url = urlunparse(parsed._replace(query=urlencode(query, doseq=True)))
-    request = Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json", "Cache-Control": "no-store"})
+    # Identify this API client explicitly; Cloudflare rejects urllib's generic UA.
+    request = Request(url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json", "Cache-Control": "no-store", "User-Agent": "TeaTimerFeedbackReader/1.0"})
     try:
         with opener(request, timeout=20) as response:
             raw = response.read(MAX_RESPONSE_BYTES + 1)

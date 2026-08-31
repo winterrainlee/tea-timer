@@ -1,6 +1,6 @@
 # 제작자 비공개 의견함
 
-상태: 2026-08-31 구현·로컬 통합 검증, 운영 의견함 활성화와 GitHub Pages 첫 배포를 완료했다. 운영 Worker에 `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET`을 등록하고 `FEEDBACK_ENABLED=true`로 배포했으며 기존 `ADMIN_TOKEN`과 D1 `0001`·`0002` 적용을 유지한다. 시스템 curl로 운영 health·인증·세 언어 테스트 메시지·동일 UUID 재시도·조회 응답과 공개 앱의 메시지 폼 진입을 확인했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready), [Pages 기록](CHANGELOG.md#tw-pages-deployed)). `query_feedback.py` urllib의 운영 접속은 HTTP 403/error 1010으로 별도 미통과이며 수정은 후속 작업이다. 실제 박수 POST는 집계 오염 방지를 위해 보내지 않았고, 만료 행 삭제·iPhone/PWA·현지인 검수·정기 자동화는 남아 있다.
+상태: 2026-08-31 구현·로컬 통합 검증, 운영 의견함 활성화와 GitHub Pages 첫 배포를 완료했다. 운영 Worker에 `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET`을 등록하고 `FEEDBACK_ENABLED=true`로 배포했으며 기존 `ADMIN_TOKEN`과 D1 `0001`·`0002` 적용을 유지한다. 시스템 curl로 운영 health·인증·세 언어 테스트 메시지·동일 UUID 재시도·조회 응답과 공개 앱의 메시지 폼 진입을 확인했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready), [Pages 기록](CHANGELOG.md#tw-pages-deployed)). `query_feedback.py`의 기본 HTTP 식별자 문제도 수정해 운영 테스트 행 1·2·3 조회를 확인했다([조회 도구 기록](CHANGELOG.md#feedback-reader-production)). 실제 박수 POST는 집계 오염 방지를 위해 보내지 않았고, 만료 행 삭제·iPhone/PWA·현지인 검수·정기 자동화는 남아 있다.
 
 ## 범위와 입력
 
