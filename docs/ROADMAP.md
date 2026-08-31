@@ -226,6 +226,8 @@ TW-05에는 언어 선택·기본 메뉴와 [공지사항](design-navigation.md#
 
 ## Phase E — 향과 맛의 단어장 · 미구현
 
+차 느낌 작성 중 직접 입력한 단어를 이번 카드에 선택하고 설정에도 저장하는 소규모 보강은 [별도로 구현·로컬 검증했다](CHANGELOG.md#feeling-inline-tags). 아래 참고용 단어장 탐색·설명 페이지의 구현 완료를 뜻하지 않는다.
+
 상세 설계는 [sensory-vocabulary.md](sensory-vocabulary.md), 느낌 시트의 맥락 진입과 메뉴의 독립 탐색은 [배치 설계](design-navigation.md)를 따른다.
 
 조사·결정: [대만 특색차 풍미륜 1.0·2.0과 기본 14개 비교](research-taiwan-tea-flavor-wheel.md), [한국어 후기 및 최종 15개·출처](research-korean-tea-review-vocabulary.md#confirmed-vocabulary). 기본 15개는 TW-05 설정 검토에서 먼저 적용했고 기존 목록·ID 보존을 검증했다. 세부어 분류·번체 문구·해설·이용 범위와 단어장 탐색·추가 구현은 남아 있다.

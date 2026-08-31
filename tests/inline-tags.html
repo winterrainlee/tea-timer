@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인라인 차 느낌 단어 실제 앱 검증</title>
+<style>
+  body { margin:16px; font:16px system-ui,sans-serif; background:#eee; color:#222; }
+  button { min-height:44px; padding:0 14px; } pre { max-height:300px; overflow:auto; white-space:pre-wrap; background:#fff; border:1px solid #bbb; padding:12px; }
+  .frames { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; align-items:start; } iframe { width:375px; height:660px; max-width:100%; border:1px solid #888; background:#171510; }
+  #artifacts a { display:block; margin:8px 0; }
+</style>
+<h1>인라인 차 느낌 단어 실제 앱 검증</h1>
+<p>저장소 루트에서 <code>python3 -m http.server 8134 --bind 127.0.0.1</code>을 실행한 뒤 여세요. <strong>http://127.0.0.1:8134 전용</strong>이며 실행 전 이 origin의 설정 원본을 끝에서 복원합니다.</p>
+<p>실제 앱 iframe과 별도 실제 설정 iframe으로 storage 이벤트를 확인합니다. 키·IME·클립보드·Web Share는 합성 또는 대역이므로 OS IME·실기기 공유 검증을 대신하지 않습니다.</p>
+<button id="run">인라인 단어 검증 실행</button>
+<pre id="result" role="status">대기 중</pre>
+<div id="artifacts"></div>
+<div class="frames"><section><h2>메인 앱</h2><iframe id="app" title="인라인 단어 검증 대상"></iframe></section><section><h2>설정 앱</h2><iframe id="settings" title="설정 동기화 검증 대상"></iframe></section></div>
+<script>
+(() => {
+  const KEY = 'teaTimer.preferences.v1', appFrame = document.querySelector('#app'), settingsFrame = document.querySelector('#settings');
+  const result = document.querySelector('#result'), artifacts = document.querySelector('#artifacts');
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(test, label, timeout = 12000) { const start = performance.now(); while (!test()) { if (performance.now() - start > timeout) throw new Error('시간 초과: ' + label); await sleep(25); } }
+  const fixturePrefs = () => ({ version:1, lastTeaId:'oolong', lastVesselId:'gaiwan', muted:true, secDeltaByTea:{oolong:-15}, locale:'ko', tagItems:[{kind:'builtin',id:'taste.sweet'},{kind:'custom',text:'원문 보존'}], unknown:{keep:true} });
+  async function load(frame, page, nonce) { frame.src = '../' + page + '?inlineTags=' + nonce; await new Promise(resolve => frame.onload = resolve); const w = frame.contentWindow, d = w.document; await until(() => d.getElementById(page === 'settings.html' ? 'newTagInput' : 'brew'), page + ' boot'); if (page === 'settings.html') d.querySelector('[data-i18n="settings.tags.title"]').click(); return {w,d,$:id => d.getElementById(id)}; }
+  function emitInput(w, el, value) { el.value = value; el.dispatchEvent(new w.Event('input', {bubbles:true})); }
+  function key(w, el, value, extra = {}) { el.dispatchEvent(new w.KeyboardEvent('keydown', {key:value,bubbles:true,cancelable:true,...extra})); }
+  function compose(w, el, type) { el.dispatchEvent(new w.CompositionEvent(type, {bubbles:true,data:'새'})); }
+  async function pngUrl(file) { const url = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onerror = () => reject(reader.error); reader.onload = () => resolve(reader.result); reader.readAsDataURL(file); }); const image = new Image(); image.src = url; await image.decode(); if (image.naturalWidth !== 680 || image.naturalHeight !== 900) throw new Error('PNG가 680×900이 아닙니다.'); return url; }
+  document.querySelector('#run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') { result.textContent = '중단: http://127.0.0.1:8134 전용 harness입니다.'; return; }
+    this.disabled = true; artifacts.replaceChildren(); const original = localStorage.getItem(KEY), lines = [], errors = [];
+    const check = (name, value) => { if (!value) throw new Error(name); lines.push('PASS ' + name); result.textContent = lines.join('\n'); };
+    try {
+      localStorage.setItem(KEY, JSON.stringify(fixturePrefs()));
+      let app = await load(appFrame, 'index.html', Date.now()), settings = await load(settingsFrame, 'settings.html', Date.now() + 1);
+      let {w,d,$} = app, sw = settings.w, sd = settings.d, S = settings.$;
+      [w,sw].forEach(win => { win.addEventListener('error', e => errors.push(e.message)); win.addEventListener('unhandledrejection', e => errors.push(String(e.reason))); });
+      const click = id => { const el = $(id); if (!el) throw new Error('대상 없음: ' + id); el.click(); };
+      const selected = text => d.querySelector('[data-tag-key="custom/' + text + '"]');
+      const open = () => { click('note'); return $('tagsGrid'); };
+
+      open(); click('addFeelingTagBtn'); check('추가 버튼이 편집기를 열고 입력에 초점', !$('feelingTagEditor').hidden && d.activeElement === $('feelingTagInput') && $('feelingTagInput').maxLength === 10);
+      emitInput(w, $('feelingTagInput'), '# 테스트 단어 '); click('confirmFeelingTagBtn');
+      check('확정은 저장·custom 키 선택·편집기 닫기', selected('테스트 단어')?.getAttribute('aria-pressed') === 'true' && d.activeElement === selected('테스트 단어') && !$('feelingTagInput').value && $('feelingTagEditor').hidden && JSON.parse(localStorage.getItem(KEY)).tagItems.some(x => x.kind === 'custom' && x.text === '테스트 단어'));
+      await until(() => S('tagEditGrid').textContent.includes('테스트 단어'), '열린 settings storage 반영'); check('열린 설정도 메인 추가를 storage 이벤트로 반영', S('tagEditGrid').textContent.includes('테스트 단어'));
+      click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '테스트 단어'); click('confirmFeelingTagBtn');
+      check('중복 custom은 선택을 토글하지 않고 재사용', selected('테스트 단어').getAttribute('aria-pressed') === 'true' && d.querySelectorAll('[data-tag-key="custom/테스트 단어"]').length === 1);
+      click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), ''); click('confirmFeelingTagBtn'); check('빈 값은 저장하지 않고 안내', $('feelingTagStatus').textContent.length > 0 && !$('feelingTagEditor').hidden);
+      click('cancelFeelingTagBtn'); check('취소는 대기 입력 삭제·추가 버튼 포커스', !$('feelingTagInput').value && $('feelingTagEditor').hidden && d.activeElement === $('addFeelingTagBtn'));
+      click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '단맛'); click('confirmFeelingTagBtn');
+      check('builtin 표시명 충돌 custom은 별개 키', d.querySelector('[data-tag-key="builtin/taste.sweet"]') && selected('단맛') && selected('단맛').getAttribute('aria-pressed') === 'true');
+
+      // A failed add keeps the user text. Restore the actual iframe prototype and retry the same UI path.
+      click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '저장 재시도'); const setItem = w.Storage.prototype.setItem;
+      try { w.Storage.prototype.setItem = () => { throw new Error('fixture save failure'); }; click('confirmFeelingTagBtn'); check('저장 실패는 입력을 보존', $('feelingTagInput').value === '저장 재시도' && !$('feelingTagEditor').hidden && $('feelingTagStatus').textContent.length > 0); }
+      finally { w.Storage.prototype.setItem = setItem; }
+      click('confirmFeelingTagBtn'); check('복구 뒤 재시도 저장', !!selected('저장 재시도') && selected('저장 재시도').getAttribute('aria-pressed') === 'true');
+
+      // Start clean: this proves that an unconfirmed input alone is a protected draft.
+      click('reset'); check('선택 태그 종료 확인', !$('endSessionBackdrop').hidden); click('confirmEndSessionBtn'); open();
+      click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '닫아도 남는 입력'); click('closeSheetBtn'); click('teaNext');
+      check('미확정 입력 단독도 닫은 뒤 차 변경 차단', $('toast').textContent.includes('작성한 느낌') && $('teaName').textContent.includes('청향 우롱'));
+      click('reset'); check('미확정 입력 단독 종료 확인', !$('endSessionBackdrop').hidden); click('cancelEndSessionBtn'); click('note');
+      check('닫기·재열기 pending 입력 유지', $('feelingTagInput').value === '닫아도 남는 입력');
+      key(w, $('feelingTagInput'), 'Escape'); check('편집기 Escape는 로컬 취소·추가 버튼 포커스', $('feelingTagEditor').hidden && d.activeElement === $('addFeelingTagBtn'));
+
+      // Synthetic composition verifies the queue contract, not an OS IME.
+      click('addFeelingTagBtn'); const ime = $('feelingTagInput'); compose(w, ime, 'compositionstart'); emitInput(w, ime, '조합 단어'); key(w, ime, 'Enter', {isComposing:true,keyCode:229});
+      check('IME Enter는 조합 중 저장하지 않음', !selected('조합 단어'));
+      click('confirmFeelingTagBtn'); check('IME 중 버튼도 최종 compositionend까지 대기', !selected('조합 단어'));
+      compose(w, ime, 'compositionend'); emitInput(w, ime, '조합 단어'); await until(() => selected('조합 단어'), 'IME queue flush'); check('compositionend·최종 input 뒤 한 번 저장·선택', selected('조합 단어').getAttribute('aria-pressed') === 'true');
+
+      // Real cross-document storage events: settings add updates the open main grid without disrupting a composing editor.
+      click('addFeelingTagBtn'); const activeInput = $('feelingTagInput'); compose(w, activeInput, 'compositionstart'); emitInput(w, activeInput, '조합 유지');
+      emitInput(sw, S('newTagInput'), '설정에서 추가'); S('addTagBtn').click(); await until(() => [...sd.querySelectorAll('#tagEditGrid')].some(x => x.textContent.includes('설정에서 추가')), 'settings add');
+      await sleep(80); check('storage 이벤트는 IME 중 메인 입력·초점 보존', activeInput.value === '조합 유지' && d.activeElement === activeInput);
+      compose(w, activeInput, 'compositionend'); await until(() => selected('설정에서 추가'), 'main storage grid refresh'); check('설정 storage 이벤트가 메인 grid 갱신', !!selected('설정에서 추가'));
+      // Fresh settings open must observe main's add too.
+      settings = await load(settingsFrame, 'settings.html', Date.now() + 2); sw = settings.w; sd = settings.d; S = settings.$;
+      check('새 설정 진입도 메인 저장 단어 반영', S('tagEditGrid').textContent.includes('조합 단어'));
+      const settingsSet = sw.Storage.prototype.setItem; emitInput(sw, S('newTagInput'), '설정 실패 입력');
+      try { sw.Storage.prototype.setItem = () => { throw new Error('fixture settings failure'); }; S('addTagBtn').click(); check('설정 저장 실패도 입력 유지', S('newTagInput').value === '설정 실패 입력' && S('preferenceSaveStatus').textContent.length > 0); } finally { sw.Storage.prototype.setItem = settingsSet; }
+      S('addTagBtn').click(); await until(() => S('newTagInput').value === '', 'settings retry'); check('설정 재시도 addTag 저장', S('tagEditGrid').textContent.includes('설정 실패 입력'));
+
+      // Saved tag survives endSession, while current selections and pending text do not.
+      click('closeSheetBtn'); click('reset'); check('초안 종료 확인 재개', !$('endSessionBackdrop').hidden); click('confirmEndSessionBtn'); open();
+      check('endSession은 pending·선택만 지우고 저장 단어 보존', !$('feelingTagInput').value && !d.querySelector('#tagsGrid [aria-pressed="true"]') && !!selected('테스트 단어'));
+      // Legacy/unknown raw values are left untouched by inline additions.
+      const raw = JSON.parse(localStorage.getItem(KEY)); check('원문 custom·미지 필드 보존', raw.unknown.keep === true && raw.tagItems.some(x => x.kind === 'custom' && x.text === '원문 보존'));
+
+      // The editor does not pause a muted five-second timer. This uses the real rAF timer path.
+      click('closeSheetBtn'); check('타이머 slider DOM 존재', !!$('slider')); $('slider').value = '5'; $('slider').dispatchEvent(new w.Event('input', {bubbles:true})); click('brew'); open(); click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '우림 중 입력');
+      await until(() => $('infusionHistoryDisplay').textContent.includes('총 1포'), '편집기 중 5초 우림 완료', 9000);
+      check('편집기 중에도 muted 5초 우림은 완료', !$('feelingTagEditor').hidden && $('feelingTagInput').value === '우림 중 입력' && $('infusionHistoryDisplay').textContent.includes('총 1포'));
+      click('closeSheetBtn'); click('reset'); if (!$('endSessionBackdrop').hidden) click('confirmEndSessionBtn'); open();
+
+      let copied = '', file, painted = []; Object.defineProperty(w.navigator, 'clipboard', {configurable:true,value:{writeText:async text => {copied=text;}}}); Object.defineProperty(w.navigator, 'canShare', {configurable:true,value:() => true}); Object.defineProperty(w.navigator, 'share', {configurable:true,value:async data => {file=data.files[0]; throw new w.DOMException('fixture cancel','AbortError');}});
+      selected('테스트 단어').click(); emitInput(w, $('noteInput'), '태그가 포함된 메모'); click('copyBtn'); await until(() => copied.includes('#테스트 단어'), 'copy text'); check('텍스트 복사에 선택 단어 포함', copied.includes('#테스트 단어'));
+      const fillText = w.CanvasRenderingContext2D.prototype.fillText; w.CanvasRenderingContext2D.prototype.fillText = function(text, ...args) { painted.push(String(text)); return fillText.call(this, text, ...args); };
+      try { click('cardBtn'); click('shareCardBtn'); await until(() => file, 'actual PNG'); } finally { w.CanvasRenderingContext2D.prototype.fillText = fillText; }
+      const url = await pngUrl(file); const link = document.createElement('a'); link.href=url; link.download='inline-tags-680x900.png'; link.textContent='인라인 단어 실제 PNG 680×900 원본'; artifacts.append(link); check('실제 PNG 680×900 생성·선택 태그 Canvas 렌더', file.type === 'image/png' && file.size > 0 && painted.some(text => text.includes('테스트 단어')));
+
+      click('closeSheetBtn'); for (const width of [320,375]) { appFrame.style.width=width+'px'; await sleep(40); open(); click('addFeelingTagBtn'); const controls=[$('addFeelingTagBtn'),$('confirmFeelingTagBtn'),$('cancelFeelingTagBtn')]; check(width+'px 추가 조작 44px·가로 넘침 없음', controls.every(x => x.getBoundingClientRect().height >= 44 && x.getBoundingClientRect().width >= 44) && d.documentElement.scrollWidth <= width); click('closeSheetBtn'); }
+      appFrame.style.width='375px';
+      // A failed settings deletion must never retain a stale list that can erase later cross-document adds.
+      settings = await load(settingsFrame, 'settings.html', Date.now() + 3); sw = settings.w; sd = settings.d; S = settings.$;
+      const deleteTarget = [...sd.querySelectorAll('#tagEditGrid .btn-del-tag')].find(button => button.dataset.tagKey === 'custom/원문 보존');
+      if (!deleteTarget) throw new Error('삭제 실패 fixture 대상 없음'); deleteTarget.focus(); const deleteSetItem = sw.Storage.prototype.setItem;
+      try { sw.Storage.prototype.setItem = () => { throw new Error('fixture delete failure'); }; deleteTarget.click(); }
+      finally { sw.Storage.prototype.setItem = deleteSetItem; }
+      const retainedDelete = sd.querySelector('#tagEditGrid .btn-del-tag[data-tag-key="custom/원문 보존"]');
+      check('설정 삭제 저장 실패는 대상 표시·삭제 버튼 포커스 유지', !!retainedDelete && sd.activeElement === retainedDelete);
+      open(); click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '메인 동시 추가'); click('confirmFeelingTagBtn'); click('closeSheetBtn');
+      await until(() => S('tagEditGrid').textContent.includes('메인 동시 추가'), 'failed delete 뒤 main storage add');
+      emitInput(sw, S('newTagInput'), '설정 동시 추가'); S('addTagBtn').click(); await until(() => S('tagEditGrid').textContent.includes('설정 동시 추가'), 'settings add after delete failure');
+      const afterDeleteFailure = JSON.parse(localStorage.getItem(KEY)).tagItems;
+      check('실패 삭제 뒤 main·settings 추가와 원래 대상 raw 보존', ['원문 보존','메인 동시 추가','설정 동시 추가'].every(text => afterDeleteFailure.some(item => item.kind === 'custom' && item.text === text)));
+      // Explicit empty and corrupt canonical lists are distinct storage boundaries in the actual UI.
+      localStorage.setItem(KEY, JSON.stringify({...fixturePrefs(), tagItems:[]})); app = await load(appFrame, 'index.html', Date.now() + 4); ({w,d,$} = app); open();
+      check('명시적 빈 tagItems는 실제 시트의 빈 목록', !d.querySelector('#tagsGrid [data-tag-key]'));
+      click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '빈 목록 첫 단어'); click('confirmFeelingTagBtn'); check('빈 목록 추가는 기본 단어를 되살리지 않음', JSON.parse(localStorage.getItem(KEY)).tagItems.length === 1 && selected('빈 목록 첫 단어')?.getAttribute('aria-pressed') === 'true');
+      click('closeSheetBtn'); localStorage.setItem(KEY, JSON.stringify({...fixturePrefs(), tagItems:[{kind:'unknown'}]})); app = await load(appFrame, 'index.html', Date.now() + 5); ({w,d,$} = app); open();
+      check('손상 tagItems는 추가·확정 차단 안내', !$('tagProtectionNotice').hidden && $('addFeelingTagBtn').disabled && $('confirmFeelingTagBtn').disabled);
+      click('closeSheetBtn'); localStorage.setItem(KEY, JSON.stringify(fixturePrefs())); app = await load(appFrame, 'index.html', Date.now() + 6); ({w,d,$} = app);
+      // Leave a visible screenshot-friendly demo state, but restore persistent preferences in finally.
+      open(); click('addFeelingTagBtn'); emitInput(w, $('feelingTagInput'), '스크린샷 예시'); click('confirmFeelingTagBtn'); check('브라우저 오류 없음', errors.length === 0);
+      lines.push('완료: ' + lines.length + '개 통과. 아래 메인 iframe은 스크린샷 예시 상태입니다.'); result.textContent=lines.join('\n');
+    } catch (error) { result.textContent = lines.join('\n') + '\nFAIL ' + error.message; }
+    finally { if (original === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, original); this.disabled=false; }
+  };
+})();
+</script>
+</html>
