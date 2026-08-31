@@ -1,7 +1,7 @@
 # 차 한 잔의 시간 · Time for Tea — 통합 설계 문서
 
 > 활성 기준일: 2026-08-31
-> 구현 기준: TW-01–03 + [초안·세션 경계 검증](CHANGELOG.md#tw-03-draft-boundaries)
+> 구현 기준: TW-01–03·TW-05 + [한국어 공통 기반·UI 마감](CHANGELOG.md#tw-05-close)
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 통합 대상: 기존 루트 `DESIGN.md`, `archieves/design-v0.1.md`, `archieves/design-v0.2.md`, `archieves/next-checklist.md`, 현재 `index.html`, `help.html`, `settings.html`, `sw.js`, `manifest.webmanifest`, `workers/reactions/` 구현
 > 문서 규칙: 이 파일이 제품·디자인·구현 상태의 단일 기준이다. 개발 카테고리·남은 작업·우선순위와 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md), 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에서 관리한다. `docs/archieves/` 아래 문서는 히스토리 원문 스냅샷으로만 본다.
