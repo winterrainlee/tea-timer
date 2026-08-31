@@ -1,7 +1,7 @@
 # 차 한 잔의 시간 · Time for Tea — 통합 설계 문서
 
 > 활성 기준일: 2026-08-31
-> 구현 기준: `89a5043` + [TW-01 설정 보존 수정](CHANGELOG.md#tw-01-preferences)
+> 구현 기준: TW-01 설정 보존 + [TW-02 접근성·공통 알림](CHANGELOG.md#tw-02-accessibility)
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 통합 대상: 기존 루트 `DESIGN.md`, `archieves/design-v0.1.md`, `archieves/design-v0.2.md`, `archieves/next-checklist.md`, 현재 `index.html`, `help.html`, `settings.html`, `sw.js`, `manifest.webmanifest`, `workers/reactions/` 구현
 > 문서 규칙: 이 파일이 제품·디자인·구현 상태의 단일 기준이다. 개발 카테고리·남은 작업·우선순위와 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md), 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에서 관리한다. `docs/archieves/` 아래 문서는 히스토리 원문 스냅샷으로만 본다.
@@ -74,14 +74,14 @@
 | 모바일 렌더 부하 제어 | **반영됨** | 상태 기반 단일 스케줄러, idle 정지, 진행 중 30fps 제한, 완료 대기 12fps 제한, 초 단위 텍스트 갱신, reduced-motion 정적 렌더 |
 | `[이번 차의 느낌]` | **부분 반영** | 기록 바텀시트, 기본·커스텀 태그, 자유 문장·제목 수정, 세션 초안, 텍스트 복사, Canvas PNG 공유·다운로드까지 구현. IndexedDB 장기 저장·백업/복원·단어장·누적 기록 화면은 미구현 |
 | 제작자 반응 전송 | **반영됨** | 메인 화면에서는 제거하고 도움말의 박수 모달만 유지. Cloudflare Worker/D1에 `clap`·`down` 집계 |
-| PWA 캐시 갱신 | **반영됨** | `chahanjan-shell-v59`/`static-v59`, 문서 network-first + 정적 자산 cache-first, 이전 앱 캐시 정리 |
+| PWA 캐시 갱신 | **반영됨** | `chahanjan-shell-v60`/`static-v60`, 문서 network-first + 정적 자산 cache-first, 이전 앱 캐시 정리 |
 
 ### 2.2 주의할 불일치
 - 통합 전 `CLAUDE.md`에는 개완 뚜껑 열림이 적용된 것으로 적혀 있었으나, 현재 `index.html` 기준으로는 미작동이라 정정했다.
 - 이전 체크리스트에는 아이콘 PNG가 없다고 되어 있었으나, 현재 `icons/`에는 필요한 PNG가 있다. 로드맵에서 제거한다.
 - 통합 전 README의 "가로 스와이프로 차 전환" 표현은 현재 구현과 달랐다. 스와이프는 도구 히어로에만 적용되어 있어 README를 정정했다.
 - `차 느낌` 버튼은 현재 모든 상태에서 보이며 첫 우림 전에도 시트를 열 수 있다. 상시 노출을 유지하기로 결정했으며, [초안 보호 정책](design-tea-feeling.md#draft-policy)은 TW-03 구현 대기다. 시트를 자동으로 열지는 않는다.
-- 차 느낌 시트와 카드 미리보기는 현재 `dialog` 의미, 포커스 이동·복귀, Escape 닫기, 닫힌 레이어의 `inert` 처리가 없고 태그 칩의 높이도 30px라 44px 터치 기준을 충족하지 않는다. 구현 안정화 항목으로 `ROADMAP.md`에서 관리한다.
+- TW-02에서 시트·카드의 dialog·포커스·Escape·inert·44px 터치 영역을 반영했다. 입력 보존과 우림 완료 중 복귀는 [접근성 계약](design-tea-feeling.md#modal-accessibility)을 따르며 실제 스크린리더·OS IME 검증은 남아 있다.
 - TW-01에서 메인·설정의 저장 경계를 공통화했다. 커스텀 태그·빈 목록을 보존하고 농향 우롱·생보이·숙보이는 기존 메인 ID와 과거 설정 별칭을 호환한다. [저장 계약](data-portability.md#preferences-contract)을 따른다.
 
 ---
@@ -401,7 +401,7 @@ stage
 - 텍스트 복사는 차·다구·날짜·포별 시간·태그·문장을 일반 텍스트로 내보낸다. 카드 이미지는 680×900 Canvas PNG로 만들고 파일 공유가 가능하면 Web Share API를, 아니면 다운로드를 사용한다.
 - 사용자 입력이 없어도 자동 세션 정보만으로 텍스트와 카드를 내보낼 수 있다.
 - IndexedDB 기반 영구 기록 저장소와 `[차 열 잔의 기록]` 화면은 구현하지 않았다. 영구 보관은 현재 export가 담당한다.
-- 닫힌 시트의 포커스 차단, `dialog` 의미, Escape 닫기, 포커스 복귀, 태그 44px 유효 터치 영역은 아직 완료 기준을 충족하지 않는다.
+- 시트·카드의 중첩 포커스·닫기·입력 보존은 [접근성 계약](design-tea-feeling.md#modal-accessibility)을 따른다. 별도 카드 닫기는 공유를 실행하지 않으며 제목·태그·메모를 유지한다.
 
 ### 6.4 장기 기록·사용자 자산 확장 원칙 — 미구현
 
@@ -539,7 +539,8 @@ idle
 ### 8.1 반영된 기준
 - `#timeLabel`은 평소 `aria-live="polite"`, 완료 시 `assertive`로 전환한다.
 - 헤더의 선택 차·회차 정보는 시각적으로 숨긴 live region에서 보조기술에만 전달한다.
-- 주요 버튼과 아이콘 버튼은 44px 이상 터치 타깃을 가진다.
+- 주요 버튼과 아이콘 버튼은 44px 이상 터치 타깃을 가진다. 차 느낌 시트·카드의 태그·편집·닫기·공유에도 44×44px와 포커스 표시를 적용했다.
+- 시트·카드는 최상위 dialog 안에서만 Tab/Shift+Tab을 순환하고 닫으면 진입 버튼으로 복귀한다. 닫힌 창은 hidden/inert, 메인과 아래 창은 inert다.
 - `prefers-reduced-motion`이면 urgent animation과 플래시 animation을 끈다.
 - vessel/tea 셰브런 대비는 `--ink-dim`으로 보강되었다.
 - 색만으로 완료를 알리지 않고 숫자, 메시지, 소리, 플래시를 같이 쓴다.
@@ -668,7 +669,7 @@ idle
 
 개발 카테고리의 정의·경계·앱 철학과의 연결, 남은 작업과 우선순위, 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md)에서 관리한다. 날짜별 구현 상세와 관련 커밋은 [CHANGELOG.md](CHANGELOG.md)에 둔다. 이 문서는 현재 제품·디자인·구현 기준과 중요한 결정 이유를 설명하며, 개별 개발 로그를 중복해서 추가하지 않는다.
 
-2026-08-31에 대만 실사용을 위한 [Phase A 핵심 안정화 + D-1 번체 중국어 우선 처리](ROADMAP.md#taiwan-priority)를 정했다. 착수 전 단계에서 §6.5의 동작 계약을 결정했다. TW-01은 구현·로컬 검증 완료이며 TW-02–08은 구현 대기다. 현 구현은 여전히 한국어이고 기능별 브랜치에서 설계·구현·검증을 함께 진행한다.
+2026-08-31에 대만 실사용을 위한 [Phase A 핵심 안정화 + D-1 번체 중국어 우선 처리](ROADMAP.md#taiwan-priority)를 정했다. 착수 전 단계에서 §6.5의 동작 계약을 결정했다. TW-01·02는 구현·로컬 검증 완료이며 TW-03–08은 구현 대기다. 현 구현은 여전히 한국어이고 기능별 브랜치에서 설계·구현·검증을 함께 진행한다.
 
 ---
 

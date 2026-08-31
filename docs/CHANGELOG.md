@@ -1,13 +1,30 @@
 # 차 한 잔의 시간 · 변경 이력
 
 > 정리일: 2026-08-31
-> 구현 기준: `9425751` + [공통 토스트 C 반영](#common-toast)
+> 구현 기준: TW-01 설정 보존 + [TW-02 접근성·공통 알림](#tw-02-accessibility)
 
 이 문서는 당시 변경 내용과 구현 범위를 보존하는 개발 이력입니다. 현재 구현 상태와 현재 스펙은 [ROADMAP.md](ROADMAP.md) 및 [DESIGN.md](DESIGN.md)를 기준으로 하며, ROADMAP에는 이 문서의 해당 항목 링크만 둡니다. 상세 설계는 [design-tea-feeling.md](design-tea-feeling.md), [sensory-vocabulary.md](sensory-vocabulary.md), [data-portability.md](data-portability.md)에서 관리합니다.
 
 기존 로드맵의 주요 완료 내역을 옮긴 문서이며 전체 Git 이력을 나열한 것은 아닙니다. 완료일은 기존 로드맵 기준으로 보존하므로 관련 커밋의 작성일과 다를 수 있습니다.
 
 ## 기능 변경
+
+<a id="tw-02-accessibility"></a>
+
+### 2026-08-31 — TW-02 차 느낌 시트·카드 접근성
+
+시트와 카드에 이름 있는 dialog, 최상위 창의 Tab/Shift+Tab 순환, Escape 한 단계 닫기와 실제 진입 버튼 포커스 복귀를 적용했다. 닫힌 레이어는 hidden/inert, 열린 창 아래의 시트와 타이머는 inert로 조작을 막는다. 카드의 닫기 버튼을 공유·저장 버튼에서 분리했다. [접근성·입력 보존 계약](design-tea-feeling.md#modal-accessibility)을 기준으로 구현했다.
+
+제목 편집의 Enter/blur 중복 확정을 막고 원문 공백·이모지를 보존한다. 조합 중 Enter/Escape는 IME에 맡기며 닫기·카드 열기는 compositionend의 최종 입력 뒤 처리한다. 닫기·편집·태그·공유의 최소 조작 크기를 44×44px로 보강하고 태그 aria-pressed, 입력 이름과 포커스 표시, 긴 내용의 내부 스크롤을 추가했다. 타이머는 모달 아래에서도 계속되며 완료가 입력 포커스를 빼앗지 않는다. 창 안의 상태 안내와 타이머 복귀 버튼으로 출탕 조작에 돌아갈 수 있다. SW 캐시는 `v60`으로 준비했다.
+
+검증:
+
+- `node --test tests/preferences.test.cjs`: 기존 설정 보존 16개 통과. 인라인 JavaScript·SW 구문, 문서 링크·diff 확인.
+- 전용 서버 `python3 -m http.server 8134 --bind 127.0.0.1`에서 `tests/accessibility.html`: 실제 앱 iframe 회귀 35개 통과. 닫힌 창 접근 차단, 중첩 포커스·Escape·배경 닫기, 제목 원문·조합 최종 입력, 메모·태그 보존, 5초 우림→완료→복귀→출탕, 실제 680×900 PNG 생성·공유 취소 후 보존, 320px 긴 제목·메모·태그와 하단 조작 접근을 확인했다. 키와 IME는 합성 이벤트 테스트다.
+- 별도 실제 앱 탭에서 브라우저 키 입력으로 제목 편집 후 Tab 이동, Tab/Shift+Tab 순환과 연속 Escape 복귀를 확인했다. 375×660 시트·카드 렌더, 44px 버튼, 완료 시 메모 포커스 유지와 출탕 복귀, 브라우저 오류 없음도 확인했다.
+- 스크린샷·회귀 로그·PNG 원본은 Git 외부 작업 폴더 `/Users/kioku/.codex/visualizations/2026/08/31/01a055b0-8e12-73e2-ba94-91ae80e61456`의 `tw02-*`에 보관했다.
+
+TW-02는 앞서 반영한 [공통 알림 C](#common-toast)와 함께 구현·로컬 검증을 마쳤다. 실제 모바일 브라우저/설치형 PWA, OS 한글 IME, VoiceOver/TalkBack, 오프라인·오디오 조합은 미검증이며 최종 실사용 검증에 남긴다. `임시 저장`의 현재 동작·초안 삭제 확인·선택 잠금·완료 0포 표현은 TW-03, 번체/긴 내용의 PNG 조판은 TW-07 범위다. 원격 푸시·main 반영·배포는 하지 않았다.
 
 <a id="common-toast"></a>
 
