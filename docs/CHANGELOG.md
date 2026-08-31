@@ -24,6 +24,8 @@
 
 **남은 단계:** iPhone 의견함 입력·키보드 확인, 운영 DB migration·비밀키·Worker 활성화/배포, 서버 확인 후 공지 게시·GitHub Pages 배포와 HTTPS Safari/PWA 검증. 운영 설정은 `FEEDBACK_ENABLED=false`로 유지했다. `main` 반영·원격 푸시·운영 배포·정기 자동화 등록은 수행하지 않았다.
 
+서버·조회 도구 `fb40a8d`와 UI·설계·검증 `f469c14`를 `e44609e`에서 `codex/tw-readiness`에 병합했다. 통합 후 Node 67개·Worker 6개·Python 12개, 실제 5초 우림을 포함한 현지화 49개·의견함 31개를 다시 통과했다. 로컬 조회 도구가 새 번체 의견 한 건만 가져오고 다음 실행에서는 0건을 가져오면서 미보고 4건을 유지하는 것도 확인했다.
+
 <a id="help-reduced-motion"></a>
 
 ### 2026-08-31 — 이용 안내에 기기의 동작 줄이기 고지
