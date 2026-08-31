@@ -67,7 +67,9 @@ test('Traditional Chinese UI translations do not accidentally fall back to Hangu
   const legacyTags = new Set(tags.BUILTIN_IDS.filter(id => !id.startsWith('tw.')).map(id => `tag.${id}`));
   for (const key of catalogKeys(catalogFiles.ko)) {
     if (allowedHangul.has(key) || legacyTags.has(key)) continue;
-    assert.equal(/[\uac00-\ud7a3]/.test(i18n.t(key)), false, `${key}: ${i18n.t(key)}`);
+    // The introduction names the fixed Korean product; all other prose must be translated.
+    const text = key === 'help.intro' ? i18n.t(key).replace('차 한 잔의 시간', '') : i18n.t(key);
+    assert.equal(/[\uac00-\ud7a3]/.test(text), false, `${key}: ${i18n.t(key)}`);
   }
 });
 
