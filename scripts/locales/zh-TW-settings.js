@@ -3,7 +3,6 @@
   TeaI18n.register("zh-TW", {
     "settings.title": "個人設定 · 차 한 잔의 시간",
     "settings.back": "回到首頁",
-    "settings.help": "開啟使用說明",
     "settings.heading": "個人設定",
     "settings.subtitle": "Preferences",
     "settings.language": "語言",

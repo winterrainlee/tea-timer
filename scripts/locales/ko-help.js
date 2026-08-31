@@ -3,7 +3,6 @@
   TeaI18n.register("ko", {
     "help.title": "이용 안내 · 차 한 잔의 시간",
     "help.back": "처음으로",
-    "help.settings": "개인 설정 열기",
     "help.heading": "이용 안내",
     "help.section.guide": "사용법",
     "help.intro": "끓인 물을 붓고 나서 ‘지금 따라낼 때’를 놓치지 않게 도와주는 정갈한 타이머입니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 건네주세요. (광고·회원가입 없음, 오픈소스)",
