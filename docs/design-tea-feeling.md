@@ -151,7 +151,7 @@
 - `customTitle`, `sessionDraftTags`, `sessionDraftNote`는 JavaScript 메모리에만 둔다. 시트를 닫거나 `임시 저장`을 눌러도 현재 페이지와 세션 안에서는 유지되지만 새로고침·앱 재실행·`우림 끝` 뒤에는 사라진다.
 - `임시 저장`은 영구 저장이 아니라 현재 입력값을 세션 초안 변수에 반영하는 동작이다.
 - 사용자가 설정 페이지에서 편집한 감각 태그 목록은 `teaTimer.preferences.v1.customTags`에 저장한다.
-- 현재 메인 화면의 `savePreferences()`가 같은 키를 새 객체로 덮어쓸 때 `customTags`를 병합하지 않아 태그가 사라질 수 있다. 이 결함은 `ROADMAP.md`의 MVP 안정화 범위다.
+- TW-01에서 메인·설정의 필드별 저장을 공통화해 `customTags`와 빈 목록을 보존한다. 상세는 [설정 보존 계약](data-portability.md#preferences-contract)을 따른다.
 - 사용자 기록의 영구 보관은 현재 텍스트 복사와 PNG 공유·다운로드가 담당한다.
 
 ### 6.2 확장 방향: 초안 보호와 명시적 장기 저장 · 미구현

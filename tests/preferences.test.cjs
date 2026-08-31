@@ -180,13 +180,16 @@ test('storage get, set, and remove failures never throw or report success', () =
 });
 
 test('unknown locale and tagItems fields, including nested values, survive unrelated edits', () => {
-  const extra = { locale: 'zh-Hant', tagItems: [{ id: 'sweet', label: { raw: '甜' } }], nested: { keep: ['原文'] } };
-  const { storage, store } = storeFor(payload(extra));
-  assert.equal(store.patch({ muted: true }).ok, true);
-  const saved = JSON.parse(storage.raw());
-  assert.deepEqual(saved.locale, extra.locale);
-  assert.deepEqual(saved.tagItems, extra.tagItems);
-  assert.deepEqual(saved.nested, extra.nested);
+  for (const tagItems of [[], [{ kind: 'builtin', id: 'taste.sweet' }, { kind: 'custom', text: '單味' }], { future: ['原文'] }, null]) {
+    const extra = { locale: 'zh-TW', tagItems, nested: { keep: ['原文'] } };
+    const { storage, store } = storeFor(payload(extra));
+    assert.equal(store.patch({ muted: true }).ok, true);
+    assert.equal(store.patch({ secDeltaByTea: { green: 3 } }).ok, true);
+    const saved = JSON.parse(storage.raw());
+    assert.deepEqual(saved.locale, extra.locale);
+    assert.deepEqual(saved.tagItems, extra.tagItems);
+    assert.deepEqual(saved.nested, extra.nested);
+  }
 });
 
 test('malformed delta containers remain raw until an explicit canonical edit replaces them', () => {
@@ -201,8 +204,9 @@ test('malformed delta containers remain raw until an explicit canonical edit rep
 });
 
 test('undefined delta entries and invalid patches leave the raw payload unchanged', () => {
-  const before = payload({ secDeltaByTea: { green: 2, extra: undefined } });
+  const before = payload({ secDeltaByTea: { green: 2, undefined: 8 } });
   const { storage, store } = storeFor(before);
+  assert.deepEqual(store.read().values.secDeltaByTea, { green: 2 });
   assert.equal(store.patch({ secDeltaByTea: { green: undefined } }).reason, 'invalid');
   assert.equal(storage.raw(), before);
   assert.equal(store.patch({ unknown: true }).reason, 'invalid');
@@ -222,12 +226,18 @@ test('each alias conflict and invalid canonical value resets both keys explicitl
 });
 
 test('getStorage factory failure is contained and never followed by a write', () => {
-  let writes = 0;
   const store = createStore(() => { throw new Error('factory'); });
   assert.deepEqual(store.read().values.secDeltaByTea, {});
   assert.equal(store.read().reason, 'storage');
   assert.doesNotThrow(() => store.patch({ muted: true }));
   assert.equal(store.patch({ muted: true }).ok, false);
+  assert.equal(store.reset().ok, false);
+  let writes = 0;
+  const readFault = createStore(() => ({
+    getItem() { throw new Error('read denied'); },
+    setItem() { writes++; },
+  }));
+  assert.equal(readFault.patch({ muted: true }).ok, false);
   assert.equal(writes, 0);
 });
 
