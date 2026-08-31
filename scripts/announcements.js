@@ -11,6 +11,7 @@ const TeaAnnouncements = (() => {
           { id: "feeling-words", titleKey: "announcements.wordsTitle", bodyKey: "announcements.wordsBody" },
           { id: "chinese-locales", titleKey: "announcements.languageTitle", bodyKey: "announcements.languageBody" },
           { id: "creator-feedback", titleKey: "announcements.feedbackTitle", bodyKey: "announcements.feedbackBody" },
+          { id: "offline-usage", titleKey: "announcements.offlineTitle", bodyKey: "announcements.offlineBody" },
         ].map(Object.freeze)),
       }),
     ]),

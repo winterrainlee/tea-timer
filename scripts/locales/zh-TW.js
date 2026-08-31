@@ -139,6 +139,8 @@ TeaI18n.register("zh-TW", {
   "announcements.languageBody": "多語言支援的第一步，提供繁體中文與簡體中文。可以從主畫面右上角選擇韓文、繁體中文或簡體中文。",
   "announcements.feedbackTitle": "新增傳訊息給製作者功能",
   "announcements.feedbackBody": "現在可以在「使用說明」傳訊息給製作者。歡迎分享使用心得或遇到的不便，作為後續改善的參考。",
+  "announcements.offlineTitle": "離線使用功能",
+  "announcements.offlineBody": "連上網路開啟一次後，即使開啟飛航模式，也能泡茶並記下喝茶心得。",
   "announcements.plannedStatus": "檢視中 · 發布日期未定",
   "notice.readingSteeping": "正在浸泡。閱讀時，計時器仍會繼續。",
   "tag.custom": "我的詞",

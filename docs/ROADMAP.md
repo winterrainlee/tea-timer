@@ -18,6 +18,8 @@ Phase A 전체 완료나 Phase B·C의 장기 저장·백업을 기다리지 않
 
 **진행 상태(2026-08-31):** 통합 브랜치 `codex/tw-readiness`에서 [개발 흐름](../AGENTS.md)에 따라 기능별 분기·검증·병합한다. TW-01–03과 [TW-05 한국어 공통 기반·UI](CHANGELOG.md#tw-05-close), [TW-06 번체 문구·독립 기본 단어](CHANGELOG.md#tw-06-traditional-chinese), [간체 카탈로그·독립 기본 단어·의견함 확장](CHANGELOG.md#simplified-chinese-local)을 구현·로컬 검증·통합했다. TW-07 A안 카드 조판도 구현·로컬 검증했다([기록](CHANGELOG.md#tw-07-balanced-card)). 운영 의견함은 `FEEDBACK_ENABLED=true`로 활성화하고 curl 검증까지 완료했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready)). 공지 4개는 `tw-readiness-2026-08-31` 첫 releases 묶음과 SW v83으로 배포했고 `main`·`origin/main` 및 GitHub Pages `built` 상태를 확인했다([Pages 배포 기록](CHANGELOG.md#tw-pages-deployed)). 공개 브라우저의 핵심 흐름은 확인했으며 실기기/PWA 검증과 현지인 검수는 남아 있다. TW-04는 [실사용 수요에 따라 보류](DESIGN.md#early-pour-policy)한다.
 
+사용자의 비행기 모드 실행 확인을 받고 [오프라인 안내를 공지·이용 안내에 추가](CHANGELOG.md#offline-usage-copy)했다. 첫 배포 묶음은 안내 보완을 포함해 5개 항목이며 캐시 갱신은 v84다. 이 사용자 확인만으로 세 언어·Safari/PWA 전체 검증을 완료 처리하지 않는다.
+
 ### 우선 아이템과 완료 확인
 
 | 순서 | 아이템 | 주분류 | 완료 확인 |

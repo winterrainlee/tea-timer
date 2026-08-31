@@ -15,8 +15,8 @@ document.getElementById('run').onclick = async () => {
   const paths = ['index.html', 'settings.html', 'help.html', 'styles/ui.css', 'styles/feedback.css', 'scripts/feedback.js', 'scripts/preferences.js', 'scripts/tags.js', 'scripts/i18n.js', 'scripts/announcements.js', 'scripts/card-layout.js', 'scripts/locales/ko.js', 'scripts/locales/ko-settings.js', 'scripts/locales/ko-help.js', 'scripts/locales/zh-TW.js', 'scripts/locales/zh-TW-settings.js', 'scripts/locales/zh-TW-help.js', 'scripts/locales/zh-CN.js', 'scripts/locales/zh-CN-settings.js', 'scripts/locales/zh-CN-help.js'];
   try {
     const keys = await caches.keys();
-    const shellName = keys.find(key => key === 'chahanjan-shell-v83');
-    if (!shellName) throw new Error('v83 shell 캐시 없음: ' + keys.join(', '));
+    const shellName = keys.find(key => key === 'chahanjan-shell-v84');
+    if (!shellName) throw new Error('v84 shell 캐시 없음: ' + keys.join(', '));
     const cache = await caches.open(shellName);
     const lines = [];
     for (const path of paths) {
