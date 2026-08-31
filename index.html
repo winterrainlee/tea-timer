@@ -1212,6 +1212,9 @@
     /* Toast Notification */
     .toast {
       position: fixed;
+      width: max-content;
+      max-width: calc(100vw - 2rem);
+      text-align: center;
       top: 1.5rem;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
@@ -1566,7 +1569,7 @@
     </footer>
   </div>
   <div class="flash" id="flash"></div>
-  <div class="toast" id="toast">복사되었습니다</div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- Bottom Sheet Component for Tea Feeling Note -->
   <div class="sheet-backdrop" id="sheetBackdrop">
@@ -1623,6 +1626,7 @@
     </div>
   </div>
 
+  <script src="scripts/preferences.js"></script>
   <script>
     (() => {
       const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
@@ -1668,30 +1672,8 @@
         { id: "mug", name: "머그", label: "머그컵 · 도자 · 윗면만 보임", family: "cup", culture: "casual", material: "porcelain", silhouette: "tall-cup", vis: "top", round: false, readoutTop: "18%", done: "glow", completion: "드세요 · 出湯", asset: "assets/vessels/mug.png", requiresSeparationAction: false },
         { id: "piaoyibei", name: "표일배", label: "표일배 飄逸杯 · 유리 · 버튼 배수", family: "separator", culture: "gongfu", material: "glass", silhouette: "silhouette", vis: "chamber", round: false, readoutTop: "18%", done: "button", completion: "버튼 눌러 내리세요 · 出湯", asset: "assets/vessels/piaoyibei-glass.png", requiresSeparationAction: true, steepOffset: 5 },
       ];
-      const PREF_KEY = "teaTimer.preferences.v1", PREF_VERSION = 1;
-      function loadPreferences() {
-        const fallback = { lastVesselId: "gaiwan", lastTeaId: "oolong", secDeltaByTea: {}, muted: false };
-        try {
-          const parsed = JSON.parse(localStorage.getItem(PREF_KEY));
-          if (!parsed || parsed.version !== PREF_VERSION) return fallback;
-          const vesselOk = VESSELS.some(v => v.id === parsed.lastVesselId);
-          const teaOk = TEAS.some(t => t.id === parsed.lastTeaId);
-          const deltas = {};
-          if (parsed.secDeltaByTea && typeof parsed.secDeltaByTea === "object") {
-            TEAS.forEach(t => {
-              const value = parsed.secDeltaByTea[t.id];
-              if (Number.isInteger(value) && Math.abs(value) <= 115) deltas[t.id] = value;
-            });
-          }
-          return {
-            lastVesselId: vesselOk ? parsed.lastVesselId : fallback.lastVesselId,
-            lastTeaId: teaOk ? parsed.lastTeaId : fallback.lastTeaId,
-            secDeltaByTea: deltas,
-            muted: typeof parsed.muted === "boolean" ? parsed.muted : fallback.muted,
-          };
-        } catch (e) { return fallback; }
-      }
-      const preferences = loadPreferences();
+      const preferenceStore = TeaPreferences.createStore();
+      const preferences = preferenceStore.read().values;
       const secDeltaByTea = { ...preferences.secDeltaByTea };
       const VICONS = {
         teapot: '<ellipse cx="20" cy="27" rx="12" ry="9"/><path d="M8 24 L2 21 L4 25 L10 28"/><path d="M32 24 C37 24 37 31 32 32"/><path d="M13 18 Q20 14 27 18"/><circle cx="20" cy="15" r="1.6"/>',
@@ -1723,17 +1705,13 @@
       const vesselSteepOffset = () => vessel().steepOffset || 0;
       const recommendedSecFor = n => clamp(tea().base + tea().add * (n - 1) + vesselSteepOffset(), 5, 120);
       const adjustedSecFor = n => clamp(recommendedSecFor(n) + (secDeltaByTea[tea().id] || 0), 5, 120);
-      function savePreferences() {
-        try {
-          localStorage.setItem(PREF_KEY, JSON.stringify({
-            version: PREF_VERSION, lastVesselId: vesselId, lastTeaId: tea().id,
-            secDeltaByTea, muted,
-          }));
-        } catch (e) { }
+      function savePreferences(changes) {
+        const result = preferenceStore.patch(changes);
+        if (!result.ok) showToast("기기에 저장하지 못했습니다. 이번 화면에서만 적용됩니다.", 5000);
       }
       function rememberTimeAdjustment() {
         secDeltaByTea[tea().id] = sec - recommendedSecFor(infusion);
-        savePreferences();
+        savePreferences({ secDeltaByTea: { [tea().id]: secDeltaByTea[tea().id] } });
       }
       function fitPoint(id, x, y) {
         const t = VESSEL_FITS[id];
@@ -2155,7 +2133,7 @@
           }
           vesselId = nextVessel.id;
           $("v-" + nextVessel.id).style.visibility = "";
-          savePreferences();
+          savePreferences({ lastVesselId: vesselId });
           reset({ allowWhileVesselLoading: true }); buildSegState();
           // 새 SVG가 한 프레임 표시된 뒤 이전 href를 놓아 빈 프레임 없이 메모리 반환을 허용한다.
           await waitForCommittedPaint();
@@ -2178,7 +2156,7 @@
           return;
         }
         teaIdx = (i + TEAS.length) % TEAS.length; paintTea();
-        savePreferences();
+        savePreferences({ lastTeaId: tea().id });
         if (phase === "idle" || phase === "done") reset();
       }
 
@@ -2561,43 +2539,23 @@
       }
 
       // ---- Tea Feeling Notes & Preferences ----
-      const DEFAULT_TAGS = ["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"];
-      let customTags = [...DEFAULT_TAGS];
+      const customTags = preferences.customTags;
       let customTitle = "";
       let sessionDraftNote = "";
       let sessionDraftTags = [];
-
-      function loadPreferencesExt() {
-        try {
-          const raw = localStorage.getItem(PREF_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed.customTags) && parsed.customTags.length > 0) {
-              customTags = parsed.customTags;
-            }
-          }
-        } catch (e) { }
-      }
-      function savePreferencesExt() {
-        try {
-          const raw = localStorage.getItem(PREF_KEY);
-          const parsed = raw ? JSON.parse(raw) : {};
-          parsed.customTags = customTags;
-          localStorage.setItem(PREF_KEY, JSON.stringify(parsed));
-        } catch (e) { }
-      }
-      loadPreferencesExt();
 
       function getTeaEmoji(name) {
         if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
         return '🍃';
       }
 
-      function showToast(msg) {
+      let toastTimer;
+      function showToast(msg, duration = 2200) {
         const toast = $("toast");
         toast.textContent = msg;
         toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2200);
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), duration);
       }
 
       // Render Tags Grid
@@ -2982,7 +2940,7 @@ ${emoji} ${rawName}
         const label = muted ? "소리 켜기" : "소리 끄기";
         this.setAttribute("aria-label", label);
         if ($("muteText")) $("muteText").textContent = label;
-        savePreferences();
+        savePreferences({ muted });
         if (muted) { clearAudioSuspend(); stopActiveAudio(); if (actx && actx.state === "running") void actx.suspend().catch(() => { }); }
         else void tone(880, .5, .12);
       };

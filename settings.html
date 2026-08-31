@@ -23,7 +23,7 @@
     color:var(--ink); font-family:"Gowun Batang",serif; -webkit-tap-highlight-color:transparent;
   }
   .page{
-    width:min(100vw,460px); min-height:100vh; margin:0 auto;
+    width:min(100%,460px); min-height:100vh; margin:0 auto;
     padding:calc(.85rem + env(safe-area-inset-top)) 1.1rem calc(1.1rem + env(safe-area-inset-bottom));
     display:flex; flex-direction:column; gap:1.25rem;
   }
@@ -74,7 +74,7 @@
   .tea-label { font-size: 0.92rem; color: var(--ink); display: flex; align-items: center; gap: 0.35rem; }
   .tea-controls { display: flex; align-items: center; gap: 0.4rem; }
   .btn-step {
-    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+    width: 44px; height: 44px; flex: none; border-radius: 50%; border: 1px solid var(--line);
     background: rgba(255,255,255,0.04); color: var(--ink); font-family: inherit; font-size: 1.05rem;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
@@ -82,17 +82,17 @@
   .time-disp { font-family: "Space Mono", monospace; font-size: 0.94rem; color: var(--gold-soft); min-width: 44px; text-align: center; }
   .delta-hint { font-size: 0.75rem; color: var(--ink-dim); }
   .btn-restore-single {
-    font-size: 0.74rem; color: var(--gold-soft); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0 0.2rem;
+    font-size: 0.74rem; color: var(--gold-soft); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0 0.2rem; min-width: 44px; min-height: 44px;
   }
 
   /* Custom Tags UI */
   .tag-edit-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
   .tag-edit-chip {
     padding: 0.25rem 0.65rem; border-radius: 4px; background: rgba(205,191,99,0.16); color: var(--gold-soft);
-    font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;
+    max-width: 100%; overflow-wrap: anywhere; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;
   }
   .btn-del-tag {
-    background: none; border: none; color: var(--ink-dim); cursor: pointer; font-size: 0.88rem; line-height: 1; padding: 0 2px;
+    background: none; border: none; color: var(--ink-dim); cursor: pointer; font-size: 0.88rem; line-height: 1; padding: 0 2px; min-width: 44px; min-height: 44px; flex: none;
   }
   .btn-del-tag:hover { color: #ff8888; }
   
@@ -115,6 +115,18 @@
     display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.15s;
   }
   .preference-reset:active{ color:var(--gold-soft); border-color:var(--gold); }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+  button:disabled { opacity: .4; cursor: default; }
+  .preference-save-status:empty { position: absolute; width: 1px; height: 1px; overflow: hidden; margin: 0; }
+  .preference-save-status:not(:empty) {
+    position: sticky; top: .5rem; z-index: 2; padding: .75rem; margin: 0;
+    border: 1px solid var(--gold-line); border-radius: 8px;
+    background: var(--bg-1); color: var(--gold-soft); font-size: .85rem;
+  }
+  @media (max-width: 420px) {
+    .tea-time-row { align-items: stretch; flex-direction: column; gap: .4rem; }
+    .tea-controls { justify-content: space-between; }
+  }
 </style>
 </head>
 <body>
@@ -130,6 +142,7 @@
   </header>
 
   <main>
+    <p id="preferenceSaveStatus" class="preference-save-status" role="status" aria-live="polite"></p>
     <section class="storage-notice" aria-labelledby="storageNoticeTitle">
       <span class="storage-notice-title" id="storageNoticeTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2h4l5 4V7l-5 4H3z" /><path d="M16 9a4 4 0 0 1 0 6" /><path d="M18.5 6.5a7 7 0 0 1 0 11" /></svg>주의해 주세요</span>
       <p>이 설정은 현재 기기의 브라우저에만 저장됩니다. 사이트 데이터 삭제, 시크릿 모드 사용, 브라우저·앱 재설치 또는 기기 변경 시 초기화될 수 있습니다. <strong>일반적인 앱 업데이트에서는 유지됩니다.</strong></p>
@@ -152,7 +165,7 @@
         <!-- JS 렌더링 -->
       </div>
       <div class="add-tag-row">
-        <input type="text" class="input-new-tag" id="newTagInput" placeholder="새 단어 입력 (예: 빙탕, 훈연향)" maxlength="10">
+        <input type="text" class="input-new-tag" id="newTagInput" aria-label="새 감각 단어" placeholder="새 단어 입력 (예: 빙탕, 훈연향)" maxlength="10">
         <button type="button" class="btn-add-tag" id="addTagBtn">+ 추가</button>
       </div>
       <button type="button" class="preference-reset" id="restoreTagsBtn">🔄 기본 14종 단어로 복원</button>
@@ -161,7 +174,7 @@
     <!-- 로컬 설정 전체 초기화 -->
     <div class="pref-card">
       <span class="pref-title">🗑️ 데이터 초기화</span>
-      <p style="margin-bottom:0.5rem; font-size:0.84rem;">마지막으로 고른 차와 다구, 차별 시간 보정, 커스텀 태그를 모두 지우고 초기 상태로 돌아갑니다.</p>
+      <p style="margin-bottom:0.5rem; font-size:0.84rem;">마지막으로 고른 차와 다구, 차별 시간 보정, 소리 설정, 커스텀 태그를 모두 지우고 초기 상태로 돌아갑니다.</p>
       <button class="preference-reset" id="preferenceReset">기억한 설정 지우기</button>
       <p id="preferenceResetStatus" role="status" aria-live="polite" style="margin-top:0.4rem; font-size:0.8rem; color:var(--gold-soft);"></p>
     </div>
@@ -170,123 +183,99 @@
   <div class="foot">차 한 잔의 시간 · Time for Tea</div>
 </div>
 
+<script src="scripts/preferences.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const PREF_KEY = "teaTimer.preferences.v1";
-  
-  const DEFAULT_TAGS = ["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"];
+  const preferenceStore = TeaPreferences.createStore();
+  const DEFAULT_TAGS = TeaPreferences.DEFAULT_TAGS;
   const TEAS_DATA = [
     { id: "green", name: "녹차", base: 15, emoji: "🌱" },
     { id: "white", name: "백차", base: 30, emoji: "🤍" },
     { id: "oolong", name: "청향 우롱", base: 20, emoji: "🍃" },
-    { id: "dark-oolong", name: "농향 우롱", base: 20, emoji: "🍂" },
+    { id: "nong", name: "농향 우롱", base: 20, emoji: "🍂" },
     { id: "black", name: "홍차", base: 12, emoji: "☕" },
-    { id: "sheng-puer", name: "보이 생차", base: 15, emoji: "🍵" },
-    { id: "shou-puer", name: "보이 숙차", base: 20, emoji: "🤎" }
+    { id: "sheng", name: "보이 생차", base: 15, emoji: "🍵" },
+    { id: "shou", name: "보이 숙차", base: 20, emoji: "🤎" }
   ];
 
-  let prefs = {
-    version: 1,
-    secDeltaByTea: {},
-    customTags: [...DEFAULT_TAGS]
-  };
-
-  function loadPrefs() {
-    try {
-      const raw = localStorage.getItem(PREF_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        prefs = { ...prefs, ...parsed };
-        if (!prefs.secDeltaByTea) prefs.secDeltaByTea = {};
-        if (!Array.isArray(prefs.customTags) || prefs.customTags.length === 0) {
-          prefs.customTags = [...DEFAULT_TAGS];
-        }
-      }
-    } catch(e) {}
+  let prefs = preferenceStore.read().values;
+  const unsavedFields = new Set();
+  const clampTime = value => Math.max(5, Math.min(120, value));
+  function savePrefs(changes) {
+    const result = preferenceStore.patch(changes);
+    const keys = Object.keys(changes).flatMap(key => key === "secDeltaByTea"
+      ? Object.keys(changes[key]).map(id => `time:${id}`) : [key]);
+    keys.forEach(key => result.ok ? unsavedFields.delete(key) : unsavedFields.add(key));
+    $("preferenceSaveStatus").textContent = unsavedFields.size
+      ? "기기에 저장하지 못했습니다. 이번 화면에서만 적용됩니다." : "";
+    $("preferenceResetStatus").textContent = "";
   }
 
-  function savePrefs() {
-    try {
-      localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-    } catch(e) {}
-  }
-
-  loadPrefs();
-
-  // Render Tea Times List
-  function renderTeaTimes() {
+  // Re-rendered controls keep keyboard focus on the same tea/action.
+  function renderTeaTimes(focusId) {
     const list = $("teaTimeList");
-    list.innerHTML = "";
+    list.replaceChildren();
     TEAS_DATA.forEach(tea => {
       const delta = prefs.secDeltaByTea[tea.id] || 0;
-      const currentSec = tea.base + delta;
-
+      const currentSec = clampTime(tea.base + delta);
       const row = document.createElement("div");
       row.className = "tea-time-row";
-
       const label = document.createElement("div");
       label.className = "tea-label";
-      label.innerHTML = `<span>${tea.emoji} ${tea.name}</span>`;
-
+      label.textContent = `${tea.emoji} ${tea.name}`;
       const controls = document.createElement("div");
       controls.className = "tea-controls";
-
-      const decBtn = document.createElement("button");
-      decBtn.className = "btn-step";
-      decBtn.textContent = "−";
-      decBtn.onclick = () => {
-        prefs.secDeltaByTea[tea.id] = delta - 1;
-        savePrefs();
-        renderTeaTimes();
-      };
-
+      function stepButton(direction, symbol) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn-step";
+        button.id = `${tea.id}-${direction < 0 ? 'decrease' : 'increase'}`;
+        button.textContent = symbol;
+        button.setAttribute("aria-label", `${tea.name} 우림 시간 1초 ${direction < 0 ? '줄이기' : '늘리기'}`);
+        button.disabled = direction < 0 ? currentSec <= 5 : currentSec >= 120;
+        button.onclick = () => {
+          prefs.secDeltaByTea[tea.id] = clampTime(currentSec + direction) - tea.base;
+          savePrefs({ secDeltaByTea: { [tea.id]: prefs.secDeltaByTea[tea.id] } });
+          renderTeaTimes(button.id);
+        };
+        return button;
+      }
       const timeDisp = document.createElement("span");
       timeDisp.className = "time-disp";
       timeDisp.textContent = `${currentSec}초`;
-
-      const incBtn = document.createElement("button");
-      incBtn.className = "btn-step";
-      incBtn.textContent = "+";
-      incBtn.onclick = () => {
-        prefs.secDeltaByTea[tea.id] = delta + 1;
-        savePrefs();
-        renderTeaTimes();
+      const restoreButton = document.createElement("button");
+      restoreButton.type = "button";
+      restoreButton.className = "btn-restore-single";
+      restoreButton.id = `${tea.id}-restore`;
+      restoreButton.textContent = "기본값";
+      restoreButton.setAttribute("aria-label", `${tea.name} 우림 시간 기본값 복원`);
+      restoreButton.onclick = () => {
+        delete prefs.secDeltaByTea[tea.id];
+        savePrefs({ secDeltaByTea: { [tea.id]: null } });
+        renderTeaTimes(restoreButton.id);
       };
-
-      controls.appendChild(decBtn);
-      controls.appendChild(timeDisp);
-      controls.appendChild(incBtn);
-
       if (delta !== 0) {
         const hint = document.createElement("span");
         hint.className = "delta-hint";
         hint.textContent = `(${delta > 0 ? '+' : ''}${delta}초)`;
-
-        const restoreSingleBtn = document.createElement("button");
-        restoreSingleBtn.className = "btn-restore-single";
-        restoreSingleBtn.textContent = "기본값";
-        restoreSingleBtn.onclick = () => {
-          delete prefs.secDeltaByTea[tea.id];
-          savePrefs();
-          renderTeaTimes();
-        };
-
-        controls.appendChild(hint);
-        controls.appendChild(restoreSingleBtn);
+        label.appendChild(hint);
       }
-
-      row.appendChild(label);
-      row.appendChild(controls);
+      controls.append(stepButton(-1, "−"), timeDisp, stepButton(1, "+"), restoreButton);
+      row.append(label, controls);
       list.appendChild(row);
     });
+    if (focusId) {
+      const target = $(focusId);
+      (target.disabled ? $(focusId.replace(/-(decrease|increase)$/, "-restore")) : target).focus();
+    }
   }
 
   // Render Tag Edits
   function renderTagEdits() {
     const grid = $("tagEditGrid");
     grid.innerHTML = "";
-    prefs.customTags.forEach(tag => {
+    prefs.customTags.forEach((tag, index) => {
       const chip = document.createElement("span");
       chip.className = "tag-edit-chip";
       chip.textContent = "#" + tag;
@@ -294,11 +283,14 @@
       const delBtn = document.createElement("button");
       delBtn.className = "btn-del-tag";
       delBtn.textContent = "✕";
-      delBtn.title = "삭제";
+      delBtn.type = "button";
+      delBtn.setAttribute("aria-label", `${tag} 단어 삭제`);
       delBtn.onclick = () => {
         prefs.customTags = prefs.customTags.filter(t => t !== tag);
-        savePrefs();
+        savePrefs({ customTags: prefs.customTags });
         renderTagEdits();
+        const buttons = grid.querySelectorAll("button");
+        (buttons[Math.min(index, buttons.length - 1)] || $("newTagInput")).focus();
       };
 
       chip.appendChild(delBtn);
@@ -311,18 +303,19 @@
     const val = input.value.trim().replace(/^#/, '');
     if (val && !prefs.customTags.includes(val)) {
       prefs.customTags.push(val);
-      savePrefs();
+      savePrefs({ customTags: prefs.customTags });
       renderTagEdits();
       input.value = "";
     }
   };
   $("newTagInput").onkeydown = (e) => {
-    if (e.key === "Enter") $("addTagBtn").click();
+    if (e.key === "Enter" && !e.isComposing) $("addTagBtn").click();
   };
 
   $("restoreTagsBtn").onclick = () => {
+    if (!confirm("개인 단어 목록을 지우고 기본 14종 단어로 복원할까요?")) return;
     prefs.customTags = [...DEFAULT_TAGS];
-    savePrefs();
+    savePrefs({ customTags: prefs.customTags });
     renderTagEdits();
   };
 
@@ -330,12 +323,18 @@
   renderTagEdits();
 
   $("preferenceReset").onclick = () => {
-    try{
-      localStorage.removeItem(PREF_KEY);
+    if (!confirm("마지막 차·다구, 시간 보정, 소리 설정과 모든 개인 태그를 지울까요? 이 작업은 되돌릴 수 없습니다.")) return;
+    const result = preferenceStore.reset();
+    if (result.ok) {
+      prefs = preferenceStore.read().values;
+      unsavedFields.clear();
+      $("preferenceSaveStatus").textContent = "";
+      $("newTagInput").value = "";
+      renderTeaTimes();
+      renderTagEdits();
       $("preferenceResetStatus").textContent = "모든 개인 설정이 초기화되었습니다.";
-      setTimeout(() => location.href="index.html", 1000);
-    }catch(e){
-      $("preferenceResetStatus").textContent = "설정을 지울 수 없습니다.";
+    } else {
+      $("preferenceResetStatus").textContent = "설정을 지울 수 없습니다. 기존 설정을 유지합니다.";
     }
   };
 })();
