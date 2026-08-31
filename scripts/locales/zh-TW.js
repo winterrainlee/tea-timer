@@ -125,6 +125,7 @@ TeaI18n.register("zh-TW", {
   "announcements.title": "公告",
   "announcements.datedTitle": "公告（{date}）",
   "announcements.close": "關閉公告",
+  "announcements.draft": "更新草稿",
   "announcements.released": "更新",
   "announcements.planned": "預定更新",
   "announcements.past": "過去更新",
