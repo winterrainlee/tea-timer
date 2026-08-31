@@ -35,7 +35,7 @@ test('locale defaults are independent and every Korean historical builtin remain
     'tw.taste.umami', 'tw.taste.sweet', 'tw.taste.salty', 'tw.taste.sour', 'tw.taste.bitter',
     'tw.mouthfeel.fresh', 'tw.mouthfeel.fine', 'tw.mouthfeel.astringent', 'tw.mouthfeel.full', 'tw.mouthfeel.aftertaste',
   ].map(id => ({ kind: 'builtin', id })));
-  assert.equal(TeaTags.BUILTIN_IDS.length, 40);
+  assert.equal(TeaTags.BUILTIN_IDS.length, 55);
   assert.equal(TeaTags.label({ kind: 'builtin', id: 'tw.mouthfeel.fine' }), '細膩');
   assert.equal(TeaTags.label({ kind: 'builtin', id: 'tw.taste.sweet' }, () => '단맛'), '甜');
 });

@@ -27,6 +27,7 @@
 
 - 통합 브랜치는 **`codex/tw-readiness`**다.
 - 현재 순서는 **TW-01 → TW-02 → TW-03 → TW-05 → TW-06 → TW-07 → TW-08**이다. TW-01–03·TW-05·TW-06은 구현·로컬 검증 후 통합했다. TW-06 결과와 미검증 범위는 [마감 기록](docs/CHANGELOG.md#tw-06-traditional-chinese)을 따른다. TW-07 A안 카드 조판도 구현·로컬 검증했다([기록](docs/CHANGELOG.md#tw-07-balanced-card)). TW-07 실기기 글꼴 확인, TW-08 실기기/PWA 검증과 배포는 남아 있다. 현지인 문구 검수는 배포 후 진행한다. TW-04는 실사용 수요 확인 후 재검토하는 보류 항목으로 이번 묶음의 선행 조건·완료 기준에서 제외한다. 상세 의존성과 사전 점검은 [구현 순서 검토](docs/tw-implementation-plan.md)를 따른다.
+- 2026-08-31 후속 승인으로 중국 대륙 간체(`zh-CN`)도 이번 배포 범위에 추가했다. [간체 확정 계약](docs/design-localization.md#simplified-chinese-review)과 [로컬 검증 기록](docs/CHANGELOG.md#simplified-chinese-local)을 따른다. 간체 실기기·현지인 검수와 운영 반영은 별도다.
 - 기능 브랜치 예: `codex/tw-01-preferences`, `codex/tw-02-accessibility`. 각 항목 착수 시 최신 통합 브랜치에서 생성한다.
 - TW-01 때 언어 설정·태그 호환 계약을 함께 검토하고, TW-05 초반에 번체 글꼴 사전 점검을 한다. 최종 TW-07·08 통합 검증을 대체하지 않는다.
 - 각 TW의 완료와 배포를 구분한다. 2026-08-31 사용자 결정에 따라 로컬 검증·배포 준비를 마친 뒤 GitHub Pages에 배포하고, HTTPS가 필요한 실기기 검증은 배포 후 수행한다. 임시 인증서는 설치하지 않는다. [검증 시점 계약](docs/design-localization.md#pages-device-validation)을 따르며, 전체 완료는 배포 후 TW-07·08 필수 검증까지 확인한 뒤 판단한다.

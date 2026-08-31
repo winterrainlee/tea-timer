@@ -308,7 +308,7 @@ stage
 
 구현됨. 앱을 다시 열었을 때 직전에 쓰던 차·다구·시간·음소거 상태에서 바로 시작한다. 우림 진행 상태와 기록은 복원하지 않는다.
 
-아래는 TW-01의 저장 기반에 TW-05 선택 필드를 추가한 구현 스펙이다. 저장 병합·빈 태그 목록·ID 호환 계약은 [데이터 보존 §4.1.1](data-portability.md#preferences-contract), 언어·태그 확장은 [다국어 설계](design-localization.md#locale-default-vocabulary)를 따른다. TW-05의 언어·태그 호환과 TW-06의 번체 전체 문구·언어별 기본 15개는 구현·로컬 검증 후 통합했다.
+아래는 TW-01의 저장 기반에 TW-05 선택 필드를 추가한 구현 스펙이다. 저장 병합·빈 태그 목록·ID 호환 계약은 [데이터 보존 §4.1.1](data-portability.md#preferences-contract), 언어·태그 확장은 [다국어 설계](design-localization.md#locale-default-vocabulary)를 따른다. TW-05의 언어·태그 호환과 TW-06의 번체 전체 문구·언어별 기본 15개는 구현·로컬 검증 후 통합했다. 이후 사용자 승인으로 중국 대륙 간체를 추가하며 [간체 기준과 독립 기본 목록](design-localization.md#simplified-chinese-review)을 따른다.
 
 핵심 원칙: **권장 시간은 권장일 뿐이고, 사용자가 직접 조정한 시간이 그 차의 기준이다.** 조정은 절대 초가 아니라 권장 대비 보정값(델타)으로 차별로 저장한다. 이렇게 하면 어느 포에서 조정하든 같은 보정으로 환산되어 이후 포와 다음 세션 1포에 일관되게 적용된다.
 
@@ -429,7 +429,7 @@ stage
 | 초안 경계 | 느낌 버튼 상시 노출, 내용이 있는 초안은 차·다구 선택 잠금, `우림 끝`에서 삭제 확인 | [차 느낌 §3.1](design-tea-feeling.md#draft-policy), TW-02의 dialog 기반 위 TW-03 |
 | 기록 표현 | 완료 0포를 그대로 표현, 공유 결과와 시트의 완료 기록 일치 | [차 느낌](design-tea-feeling.md#draft-policy), TW-03 |
 | 즉시 출탕 보류 | 현재 정상 완료·출탕 흐름 유지. 이전 설계는 재검토용으로 보존하고 이번 구현에서 제외 | [§7.4.1](#early-pour-policy), TW-04 보류 |
-| 언어 선택 | 메인 우상단·설정에서 `한국어` / `繁體中文（台灣）`, 우림 중 명시적 전환은 같은 문서에서 상태 보존. 기억한 선택 우선·기본 한국어·자동 감지 없음 | [언어별 기본 단어·원문 계약](design-localization.md#locale-default-vocabulary), [배치 설계](design-navigation.md), TW-05·06 |
+| 언어 선택 | 메인 우상단·설정에서 `한국어` / `繁體中文（台灣）` / `简体中文`, 우림 중 명시적 전환은 같은 문서에서 상태 보존. 기억한 선택 우선·기본 한국어·자동 감지 없음 | [언어별 기본 단어·원문 계약](design-localization.md#locale-default-vocabulary), [배치 설계](design-navigation.md), TW-05·06 |
 | 페이지 이동 | 활성 우림·완료 포·초안이 있으면 도움말/설정으로 현재 문서를 떠나는 동작 유예 | [이동 정책](design-localization.md#navigation-policy), 보호는 TW-03·언어 연동은 TW-05 |
 | 표시·배포 | 기존 제품명·설치명 유지, 일반 UI·공유 설명은 현지화, 글꼴 폴백과 새 자산 캐시 검증 | [다국어 설계](design-localization.md), TW-05–08 |
 

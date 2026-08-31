@@ -4,7 +4,7 @@
 > 구현 기준: TW-01–03·TW-05·TW-06 구현·로컬 검증·통합. [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese)
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 문서 역할: 앱 철학에 따른 개발 방향·카테고리·우선순위와 완료 아이템의 색인. 제품·디자인·현재 구현 기준은 [DESIGN.md](DESIGN.md)를 따르고, 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에 둔다.
-> 상세 설계: [차 느낌](design-tea-feeling.md), [감각 단어장](sensory-vocabulary.md), [사용자 데이터·백업](data-portability.md), [한국어·대만 번체](design-localization.md), [화면 배치·메뉴 표현](design-navigation.md).
+> 상세 설계: [차 느낌](design-tea-feeling.md), [감각 단어장](sensory-vocabulary.md), [사용자 데이터·백업](data-portability.md), [한국어·번체·간체](design-localization.md), [화면 배치·메뉴 표현](design-navigation.md).
 
 ---
 
@@ -37,6 +37,8 @@ TW-02의 [공통 토스트 C·문구 통일](CHANGELOG.md#common-toast)에 이�
 
 **첫 배포 공지 검토 후 추가 범위(2026-08-31):** 이름·연락처 없는 비공개 의견함과 이메일 대신 Codex 조회를 [구현·로컬 검증](CHANGELOG.md#creator-feedback-local)했다. [의견함 설계](creator-feedback.md)에 따라 이용 안내의 메시지 작성, AI 제작·검토 고지, Worker/D1 접수·비공개 조회, 로컬 조회 도구를 준비했다. 네 항목의 한국어·번체 공지 문구도 준비했으며 예정 항목은 ‘준비 중’으로 정리했다. 사용자가 의견함 동작을 확인했으며, 후속으로 [제작자 소개에 통합하고 문구를 정리](CHANGELOG.md#feedback-creator-section)했다. **남은 단계:** 운영 Worker/DB/비밀키 반영, 서버 확인 후 네 항목 공지 게시와 GitHub Pages 배포, 배포 후 HTTPS 실기기 검증. 정기 조회 자동화는 주기를 정할 때 별도로 등록한다.
 
+**간체 추가(2026-08-31):** 사용자 승인에 따라 중국 대륙 간체와 별도 기본 단어 15개·의견함을 [구현·로컬 검증](CHANGELOG.md#simplified-chinese-local)했다. 간체 실기기 확인은 배포 후 범위에 추가하며 영어·일본어는 후속으로 유지한다.
+
 TW-01의 설정 보존 계약을 TW-05에 반영하고, TW-05의 번역 키·기본 태그 구분 뒤 TW-06을 적용한다. TW-02·03의 새 문구도 번역 범위에 포함하며, 보류한 TW-04의 문구는 포함하지 않는다. 번체 문구 초안 검토는 안정화와 함께 진행할 수 있지만, TW-07·08은 통합된 버전으로 확인한다.
 
 ### 계약 상태 — TW-01–03 반영·TW-04 보류·TW-05 한국어 검토 완료·TW-06 통합 완료·TW-07 로컬 검증·TW-08 배포 후 검증 예정
@@ -46,7 +48,7 @@ TW-01의 설정 보존 계약을 TW-05에 반영하고, TW-05의 번역 키·기
 | 설정 보존 | v1 유지·필드 단위 패치, 빈 태그 목록 존중, 기존 차 ID와 설정 별칭 호환 | [저장 계약](data-portability.md#preferences-contract) |
 | 기록 경계 | 느낌 버튼 상시 노출, 내용 있는 초안은 차·다구 선택 잠금, `우림 끝`에서 삭제 확인, 완료 0포를 그대로 표시 | [차 느낌 정책](design-tea-feeling.md#draft-policy) |
 | 조기 출탕 보류 | 현재 정상 완료·출탕 흐름 유지. 이전 조기 출탕 계약은 재검토용으로 보존하며 이번 구현에는 적용하지 않음 | [보류 결정·이전 설계](DESIGN.md#early-pour-policy) |
-| 언어 전환 | 메인 우상단·설정에서 한국어/대만 번체 선택, 기억한 언어 우선·기본 한국어·자동 감지 없음. 우림 중 같은 문서의 명시적 전환 허용, 문서 이동은 보호 | [언어·이동 정책](design-localization.md#navigation-policy), [배치 설계](design-navigation.md) |
+| 언어 전환 | 메인 우상단·설정에서 한국어/대만 번체/중국 대륙 간체 선택, 기억한 언어 우선·기본 한국어·자동 감지 없음. 우림 중 같은 문서의 명시적 전환 허용, 문서 이동은 보호 | [언어·이동 정책](design-localization.md#navigation-policy), [배치 설계](design-navigation.md) |
 | 사용자 원문 | 새 기본 태그는 언어별 독립 ID, 기존 문자열과 사용자 원문은 보존, 차·다구 ID 전면 변경 없음 | [언어별 기본 단어 목록](design-localization.md#locale-default-vocabulary) |
 | 표시·배포 | 기존 제품명·설치명 유지, 공유 설명 현지화, CSS/Canvas 글꼴 폴백과 신규 자산 캐시 검증 | [다국어 설계](design-localization.md) |
 
@@ -56,7 +58,7 @@ TW-01의 설정 보존 계약을 TW-05에 반영하고, TW-05의 번역 키·기
 
 - **별도 검증**: 백그라운드 완료 신호 예약은 Phase A에 남기되 번체 지원의 선행 조건으로 묶지 않는다. 현재의 복귀 후 상태 보정·오디오 복구를 화면 잠금 중 완료음 보장으로 설명하지 않는다.
 - **후속 개선**: 차 캐러셀 스와이프, 개완 뚜껑, 회차별 탕색, 도구 전환 효과, 전체 폰트 셀프호스팅. 단, 번체 가독성과 기본 오프라인 사용에 필요한 폴백은 TW-07·08에서 확인한다.
-- **후속 확장**: 영어·간체·일본어, IndexedDB 장기 기록·자동 초안 복구·JSON 백업, 단어장·열 잔 회고·레시피. Phase B에서 필요한 문자열/ID 분리 일부만 번체 지원 범위로 앞당긴다.
+- **후속 확장**: 영어·일본어, IndexedDB 장기 기록·자동 초안 복구·JSON 백업, 단어장·열 잔 회고·레시피. Phase B에서 필요한 문자열/ID 분리 일부만 번체 지원 범위로 앞당긴다.
 
 ---
 
@@ -219,11 +221,11 @@ TW-05에는 언어 선택·기본 메뉴와 [공지사항](design-navigation.md#
 
 ### D-2 — 나머지 언어 확장
 
-영어·중국어 간체·일본어는 D-1 실사용 검증 이후 검토한다. 개인 단어장 등 아직 구현되지 않은 기능의 번역은 해당 기능 구현 때 추가한다.
+영어·일본어는 D-1 실사용 검증 이후 검토한다. 간체는 2026-08-31 추가 승인으로 이번 구현에 포함한다. 개인 단어장 등 아직 구현되지 않은 기능의 번역은 해당 기능 구현 때 추가한다.
 
-2026-08-31 사용자 요청에 따라 후속 지원을 위한 [언어별 줄바꿈 기준](ui-guidelines.md#locale-line-breaking)을 미리 정했다. 현재 언어 지원 범위나 구현 순서를 확대하지 않으며, 각 언어 착수 때 실제 번역·글꼴·공유 출력과 함께 검증한다.
+2026-08-31 사용자 요청에 따라 후속 지원을 위한 [언어별 줄바꿈 기준](ui-guidelines.md#locale-line-breaking)을 미리 정했다. 사전 기준만으로 지원 완료로 보지 않으며, 각 언어 착수 때 실제 번역·글꼴·공유 출력과 함께 검증한다.
 
-같은 날 간체를 중국 대륙의 표준 중국어·간체(`zh-CN`) 기준으로 정리하고, 번체와 함께 이번 배포에 포함하는 방안을 [추가 검토](design-localization.md#simplified-chinese-review)했다. 구현 착수와 이번 묶음의 범위 확대는 아직 확정하지 않았다.
+같은 날 사용자가 중국 대륙의 표준 중국어·간체(`zh-CN`)를 이번 배포에 함께 포함하도록 승인했다. [확정 계약](design-localization.md#simplified-chinese-review)에 따라 세 언어 선택, 별도 간체 기본 단어 15개, SC 글꼴·PNG·캐시·의견함을 확장한다. 실제 검증·통합 상태는 [간체 구현 기록](CHANGELOG.md#simplified-chinese-local)을 따른다. 배포와 간체 실기기·현지인 검수는 별도다.
 
 ### 공통 원칙
 

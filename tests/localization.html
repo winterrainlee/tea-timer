@@ -63,7 +63,7 @@
       for (const width of [320, 375]) {
         frame.style.width = width + 'px';
         const options = [...d.querySelectorAll('.language-option')].map(el => el.getBoundingClientRect());
-        check(width + 'px 언어 가로 정렬·44px 터치 영역·넘침 없음', options.every(rect => rect.height >= 44 && rect.width >= 44 && rect.top === options[0].top) && d.documentElement.scrollWidth <= width);
+        check(width + 'px 언어 선택 44px·필요시 줄바꿈·넘침 없음', options.every(rect => rect.height >= 44 && rect.width >= 44 && rect.left >= 0 && rect.right <= width) && d.documentElement.scrollWidth <= width);
       }
       click($('localeZhTw').closest('label'));
       check('언어 라벨 클릭은 하나만 선택하고 즉시 기억', !$('localeKo').checked && $('localeZhTw').checked && d.documentElement.lang === 'zh-TW' && JSON.parse(localStorage.getItem(KEY)).locale === 'zh-TW');

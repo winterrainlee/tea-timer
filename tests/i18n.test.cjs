@@ -9,6 +9,7 @@ const source = file => fs.readFileSync(path.join(root, file), 'utf8');
 const catalogFiles = {
   ko: ['scripts/locales/ko.js', 'scripts/locales/ko-settings.js', 'scripts/locales/ko-help.js'],
   'zh-TW': ['scripts/locales/zh-TW.js', 'scripts/locales/zh-TW-settings.js', 'scripts/locales/zh-TW-help.js'],
+  'zh-CN': ['scripts/locales/zh-CN.js', 'scripts/locales/zh-CN-settings.js', 'scripts/locales/zh-CN-help.js'],
 };
 
 function catalogKeys(files) {
@@ -44,22 +45,23 @@ test('Korean catalog loads in a browserless context and preserves literal placeh
   assert.equal(i18n.t('unknown.key'), 'unknown.key');
 });
 
-test('Traditional Chinese catalogs cover every Korean UI key and preserve placeholders', () => {
-  const { i18n } = loadCore('zh-TW', ['ko', 'zh-TW']);
+for (const locale of ['zh-TW', 'zh-CN']) {
+test(`${locale} catalogs cover every Korean UI key and preserve placeholders`, () => {
+  const { i18n } = loadCore(locale, ['ko', locale]);
   const koKeys = catalogKeys(catalogFiles.ko);
-  const zhKeys = catalogKeys(catalogFiles['zh-TW']);
+  const zhKeys = catalogKeys(catalogFiles[locale]);
   assert.deepEqual([...new Set(zhKeys)].sort(), [...new Set(koKeys)].sort());
   const placeholders = value => [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(match => match[1]).sort();
   for (const key of new Set(koKeys)) {
-    assert.deepEqual(placeholders(i18n.translate('zh-TW', key)), placeholders(i18n.translate('ko', key)), key);
+    assert.deepEqual(placeholders(i18n.translate(locale, key)), placeholders(i18n.translate('ko', key)), key);
   }
-  assert.equal(i18n.getLocale(), 'zh-TW');
+  assert.equal(i18n.getLocale(), locale);
   assert.equal(i18n.t('infusion.brew', { n: 3 }), '第3泡 {sec}秒');
   assert.equal(i18n.t('infusion.brew', { n: '<&>', sec: 20 }), '第<&>泡 20秒');
 });
 
-test('Traditional Chinese UI translations do not accidentally fall back to Hangul', () => {
-  const { i18n, tags } = loadCore('zh-TW', ['ko', 'zh-TW']);
+test(`${locale} UI translations do not accidentally fall back to Hangul`, () => {
+  const { i18n, tags } = loadCore(locale, ['ko', locale]);
   const allowedHangul = new Set([
     'settings.language.ko', 'common.product', 'settings.title', 'help.title',
     'export.heading', 'card.shareTitle', 'help.creator.name',
@@ -73,11 +75,11 @@ test('Traditional Chinese UI translations do not accidentally fall back to Hangu
   }
 });
 
-test('each app page loads its Traditional Chinese catalogs and caches those runtime assets', () => {
+test(`each app page loads and caches its ${locale} catalogs`, () => {
   const sw = source('sw.js');
   for (const [page, localeFile] of [['index.html', null], ['settings.html', 'settings'], ['help.html', 'help']]) {
     const html = source(page);
-    const required = ['scripts/locales/zh-TW.js', ...(localeFile ? [`scripts/locales/zh-TW-${localeFile}.js`] : [])];
+    const required = [`scripts/locales/${locale}.js`, ...(localeFile ? [`scripts/locales/${locale}-${localeFile}.js`] : [])];
     for (const asset of required) {
       assert.ok(html.includes(`src="${asset}"`), `${page}: ${asset}`);
       assert.ok(sw.includes(`"./${asset}"`), `cache: ${asset}`);
@@ -85,6 +87,8 @@ test('each app page loads its Traditional Chinese catalogs and caches those runt
     assert.doesNotMatch(html, /data-i18n="(?:settings\.)?language\.preview"/, page);
   }
 });
+
+}
 
 test('synthetic isolated catalog switches locale and falls back per missing key or placeholder', () => {
   const { i18n } = loadCore('not-supported');
@@ -136,4 +140,21 @@ test('product identity stays Korean while zh-TW draft wording refers to the whol
   assert.match(i18n.t('note.draftLifetime'), /這次泡茶/);
   assert.doesNotMatch(i18n.t('note.draftHint'), /這一泡/);
   assert.doesNotMatch(i18n.t('note.draftLifetime'), /這一泡/);
+});
+
+
+test('three-language font selection is snapshot-safe and matches DOM fallback stacks', () => {
+  const { i18n } = loadCore('ko', ['ko', 'zh-TW', 'zh-CN']);
+  const tc = i18n.fontFamily;
+  i18n.setLocale('zh-CN');
+  assert.match(i18n.fontFamily, /Songti SC/);
+  assert.notEqual(i18n.fontFamily, tc);
+  assert.equal(i18n.fontForLocale('zh-TW'), tc);
+  const sc = i18n.fontForLocale('zh-CN');
+  i18n.setLocale('zh-TW');
+  assert.equal(i18n.fontFamily, tc);
+  assert.equal(i18n.fontForLocale('zh-CN'), sc);
+  const css = source('styles/ui.css');
+  assert.ok(css.includes('--ui-font-text: ' + sc + ';'));
+  assert.ok(css.includes('--ui-font-text: ' + tc + ';'));
 });

@@ -8,6 +8,7 @@
     "settings.language": "언어",
     "settings.language.ko": "한국어",
     "settings.language.zhTW": "繁體中文（台灣）",
+    "settings.language.zhCN": "简体中文",
     "settings.storage.title": "주의사항",
     "settings.storage.body": "이 설정은 현재 기기의 브라우저에만 저장됩니다. 사이트 데이터 삭제, 시크릿 모드 사용, 브라우저·앱 재설치 또는 기기 변경 시 초기화될 수 있습니다.",
     "settings.storage.strong": "일반적인 앱 업데이트에서는 유지됩니다.",

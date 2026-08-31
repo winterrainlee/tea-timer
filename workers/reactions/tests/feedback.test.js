@@ -48,6 +48,20 @@ test("stores raw text and idempotently returns the original row", async () => {
   const conflict = await worker.fetch(request({ ...body, message: "changed" }), e); assert.equal(conflict.status, 409);
 });
 
+test("accepts zh-CN feedback and rejects unsupported locales", async () => {
+  const e = env();
+  const simplified = { app: "tea-timer", requestId: one, message: "请继续加油", locale: "zh-CN" };
+  const first = await worker.fetch(request(simplified), e);
+  const result = await first.json();
+  assert.equal(first.status, 200);
+  assert.equal(e.DB.messages[0].locale, "zh-CN");
+
+  const retry = await worker.fetch(request(simplified), e);
+  assert.deepEqual(await retry.json(), result);
+  assert.equal(e.DB.messages.length, 1);
+  assert.equal((await worker.fetch(request({ ...simplified, locale: "en" }), e)).status, 400);
+});
+
 test("simultaneous same-ID writes create exactly one row", async () => {
   const e = env(), body = { app: "tea-timer", requestId: one, message: "once", locale: "ko" };
   const responses = await Promise.all([worker.fetch(request(body), e), worker.fetch(request(body), e)]);

@@ -20,7 +20,7 @@
   html,body{ min-height:100%; }
   body{
     background:radial-gradient(120% 75% at 50% 18%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 84%);
-    color:var(--ink); font-family:"Gowun Batang","Noto Serif TC","Songti TC","PMingLiU","AppleMyungjo",serif; -webkit-tap-highlight-color:transparent;
+    color:var(--ink); font-family:var(--ui-font-text); -webkit-tap-highlight-color:transparent;
   }
 
   /* Preferences Item UI */
@@ -140,6 +140,7 @@
         <div class="language-options" role="radiogroup" aria-labelledby="languageTitle">
           <label class="language-option"><input type="radio" name="locale" id="localeKo" value="ko" data-locale="ko" checked><span data-i18n="settings.language.ko">한국어</span></label>
           <label class="language-option"><input type="radio" name="locale" id="localeZhTw" value="zh-TW" data-locale="zh-TW"><span data-i18n="settings.language.zhTW">繁體中文（台灣）</span></label>
+          <label class="language-option"><input type="radio" name="locale" id="localeZhCn" value="zh-CN" data-locale="zh-CN"><span data-i18n="settings.language.zhCN">简体中文</span></label>
         </div>
       </div>
     </details>
@@ -192,7 +193,9 @@
 <script src="scripts/locales/ko.js"></script>
 <script src="scripts/locales/ko-settings.js"></script>
 <script src="scripts/locales/zh-TW.js"></script>
+<script src="scripts/locales/zh-CN.js"></script>
 <script src="scripts/locales/zh-TW-settings.js"></script>
+<script src="scripts/locales/zh-CN-settings.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -224,8 +227,9 @@
   }
   function updateLanguageSelection() {
     const locale = TeaI18n.getLocale();
-    $("localeKo").checked = locale === "ko";
-    $("localeZhTw").checked = locale === "zh-TW";
+    document.querySelectorAll('input[name="locale"]').forEach(input => {
+      input.checked = input.value === locale;
+    });
   }
   function applyLocale() {
     if (isComposing) return;

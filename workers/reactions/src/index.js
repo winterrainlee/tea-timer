@@ -1,6 +1,6 @@
 const DEFAULT_ORIGIN = "https://winterrainlee.github.io";
 const VALID_REACTIONS = new Set(["clap", "down"]);
-const VALID_LOCALES = new Set(["ko", "zh-TW"]);
+const VALID_LOCALES = new Set(["ko", "zh-TW", "zh-CN"]);
 const MAX_BYTES = 8 * 1024;
 const RETENTION_DAYS = 90;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
