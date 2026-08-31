@@ -48,10 +48,6 @@
   .foot{ margin-top:auto; padding-top:1rem; color:var(--ink-faint); font-size:.78rem; line-height:1.6; text-align:center; }
 
   /* Preferences Item UI */
-  .pref-card {
-    background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px;
-    padding: 1rem 1.05rem; margin-bottom: 1rem;
-  }
   .pref-detail { margin-bottom: .35rem; }
   .pref-detail > summary {
     min-height:44px; list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -74,10 +70,13 @@
     margin: 0; font-size: 0.82rem; line-height: 1.7;
   }
   .storage-notice strong { color: var(--ink); font-weight: 700; }
-  .pref-title { font-size: 0.95rem; font-weight: 700; color: var(--gold-soft); margin-bottom: 0.85rem; display: block; }
-  .language-options { display:flex; flex-wrap:wrap; gap:.5rem; }
-  .language-option { min-height:44px; padding:0 .8rem; border:1px solid var(--line); border-radius:8px; background:transparent; color:var(--ink); font:inherit; cursor:pointer; }
-  .language-option[aria-pressed="true"] { color:var(--gold-soft); border-color:var(--gold); background:rgba(205,191,99,.12); }
+  .language-options { display:flex; flex-wrap:wrap; justify-content:center; gap:0 .8rem; }
+  .language-option { display:inline-flex; align-items:center; gap:.4rem; min-height:44px; padding:0 .2rem; color:var(--ink); font-size:.9rem; cursor:pointer; }
+  .language-option input { width:16px; height:16px; margin:0; accent-color:var(--gold); flex:none; cursor:pointer; }
+  .language-option input:checked + span { color:var(--gold-soft); }
+  .language-option:has(input:focus-visible) { outline:2px solid var(--gold-soft); outline-offset:2px; border-radius:4px; }
+  .language-option input:focus-visible { outline:none; }
+  .language-detail .pref-detail-body { padding:0; }
   .language-preview { margin:.65rem 0 0; color:var(--gold-soft); font-size:.8rem; }
   .tag-damaged { margin:0 0 .7rem; color:var(--gold-soft); font-size:.84rem; }
   .tag-kind { color:var(--ink-dim); font-size:.7rem; font-weight:400; }
@@ -158,19 +157,22 @@
   </header>
 
   <main>
-    <p id="preferenceSaveStatus" class="preference-save-status" role="status" aria-live="polite"></p>
-    <div class="pref-card" aria-labelledby="languageTitle">
-      <span class="pref-title" id="languageTitle" data-i18n="settings.language">언어</span>
-      <div class="language-options" role="group" aria-labelledby="languageTitle">
-        <button type="button" class="language-option" id="localeKo" data-locale="ko" data-i18n="settings.language.ko">한국어</button>
-        <button type="button" class="language-option" id="localeZhTw" data-locale="zh-TW" data-i18n="settings.language.zhTW">繁體中文（台灣）</button>
-      </div>
-      <p class="language-preview" id="languagePreview" hidden data-i18n="settings.language.preview">번체 문구는 다음 단계에서 적용합니다. 현재는 한국어로 표시합니다.</p>
-    </div>
     <section class="storage-notice" aria-labelledby="storageNoticeTitle">
-      <span class="storage-notice-title" id="storageNoticeTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2h4l5 4V7l-5 4H3z" /><path d="M16 9a4 4 0 0 1 0 6" /><path d="M18.5 6.5a7 7 0 0 1 0 11" /></svg><span data-i18n="settings.storage.title">주의해 주세요</span></span>
+      <span class="storage-notice-title" id="storageNoticeTitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2h4l5 4V7l-5 4H3z" /><path d="M16 9a4 4 0 0 1 0 6" /><path d="M18.5 6.5a7 7 0 0 1 0 11" /></svg><span data-i18n="settings.storage.title">주의사항</span></span>
       <p><span data-i18n="settings.storage.body">이 설정은 현재 기기의 브라우저에만 저장됩니다. 사이트 데이터 삭제, 시크릿 모드 사용, 브라우저·앱 재설치 또는 기기 변경 시 초기화될 수 있습니다.</span> <strong data-i18n="settings.storage.strong">일반적인 앱 업데이트에서는 유지됩니다.</strong></p>
     </section>
+    <p id="preferenceSaveStatus" class="preference-save-status" role="status" aria-live="polite"></p>
+
+    <details class="pref-detail language-detail" open>
+      <summary><span id="languageTitle" data-i18n="settings.language">언어</span></summary>
+      <div class="pref-detail-body">
+        <div class="language-options" role="radiogroup" aria-labelledby="languageTitle">
+          <label class="language-option"><input type="radio" name="locale" id="localeKo" value="ko" data-locale="ko" checked><span data-i18n="settings.language.ko">한국어</span></label>
+          <label class="language-option"><input type="radio" name="locale" id="localeZhTw" value="zh-TW" data-locale="zh-TW"><span data-i18n="settings.language.zhTW">繁體中文（台灣）</span></label>
+        </div>
+        <p class="language-preview" id="languagePreview" hidden data-i18n="settings.language.preview">번체 문구는 다음 단계에서 적용합니다. 현재는 한국어로 표시합니다.</p>
+      </div>
+    </details>
 
     <!-- 차별 시간 보정 설정 -->
     <details class="pref-detail">
@@ -185,7 +187,7 @@
 
     <!-- 단어 태그 커스텀 설정 -->
     <details class="pref-detail">
-      <summary data-i18n="settings.tags.title">오늘 떠오른 단어 태그 관리</summary>
+      <summary data-i18n="settings.tags.title">차 느낌 단어장</summary>
       <div class="pref-detail-body">
       <p style="font-size:0.84rem; margin-bottom:0.8rem;" data-i18n="settings.tags.body">[차 느낌] 시음 카드에 표시될 나만의 감각 단어를 추가하거나 원치 않는 단어를 삭제합니다.</p>
       <p class="tag-damaged" id="tagDamagedNotice" hidden data-i18n="settings.tags.damaged"></p>
@@ -196,7 +198,7 @@
         <input type="text" class="input-new-tag" id="newTagInput" data-i18n-aria-label="settings.tags.input" data-i18n-placeholder="settings.tags.placeholder" aria-label="새 감각 단어" placeholder="새 단어 입력 (예: 빙탕, 훈연향)" maxlength="10">
         <button type="button" class="btn-add-tag" id="addTagBtn"><span aria-hidden="true">+</span> <span data-i18n="settings.tags.add">추가</span></button>
       </div>
-      <button type="button" class="preference-reset" id="restoreTagsBtn" data-i18n="settings.tags.restore">기본 14종 단어로 복원</button>
+      <button type="button" class="preference-reset" id="restoreTagsBtn" data-i18n="settings.tags.restore">기본 15종 단어로 복원</button>
       </div>
     </details>
 
@@ -249,16 +251,19 @@
   function updateSaveStatus() {
     $("preferenceSaveStatus").textContent = unsavedFields.size ? t("settings.save.failure") : "";
   }
+  function updateLanguageSelection() {
+    const locale = TeaI18n.getLocale();
+    $("localeKo").checked = locale === "ko";
+    $("localeZhTw").checked = locale === "zh-TW";
+    $("languagePreview").hidden = locale !== "zh-TW";
+  }
   function applyLocale() {
     if (isComposing) return;
     const focusId = activeId();
     TeaI18n.apply();
     document.title = t("settings.title");
     document.documentElement.lang = TeaI18n.getLocale();
-    const locale = TeaI18n.getLocale();
-    $("localeKo").setAttribute("aria-pressed", String(locale === "ko"));
-    $("localeZhTw").setAttribute("aria-pressed", String(locale === "zh-TW"));
-    $("languagePreview").hidden = locale !== "zh-TW";
+    updateLanguageSelection();
     renderTeaTimes();
     renderTagEdits();
     restoreFocus(focusId);
@@ -397,8 +402,8 @@
       input.value = "";
     }
   };
-  $("newTagInput").oncompositionstart = () => { isComposing = true; };
-  $("newTagInput").oncompositionend = () => {
+  $("newTagInput").addEventListener("compositionstart", () => { isComposing = true; });
+  $("newTagInput").addEventListener("compositionend", () => {
     const input = $("newTagInput");
     const selection = [input.selectionStart, input.selectionEnd];
     isComposing = false;
@@ -410,7 +415,7 @@
     } else applyLocale();
     input.focus({ preventScroll: true });
     input.setSelectionRange(...selection);
-  };
+  });
   $("newTagInput").onkeydown = (e) => {
     if (e.key === "Enter" && !e.isComposing) $("addTagBtn").click();
   };
@@ -446,10 +451,15 @@
     const changed = TeaI18n.setLocale(locale);
     if (!changed) applyLocale();
   }
-  document.querySelectorAll("[data-locale]").forEach(button => {
-    button.addEventListener("click", () => {
-      const locale = button.dataset.locale;
-      if (isComposing) { pendingLocale = { locale, explicit: true }; return; }
+  document.querySelectorAll("input[name=locale]").forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) return;
+      const locale = radio.value;
+      if (isComposing) {
+        pendingLocale = { locale, explicit: true };
+        updateLanguageSelection();
+        return;
+      }
       selectLocale(locale);
     });
   });

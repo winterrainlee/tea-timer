@@ -49,12 +49,12 @@ tagItems: [
 ]
 ```
 
-- 새 설치에서 태그 필드가 없으면 기본 14종을 ID 목록으로 화면에 제공한다. 일반 설정 저장 때문에 기본 태그 표시 문자열을 `customTags`에 기록하지 않는다. 전체 ID/번역 키 표는 아래 §6에 둔다.
+- 태그 필드가 없으면 [확정한 기본 15종](sensory-vocabulary.md#default-vocabulary)을 ID 목록으로 화면에 제공한다. 일반 설정 저장 때문에 기본 태그 표시 문자열을 `customTags`에 기록하지 않는다. 저장된 기존 목록은 자동 교체하지 않으며 이전 14개 ID도 계속 지원한다. 전체 ID/번역 키 표는 아래 §6에 둔다.
 - 기존 `customTags: string[]`만 있으면 **모든 항목을 custom 원문**으로 읽는다. 기본 목록과 같은 문자열도 출처를 추정하지 않는다. `[]`는 빈 목록이고 없는 필드와 다르다.
 - 유효한 `tagItems`가 있으면 그것이 편집 목록의 기준이다. 없으면 기존 `customTags`, 그것도 없으면 기본 ID 목록 순서로 읽는다. 태그를 명시적으로 편집할 때만 현재 항목 목록을 `tagItems`로 쓴다. 기존 `customTags`는 호환 원본으로 남기며 자동으로 번역하거나 동기화해 덮어쓰지 않는다.
 - 추가한 단어는 custom, 기본 태그 선택은 builtin으로 유지한다. 사용자가 기본 태그와 같은 문구를 입력해도 ID 항목으로 바꾸거나 기존 항목과 자동 병합하지 않는다. 세션 선택도 화면 문자열만으로 비교하지 않는다.
 - 선택 식별자는 builtin의 경우 `(kind, id)`, custom의 경우 `(kind, 원문 text)`의 쌍이다. 새 custom 입력 중 원문이 정확히 같은 중복은 거부하지만 builtin과 같은 표시 문구는 허용하고 `내 단어` 보조 표기로 구분한다. legacy에 동일 custom 원문이 반복되면 원본 배열은 자동 정리하지 않고 같은 논리 단어로 표시·선택한다. 그 단어의 명시적 삭제는 반복 항목 전체에 적용한다.
-- `기본 단어로 복원`은 현재 목록을 기본 ID 14종으로 대체하는 명시적 동작이다. 개인 단어가 목록에서 제거됨을 알리고 취소 가능한 확인 후 적용한다. 취소하면 저장값과 화면 모두 그대로다. 전체 초기화 시에는 `tagItems`와 `customTags`를 함께 지운다.
+- `기본 단어로 복원`은 현재 목록을 기본 ID 15종으로 대체하는 명시적 동작이다. 개인 단어가 목록에서 제거됨을 알리고 취소 가능한 확인 후 적용한다. 취소하면 저장값과 화면 모두 그대로다. 전체 초기화 시에는 `tagItems`와 `customTags`를 함께 지운다.
 - 지원하지 않는/손상된 `tagItems`는 자동 덮어쓰기하지 않는다. 읽을 수 있는 legacy 목록 또는 기본 목록을 임시로 표시하고 복원 안내를 제공하며, 태그 편집은 명시적 기본 복원 전까지 유예한다. 다른 설정은 공통 저장 계약에 따라 계속 쓸 수 있다.
 - 호환 fixture에는 한국어에서 같은 문구로 보이는 builtin/custom의 독립 선택·삭제, legacy custom 중복, `tagItems: []`, 손상된 `tagItems`를 둔 채 음소거/시간 저장 후 raw 보존을 포함한다.
 - **의도한 예외:** 기존 사용자의 한국어 기본 문자열도 번체 화면에서 원문으로 남을 수 있다. 이것은 미번역 UI가 아니라 사용자 자산 보존이다. 번역된 기본 목록을 원하면 명시적 복원 경로를 사용한다.
@@ -88,7 +88,9 @@ tagItems: [
 - 글꼴 후보는 `Gowun Batang`, `Noto Serif TC`, `Songti TC`, `PMingLiU`, `AppleMyungjo`, `serif` 순으로 화면과 Canvas에 사용한다. 기존 외부 글꼴 외에 새 원격 글꼴 의존성을 추가하지 않는다. 이 스택으로 혼합 문장의 일반/외부 글꼴 차단 PNG 사전 렌더를 확인했다. 실제 모바일 글꼴과 긴 내용 조판은 최종 TW-07에서 다시 검증한다.
 - 한국어 화면 검토까지 구현·검증한 뒤 사용자에게 메인·언어·메뉴·공지·설정·사용법을 보여준다. TW-06 전체 번체 적용은 이 검토 이후 진행하며 후속 장기 기록 기능은 포함하지 않는다.
 
-### 기본 태그 ID와 한국어 카탈로그
+### 지원 태그 ID와 한국어 카탈로그
+
+기본 선택은 [확정한 15개 순서](sensory-vocabulary.md#default-vocabulary)를 사용한다. 아래 이전 14개 ID도 저장 목록·세션·export 호환을 위해 이름을 바꾸지 않고 지원하며, 새 의미 11개를 추가했다. 기본 목록에 남는 `꽃향·단맛·떫음·묵직함`은 기존 ID를 재사용한다.
 
 | ID | 한국어 | 번역 키 |
 |---|---|---|
@@ -106,5 +108,16 @@ tagItems: [
 | texture.smooth | 부드러움 | tag.texture.smooth |
 | taste.clean | 맑음 | tag.taste.clean |
 | body.full | 묵직함 | tag.body.full |
+| aroma.plant | 식물향 | tag.aroma.plant |
+| aroma.sweet | 달콤한 향 | tag.aroma.sweet |
+| aroma.fruity | 과일향 | tag.aroma.fruity |
+| aroma.roasted | 구운 향 | tag.aroma.roasted |
+| taste.umami | 감칠맛 | tag.taste.umami |
+| taste.salty | 짠맛 | tag.taste.salty |
+| taste.sour | 신맛 | tag.taste.sour |
+| taste.bitter | 쓴맛 | tag.taste.bitter |
+| texture.clean | 깔끔함 | tag.texture.clean |
+| texture.coating | 텁텁함 | tag.texture.coating |
+| finish.lingering | 긴 여운 | tag.finish.lingering |
 
 ID는 언어 변경과 무관한 식별자이며 사용자에게 새로운 감각 분류 UI를 추가하는 것은 아니다. 기존 문자열의 출처를 추정해 이 ID로 자동 변환하지 않는다.

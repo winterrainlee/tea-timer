@@ -150,5 +150,16 @@ TeaI18n.register("ko", {
   "tag.taste.astringent": "떫음",
   "tag.texture.smooth": "부드러움",
   "tag.taste.clean": "맑음",
-  "tag.body.full": "묵직함"
+  "tag.body.full": "묵직함",
+  "tag.aroma.plant": "식물향",
+  "tag.aroma.sweet": "달콤한 향",
+  "tag.aroma.fruity": "과일향",
+  "tag.aroma.roasted": "구운 향",
+  "tag.taste.umami": "감칠맛",
+  "tag.taste.salty": "짠맛",
+  "tag.taste.sour": "신맛",
+  "tag.taste.bitter": "쓴맛",
+  "tag.texture.clean": "깔끔함",
+  "tag.texture.coating": "텁텁함",
+  "tag.finish.lingering": "긴 여운"
 });

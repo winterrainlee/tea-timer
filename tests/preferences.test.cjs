@@ -48,12 +48,12 @@ function runtime(fields = {}) {
   };
 }
 
-test('exports stable key, IDs, and 14 default tags', () => {
+test('exports stable key, IDs, and the confirmed 15 default tags', () => {
   assert.equal(KEY, 'teaTimer.preferences.v1');
   assert.deepEqual(TEA_IDS, ['green', 'white', 'oolong', 'nong', 'black', 'sheng', 'shou']);
   assert.deepEqual(VESSEL_IDS, ['teapot', 'eastern-pot', 'gaiwan', 'mug', 'piaoyibei']);
   assert.deepEqual(LOCALES, ['ko', 'zh-TW']);
-  assert.equal(DEFAULT_TAGS.length, 14);
+  assert.deepEqual(DEFAULT_TAGS, ['식물향', '꽃향', '달콤한 향', '과일향', '구운 향', '감칠맛', '단맛', '짠맛', '신맛', '쓴맛', '깔끔함', '텁텁함', '떫음', '묵직함', '긴 여운']);
 });
 
 test('localeChanged ignores unrelated writes and identifies actual supported-locale transitions', () => {
@@ -239,6 +239,38 @@ test('valid tagItems take priority and preserve builtin/custom identity and raw 
   const saved = JSON.parse(storage.raw());
   assert.deepEqual(saved.tagItems, [{ kind: 'custom', text: '새 단어' }]);
   assert.deepEqual(saved.customTags, ['legacy']);
+});
+
+test('saved legacy builtin and legacy string lists survive reads and unrelated locale edits', () => {
+  const legacyItems = TeaTags.BUILTIN_IDS.slice(0, 14).map(id => ({ kind: 'builtin', id }));
+  const legacyStrings = TeaTags.BUILTIN_ITEMS.slice(0, 14).map(([, label]) => label);
+  for (const fields of [{ tagItems: legacyItems, customTags: ['사용자'] }, { customTags: legacyStrings }]) {
+    const { storage, store } = storeFor(payload(fields));
+    assert.deepEqual(store.read().values.tagItems, fields.tagItems || legacyStrings.map(text => ({ kind: 'custom', text })));
+    assert.equal(store.patch({ locale: 'zh-TW' }).ok, true);
+    const saved = JSON.parse(storage.raw());
+    if (fields.tagItems) assert.deepEqual(saved.tagItems, legacyItems);
+    else assert.deepEqual(saved.customTags, legacyStrings);
+  }
+});
+
+test('same-text custom and explicit empty lists remain unchanged, while restore writes new defaults only', () => {
+  const { storage, store } = storeFor(payload({
+    customTags: ['식물향'], tagItems: [{ kind: 'custom', text: '식물향' }],
+    muted: true, locale: 'zh-TW', extra: { keep: true },
+  }));
+  assert.equal(store.patch({ muted: false }).ok, true);
+  assert.deepEqual(JSON.parse(storage.raw()).tagItems, [{ kind: 'custom', text: '식물향' }]);
+  const empty = storeFor(payload({ customTags: [], tagItems: [] }));
+  assert.deepEqual(empty.store.read().values.tagItems, []);
+  assert.equal(empty.store.patch({ locale: 'zh-TW' }).ok, true);
+  assert.deepEqual(JSON.parse(empty.storage.raw()).tagItems, []);
+  assert.equal(store.restoreTags().ok, true);
+  const restored = JSON.parse(storage.raw());
+  assert.deepEqual(restored.tagItems, TeaTags.defaults());
+  assert.deepEqual(restored.customTags, ['식물향']);
+  assert.equal(restored.extra.keep, true);
+  assert.equal(restored.muted, false);
 });
 
 test('legacy tags remain literal custom items, including duplicates and empty lists', () => {

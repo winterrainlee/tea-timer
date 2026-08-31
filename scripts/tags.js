@@ -10,9 +10,21 @@ const TeaTags = (() => {
     ["taste.earthy", "흙"], ["aroma.smoky", "연기"],
     ["taste.astringent", "떫음"], ["texture.smooth", "부드러움"],
     ["taste.clean", "맑음"], ["body.full", "묵직함"],
+    ["aroma.plant", "식물향"], ["aroma.sweet", "달콤한 향"],
+    ["aroma.fruity", "과일향"], ["aroma.roasted", "구운 향"],
+    ["taste.umami", "감칠맛"], ["taste.salty", "짠맛"],
+    ["taste.sour", "신맛"], ["taste.bitter", "쓴맛"],
+    ["texture.clean", "깔끔함"], ["texture.coating", "텁텁함"],
+    ["finish.lingering", "긴 여운"],
   ]);
+  // Keep every historical builtin readable while exposing the confirmed 15-item set by default.
   const BUILTIN_IDS = Object.freeze(BUILTIN_ITEMS.map(([id]) => id));
-  const DEFAULT_ITEMS = Object.freeze(BUILTIN_IDS.map(id => Object.freeze({ kind: "builtin", id })));
+  const DEFAULT_IDS = Object.freeze([
+    "aroma.plant", "aroma.floral", "aroma.sweet", "aroma.fruity", "aroma.roasted",
+    "taste.umami", "taste.sweet", "taste.salty", "taste.sour", "taste.bitter",
+    "texture.clean", "texture.coating", "taste.astringent", "body.full", "finish.lingering",
+  ]);
+  const DEFAULT_ITEMS = Object.freeze(DEFAULT_IDS.map(id => Object.freeze({ kind: "builtin", id })));
   const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
   const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -55,7 +67,7 @@ const TeaTags = (() => {
   }
 
   return Object.freeze({
-    BUILTIN_IDS, BUILTIN_ITEMS, DEFAULT_ITEMS, defaults, isValidItem, isValidItems,
+    BUILTIN_IDS, DEFAULT_IDS, BUILTIN_ITEMS, DEFAULT_ITEMS, defaults, isValidItem, isValidItems,
     resolve, normalize, key, label, dedupe,
   });
 })();
