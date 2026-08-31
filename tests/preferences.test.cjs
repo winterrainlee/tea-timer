@@ -53,7 +53,7 @@ test('exports stable key, IDs, and the confirmed 15 default tags', () => {
   assert.deepEqual(TEA_IDS, ['green', 'white', 'oolong', 'nong', 'black', 'sheng', 'shou']);
   assert.deepEqual(VESSEL_IDS, ['teapot', 'eastern-pot', 'gaiwan', 'mug', 'piaoyibei']);
   assert.deepEqual(LOCALES, ['ko', 'zh-TW']);
-  assert.deepEqual(DEFAULT_TAGS, ['식물향', '꽃향', '달콤한 향', '과일향', '구운 향', '감칠맛', '단맛', '짠맛', '신맛', '쓴맛', '깔끔함', '텁텁함', '떫음', '묵직함', '긴 여운']);
+  assert.deepEqual(DEFAULT_TAGS, ['식물향', '꽃향', '달콤한 향', '과일향', '구운 향', '감칠맛', '단맛', '짠맛', '신맛', '쓴맛', '깔끔함', '텁텁함', '떫음', '묵직함', '여운']);
 });
 
 test('localeChanged ignores unrelated writes and identifies actual supported-locale transitions', () => {

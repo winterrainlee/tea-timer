@@ -11,7 +11,7 @@ const TeaPreferences = (() => {
   // Derive the Korean fallback from the shared registry; retain a standalone fallback for script loading.
   const DEFAULT_TAGS = Object.freeze(tags
     ? tags.DEFAULT_IDS.map(id => Object.fromEntries(tags.BUILTIN_ITEMS)[id] || id)
-    : ["식물향", "꽃향", "달콤한 향", "과일향", "구운 향", "감칠맛", "단맛", "짠맛", "신맛", "쓴맛", "깔끔함", "텁텁함", "떫음", "묵직함", "긴 여운"]);
+    : ["식물향", "꽃향", "달콤한 향", "과일향", "구운 향", "감칠맛", "단맛", "짠맛", "신맛", "쓴맛", "깔끔함", "텁텁함", "떫음", "묵직함", "여운"]);
   const LOCALES = Object.freeze(["ko", "zh-TW"]);
   const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
   const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);

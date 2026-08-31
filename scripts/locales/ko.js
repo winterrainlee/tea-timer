@@ -120,7 +120,7 @@ TeaI18n.register("ko", {
   "nav.menu": "메뉴",
   "nav.open": "메뉴 열기",
   "nav.announcements": "공지사항",
-  "nav.help": "사용법",
+  "nav.help": "이용 안내",
   "nav.settings": "설정",
   "nav.updated": "공지 업데이트 {date}",
   "nav.close": "메뉴 닫기",
@@ -132,7 +132,7 @@ TeaI18n.register("ko", {
   "announcements.past": "지난 업데이트",
   "announcements.noReleased": "아직 게시된 업데이트가 없습니다.",
   "announcements.plannedTitle": "언어 선택과 메뉴를 준비하고 있습니다.",
-  "announcements.plannedBody": "메인 우상단에서 언어를 고르고, 메뉴에서 공지사항·사용법·설정을 열 수 있도록 준비하고 있습니다. 차와 다구 이미지, 타이머, 하단의 소리·차 느낌 위치는 유지합니다. 번체 중국어 지원은 문구와 사용성을 검토한 뒤 제공합니다.",
+  "announcements.plannedBody": "메인 우상단에서 언어를 고르고, 메뉴에서 공지사항·이용 안내·설정을 열 수 있도록 준비하고 있습니다. 차와 다구 이미지, 타이머, 하단의 소리·차 느낌 위치는 유지합니다. 번체 중국어 지원은 문구와 사용성을 검토한 뒤 제공합니다.",
   "announcements.plannedStatus": "검토 중 · 배포 일정 미정",
   "notice.readingSteeping": "차를 우리는 중입니다. 읽는 동안에도 타이머는 계속됩니다.",
   "tag.custom": "내 단어",
@@ -161,5 +161,5 @@ TeaI18n.register("ko", {
   "tag.taste.bitter": "쓴맛",
   "tag.texture.clean": "깔끔함",
   "tag.texture.coating": "텁텁함",
-  "tag.finish.lingering": "긴 여운"
+  "tag.finish.lingering": "여운"
 });

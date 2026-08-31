@@ -15,7 +15,7 @@ const TeaTags = (() => {
     ["taste.umami", "감칠맛"], ["taste.salty", "짠맛"],
     ["taste.sour", "신맛"], ["taste.bitter", "쓴맛"],
     ["texture.clean", "깔끔함"], ["texture.coating", "텁텁함"],
-    ["finish.lingering", "긴 여운"],
+    ["finish.lingering", "여운"],
   ]);
   // Keep every historical builtin readable while exposing the confirmed 15-item set by default.
   const BUILTIN_IDS = Object.freeze(BUILTIN_ITEMS.map(([id]) => id));

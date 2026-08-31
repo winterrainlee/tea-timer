@@ -3,7 +3,7 @@
   TeaI18n.register("ko", {
     "settings.title": "개인 설정 · 차 한 잔의 시간",
     "settings.back": "처음으로",
-    "settings.help": "사용법 열기",
+    "settings.help": "이용 안내 열기",
     "settings.heading": "개인 설정",
     "settings.subtitle": "Preferences",
     "settings.language": "언어",

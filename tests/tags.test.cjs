@@ -41,7 +41,7 @@ test('Korean catalog provides the exact label for every new default ID', () => {
   assert.deepEqual(TeaTags.DEFAULT_IDS.map(id => ko[`tag.${id}`]), [
     '식물향', '꽃향', '달콤한 향', '과일향', '구운 향',
     '감칠맛', '단맛', '짠맛', '신맛', '쓴맛',
-    '깔끔함', '텁텁함', '떫음', '묵직함', '긴 여운',
+    '깔끔함', '텁텁함', '떫음', '묵직함', '여운',
   ]);
 });
 
