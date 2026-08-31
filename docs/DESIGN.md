@@ -557,7 +557,7 @@ TW-04의 번호와 이전 설계는 보존하되 이번 TW 묶음의 구현·번
 
 ## 8. 접근성·모션·터치
 
-메인·하위 화면의 공통 글자 계층·메뉴 정렬·44px 조작 영역은 [공통 UI 기준](ui-guidelines.md)을 따른다. 구현은 `styles/ui.css`에서 공유하며 기능 전용 타이머·PNG 조판과 구분한다.
+메인·하위 화면의 공통 글자 계층·메뉴 정렬·44px 조작 영역은 [공통 UI 기준](ui-guidelines.md)을 따른다. 사용자 검토에서 확정한 여백·중복 안내·말투·원문 보존·현지화·고지·시안 검토의 판단 원칙은 같은 문서의 [디자인 판단 원칙](ui-guidelines.md#design-principles)에 모은다. 구현은 `styles/ui.css`에서 공유하며 기능 전용 타이머·PNG 조판과 구분한다.
 
 ### 8.1 반영된 기준
 - `#timeLabel`은 평소 `aria-live="polite"`, 완료 시 `assertive`로 전환한다.
