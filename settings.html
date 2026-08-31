@@ -43,7 +43,6 @@
   .language-option:has(input:focus-visible) { outline:2px solid var(--gold-soft); outline-offset:2px; border-radius:4px; }
   .language-option input:focus-visible { outline:none; }
   .language-detail .pref-detail-body { padding:0; }
-  .language-preview { margin:.65rem 0 0; color:var(--gold-soft); font-size:.8rem; }
   .tag-damaged { margin:0 0 .7rem; color:var(--gold-soft); font-size:.84rem; }
   .tag-kind { color:var(--ink-dim); font-size:.7rem; font-weight:400; }
   .tea-time-list { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -143,7 +142,6 @@
           <label class="language-option"><input type="radio" name="locale" id="localeKo" value="ko" data-locale="ko" checked><span data-i18n="settings.language.ko">한국어</span></label>
           <label class="language-option"><input type="radio" name="locale" id="localeZhTw" value="zh-TW" data-locale="zh-TW"><span data-i18n="settings.language.zhTW">繁體中文（台灣）</span></label>
         </div>
-        <p class="language-preview" id="languagePreview" hidden data-i18n="settings.language.preview">번체 문구는 다음 단계에서 적용합니다. 현재는 한국어로 표시합니다.</p>
       </div>
     </details>
 
@@ -194,6 +192,8 @@
 <script src="scripts/i18n.js"></script>
 <script src="scripts/locales/ko.js"></script>
 <script src="scripts/locales/ko-settings.js"></script>
+<script src="scripts/locales/zh-TW.js"></script>
+<script src="scripts/locales/zh-TW-settings.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -227,7 +227,6 @@
     const locale = TeaI18n.getLocale();
     $("localeKo").checked = locale === "ko";
     $("localeZhTw").checked = locale === "zh-TW";
-    $("languagePreview").hidden = locale !== "zh-TW";
   }
   function applyLocale() {
     if (isComposing) return;
@@ -310,12 +309,12 @@
   }
 
   function tagState() {
-    const fresh = preferenceStore.read().values;
+    const fresh = preferenceStore.read(TeaI18n.getLocale()).values;
     if (Array.isArray(fresh.tagItems)) prefs.tagItems = fresh.tagItems;
     prefs.tagItemsProtected = Boolean(fresh.tagItemsProtected);
   }
 
-  // Render Tag Edits. Custom values remain literal; builtin labels are locale-derived.
+  // Both custom text and builtin vocabulary retain their original language.
   function renderTagEdits() {
     tagState();
     const grid = $("tagEditGrid");
@@ -374,7 +373,7 @@
     tagState();
     const text = input.value.trim().replace(/^#/, '').trim();
     if (!text) return;
-    const result = preferenceStore.addTag({ kind: "custom", text });
+    const result = preferenceStore.addTag({ kind: "custom", text }, TeaI18n.getLocale());
     if (result.ok) {
       prefs.tagItems = result.items;
       unsavedFields.delete("tagItems");
@@ -404,13 +403,13 @@
 
   $("restoreTagsBtn").onclick = () => {
     if (!confirm(t("settings.tags.restoreConfirm"))) return;
-    const result = preferenceStore.restoreTags();
+    const result = preferenceStore.restoreTags(TeaTags.defaults(TeaI18n.getLocale()));
     if (!result.ok) {
       unsavedFields.add("tagItems");
       updateSaveStatus();
     }
     else {
-      const fresh = preferenceStore.read().values;
+      const fresh = preferenceStore.read(TeaI18n.getLocale()).values;
       prefs.tagItems = fresh.tagItems;
       prefs.tagItemsProtected = fresh.tagItemsProtected;
       unsavedFields.delete("tagItems");

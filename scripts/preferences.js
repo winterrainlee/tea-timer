@@ -30,7 +30,10 @@ const TeaPreferences = (() => {
     if (TEA_IDS.includes(id)) return id;
     return Object.keys(ALIASES).find(key => ALIASES[key] === id) || "oolong";
   }
-  function runtimeValues(raw) {
+  function storedLocale(raw) {
+    return LOCALES.includes(raw.locale) ? raw.locale : "ko";
+  }
+  function runtimeValues(raw, defaultLocale) {
     const source = isObject(raw.secDeltaByTea) ? raw.secDeltaByTea : {};
     const secDeltaByTea = {};
     TEA_IDS.forEach(id => {
@@ -41,14 +44,14 @@ const TeaPreferences = (() => {
     const validTagItems = hasTagItems && tags && tags.isValidItems(raw.tagItems);
     const tagItems = validTagItems ? tags.resolve(raw.tagItems)
       : isTags(raw.customTags) ? raw.customTags.map(text => ({ kind: "custom", text }))
-      : tags ? tags.defaults() : [];
+      : tags ? tags.defaults(LOCALES.includes(defaultLocale) ? defaultLocale : storedLocale(raw)) : [];
     return {
       lastTeaId: canonicalTea(raw.lastTeaId),
       lastVesselId: VESSEL_IDS.includes(raw.lastVesselId) ? raw.lastVesselId : "gaiwan",
       muted: typeof raw.muted === "boolean" ? raw.muted : false,
       secDeltaByTea,
       customTags: isTags(raw.customTags) ? [...raw.customTags] : [...DEFAULT_TAGS],
-      locale: LOCALES.includes(raw.locale) ? raw.locale : "ko",
+      locale: storedLocale(raw),
       tagItems,
       tagItemsProtected: hasTagItems && !validTagItems,
     };
@@ -65,9 +68,9 @@ const TeaPreferences = (() => {
       } catch { /* Malformed or future payloads are never implicitly reset. */ }
       return { raw: {}, writable: false, reason: "protected" };
     }
-    function read() {
+    function read(defaultLocale) {
       const { raw, writable, reason } = readRaw();
-      return { values: runtimeValues(raw), writable, reason };
+      return { values: runtimeValues(raw, defaultLocale), writable, reason };
     }
     function validPatch(changes) {
       if (!isObject(changes)) return false;
@@ -116,15 +119,17 @@ const TeaPreferences = (() => {
       try { getStorage().setItem(KEY, JSON.stringify(next)); return { ok: true, reason: null }; }
       catch { return { ok: false, reason: "storage" }; }
     }
-    function restoreTags(items = (tags ? tags.defaults() : [])) {
-      if (!tags || !tags.isValidItems(items)) return { ok: false, reason: "invalid" };
+    function restoreTags(items) {
+      if (items !== undefined && (!tags || !tags.isValidItems(items))) return { ok: false, reason: "invalid" };
       const { raw, writable, reason } = readRaw();
       if (!writable) return { ok: false, reason };
+      if (items === undefined) items = tags ? tags.defaults(storedLocale(raw)) : [];
+      if (!tags || !tags.isValidItems(items)) return { ok: false, reason: "invalid" };
       const next = { ...raw, tagItems: tags.resolve(items) };
       try { getStorage().setItem(KEY, JSON.stringify(next)); return { ok: true, reason: null }; }
       catch { return { ok: false, reason: "storage" }; }
     }
-    function addTag(item) {
+    function addTag(item, defaultLocale) {
       // Input shaping (trimming, marker removal, and length limits) belongs to the UI.
       // This boundary only accepts a nonempty custom string and stores it verbatim.
       if (!isObject(item) || item.kind !== "custom" || typeof item.text !== "string" || item.text.length === 0) {
@@ -142,7 +147,7 @@ const TeaPreferences = (() => {
         ? raw.tagItems
         : isTags(raw.customTags)
           ? raw.customTags.map(text => ({ kind: "custom", text }))
-          : tags.defaults();
+          : tags.defaults(LOCALES.includes(defaultLocale) ? defaultLocale : storedLocale(raw));
       const items = tags.resolve(storedItems);
       const identity = tags.key(item);
       if (items.some(existing => tags.key(existing) === identity)) {
