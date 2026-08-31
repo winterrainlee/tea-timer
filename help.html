@@ -20,7 +20,7 @@
   html,body{ min-height:100%; }
   body{
     background:radial-gradient(120% 75% at 50% 18%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 84%);
-    color:var(--ink); font-family:"Gowun Batang",serif; -webkit-tap-highlight-color:transparent;
+    color:var(--ink); font-family:"Gowun Batang","Noto Serif TC","Songti TC","PMingLiU","AppleMyungjo",serif; -webkit-tap-highlight-color:transparent;
   }
   .page{
     width:min(100vw,460px); min-height:100vh; margin:0 auto;
@@ -44,8 +44,12 @@
   h1{ font-size:1.45rem; color:var(--gold-soft); letter-spacing:.04em; }
   .sub{ margin-top:.35rem; font-family:"Space Mono",monospace; font-size:.68rem; letter-spacing:.16em; color:var(--ink-dim); }
   main{ display:flex; flex-direction:column; gap:1.6rem; }
-  section{ border-top:0.5px solid var(--line); padding-top:1.2rem; }
-  h2{ font-size:1.05rem; color:var(--gold-soft); margin-bottom:.85rem; letter-spacing:.04em; display:flex; align-items:center; gap:0.4rem; }
+  .help-section > summary{ min-height:44px; list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--gold-soft); font-size:1.05rem; font-weight:700; letter-spacing:.04em; text-align:center; }
+  .help-section > summary::-webkit-details-marker{ display:none; }
+  .help-section > summary::after{ content:"⌄"; margin-left:.45rem; color:var(--ink-dim); font-size:.8rem; }
+  .help-section[open] > summary::after{ transform:rotate(180deg); }
+  .help-section > summary:focus-visible{ outline:2px solid var(--gold-soft); outline-offset:3px; }
+  .help-section-body{ padding:.7rem 0 .25rem; }
   ol,ul{ padding-left:1.15rem; color:var(--ink); line-height:1.8; font-size:.94rem; }
   li{ margin-bottom:0.4rem; }
   p{ color:var(--ink-dim); line-height:1.75; font-size:.94rem; margin-bottom:0.6rem; }
@@ -79,7 +83,7 @@
   .modal-actions{ display:flex; align-items:center; justify-content:center; gap:.55rem; margin-top:1.1rem; }
   .modal-actions[hidden], .modal-actions button[hidden]{ display:none; }
   .modal-actions button{
-    min-height:42px; border-radius:8px; border:1px solid var(--gold-line); padding:0 .95rem;
+    min-height:44px; border-radius:8px; border:1px solid var(--gold-line); padding:0 .95rem;
     font-family:inherit; font-size:.92rem; cursor:pointer;
   }
   .modal-primary{ background:var(--gold-soft); color:var(--bg-0); }
@@ -89,80 +93,96 @@
 <body>
 <div class="page">
   <div class="top">
-    <a class="back" href="index.html">← 처음으로</a>
-    <a class="mark-link" href="settings.html" title="개인 설정" aria-label="개인 설정 열기">⚙️</a>
+    <a class="back" href="index.html"><span aria-hidden="true">←</span> <span data-i18n="help.back">처음으로</span></a>
+    <a class="mark-link" href="settings.html" data-i18n-title="help.settings" data-i18n-aria-label="help.settings" title="개인 설정 열기" aria-label="개인 설정 열기"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></a>
   </div>
 
   <header>
-    <h1>사용법</h1>
+    <h1 data-i18n="help.heading">사용법</h1>
     <div class="sub">Time for Tea</div>
   </header>
 
   <main>
     <!-- Section 1: 사용법 -->
-    <section>
-      <h2>📖 사용법</h2>
-      <p>끓인 물을 붓고 나서 "지금 따라낼 때"를 놓치지 않게 도와주는 정갈한 타이머입니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 건네주세요. (광고·회원가입 없음, 오픈소스)</p>
+    <details class="help-section" open>
+      <summary data-i18n="help.section.guide">사용법</summary>
+      <div class="help-section-body">
+      <p data-i18n="help.intro">끓인 물을 붓고 나서 ‘지금 따라낼 때’를 놓치지 않게 도와주는 정갈한 타이머입니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 건네주세요. (광고·회원가입 없음, 오픈소스)</p>
       <ol>
-        <li><strong>차와 다구 고르기</strong>: 차 이름이 헷갈리면 이름 아래 나무 접시(다하) 위의 마른 찻잎 모양과 색을 보고 내 찻잎과 닮은 것을 눈으로 고르면 됩니다.</li>
-        <li><strong>시간 맞추기 & 우리기</strong>: 슬라이더의 작은 눈금이 <b>권장 우림</b> 위치입니다. 취향대로 바꾸면 다음에 그 차를 우릴 때도 기억해 둡니다. `우리기 시작`을 누르면 완료 전 예고음과 tick 신호가 흐르고, 완료 시 종소리와 플래시로 알립니다.</li>
-        <li><strong>다음 泡 우리기 & 차 따라내기</strong>: 우림이 완료되면 `차 따라내기`(표일배는 `버튼 눌러 내리기`)를 눌러 출탕을 마치고 `다음 泡 우리기`를 진행합니다. 2포부터는 위에 남는 이전 우림 기록(`1포 20초 / 2포 25초`)을 보면서 시간을 잡으면 편리합니다.</li>
-        <li><strong>차 느낌 남기기</strong>: 첫 우림 전부터 오른쪽 아래 <strong>[차 느낌]</strong>을 눌러 제목·감각 단어·메모를 적을 수 있습니다. <strong>[임시저장]</strong>은 내용을 유지하고 시트를 닫습니다. 이번 우림 동안만 이어 쓸 수 있으며 새로고침·앱 종료 뒤에는 복원되지 않습니다. 오래 남길 느낌은 텍스트나 이미지로 내보낼 수 있습니다.</li>
-        <li><strong>차와 초안 보호</strong>: 작성한 느낌이나 완료된 우림 기록이 있으면 차·다구를 바꿀 수 없습니다. 우림이나 느낌이 남아 있는 동안에는 현재 페이지를 떠나는 사용법·설정 이동도 제한됩니다. 완료 전 기록은 <strong>완료된 우림 없음</strong>으로 표시됩니다.</li>
-        <li><strong>우림 끝내기</strong>: 왼쪽 위 <strong>[우림 끝]</strong>으로 세션을 마감합니다. 작성한 느낌이 있으면 삭제 확인이 열리며, <strong>[취소]</strong>하면 그대로 이어갈 수 있습니다. <strong>[느낌 지우고 끝내기]</strong>를 누르면 느낌과 우림 기록이 사라집니다. 저장된 차·다구·시간 설정은 유지됩니다.</li>
+        <li><strong data-i18n="help.step.choose.title">차와 다구 고르기</strong>: <span data-i18n="help.step.choose.body">차 이름이 헷갈리면 이름 아래 나무 접시(다하) 위의 마른 찻잎 모양과 색을 보고 내 찻잎과 닮은 것을 눈으로 고르면 됩니다.</span></li>
+        <li><strong data-i18n="help.step.brew.title">시간 맞추기 & 우리기</strong>: <span data-i18n="help.step.brew.body">슬라이더의 작은 눈금이 권장 우림 위치입니다. 취향대로 바꾸면 다음에 그 차를 우릴 때도 기억해 둡니다.</span></li>
+        <li><strong data-i18n="help.step.next.title">다음 泡 우리기 & 차 따라내기</strong>: <span data-i18n="help.step.next.body">우림이 완료되면 ‘차 따라내기’를 눌러 출탕을 마치고 ‘다음 泡 우리기’를 진행합니다.</span></li>
+        <li><strong data-i18n="help.step.feeling.title">차 느낌 남기기</strong>: <span data-i18n="help.step.feeling.body">첫 우림 전부터 오른쪽 아래 [차 느낌]을 눌러 제목·감각 단어·메모를 적을 수 있습니다.</span></li>
+        <li><strong data-i18n="help.step.protect.title">차와 초안 보호</strong>: <span data-i18n="help.step.protect.body">작성한 느낌이나 완료된 우림 기록이 있으면 차·다구를 바꿀 수 없습니다.</span></li>
+        <li><strong data-i18n="help.step.finish.title">우림 끝내기</strong>: <span data-i18n="help.step.finish.body">왼쪽 위 [우림 끝]으로 세션을 마감합니다.</span></li>
       </ol>
-    </section>
+      </div>
+    </details>
 
     <!-- Section 2: 자유롭게 쓰세요 -->
-    <section>
-      <h2>🍃 자유롭게 쓰세요</h2>
-      <p>이 앱은 무료이고 광고도 회원가입도 없습니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 그대로 건네주세요.</p>
-      <p>코드가 궁금한 분을 위해 오픈소스로 공개되어 있습니다. 가져다 쓰실 때는 결과물도 오픈소스로 공개해 주세요.</p>
-    </section>
+    <details class="help-section">
+      <summary data-i18n="help.section.free">자유롭게 쓰세요</summary>
+      <div class="help-section-body">
+      <p data-i18n="help.free.one">이 앱은 무료이고 광고도 회원가입도 없습니다. 마음 편히 쓰고, 차를 좋아할 친구에게도 그대로 건네주세요.</p>
+      <p data-i18n="help.free.two">코드가 궁금한 분을 위해 오픈소스로 공개되어 있습니다. 가져다 쓰실 때는 결과물도 오픈소스로 공개해 주세요.</p>
+      </div>
+    </details>
 
     <!-- Section 3: 제작자 이야기 & 👏 응원 박수 -->
-    <section>
-      <h2>🌱 제작자 이야기 & 👏 응원 박수</h2>
+    <details class="help-section">
+      <summary data-i18n="help.section.creator">제작자 이야기 & 응원 박수</summary>
+      <div class="help-section-body">
       <p style="white-space: pre-line; line-height: 1.75; color: var(--ink);">
-        "제가 차 마시려고 만든 이 앱이 당신의 차 마시는 시간을 조금이라도 더 즐겁게 만들어 드렸다면 오른쪽 하단의 박수 버튼을 눌러주세요. 
-        깃허브 스타나 회원가입 같은 건 아무것도 요구하지 않지만, 순수하게 제작자 기분이 매우 좋아집니다. 
-        덧붙여 이 앱은 오픈소스이며, 오픈소스로 공개된다는 조건 하에 누구나 편하게 수정하실 수 있습니다."
+        <span data-i18n="help.creator.quote">제가 차 마시려고 만든 이 앱이 당신의 차 마시는 시간을 조금이라도 더 즐겁게 만들어 드렸다면 오른쪽 하단의 박수 버튼을 눌러주세요. 깃허브 스타나 회원가입 같은 건 아무것도 요구하지 않지만, 순수하게 제작자 기분이 매우 좋아집니다. 덧붙여 이 앱은 오픈소스이며, 오픈소스로 공개된다는 조건 하에 누구나 편하게 수정하실 수 있습니다.</span>
       </p>
       <p style="margin-top:0.8rem;">
-        제작자: <strong>겨울비</strong><br>
-        쓰다가 궁금한 점이나 바라는 점이 생기면 편하게 연락 주세요.
+        <span data-i18n="help.creator.name">제작자: 겨울비</span><br>
+        <span data-i18n="help.creator.contact">쓰다가 궁금한 점이나 바라는 점이 생기면 편하게 연락 주세요.</span>
       </p>
       <ul>
-        <li><p><a href="https://twitter.com/winterrain_lee" target="_blank" rel="noopener">트위터 (@winterrain_lee)</a></p></li>
-        <li><p><a href="https://github.com/winterrainlee/tea-timer" target="_blank" rel="noopener">깃허브 저장소</a></p></li>
-        <li><p>이메일: <a href="mailto:winterrain.lee@icloud.com">winterrain.lee@icloud.com</a></p></li>
+        <li><p><a href="https://twitter.com/winterrain_lee" target="_blank" rel="noopener" data-i18n="help.creator.twitter">트위터 (@winterrain_lee)</a></p></li>
+        <li><p><a href="https://github.com/winterrainlee/tea-timer" target="_blank" rel="noopener" data-i18n="help.creator.github">깃허브 저장소</a></p></li>
+        <li><p><span data-i18n="help.creator.email">이메일:</span> <a href="mailto:winterrain.lee@icloud.com">winterrain.lee@icloud.com</a></p></li>
       </ul>
-    </section>
+      </div>
+    </details>
   </main>
 
-  <div class="foot">차 한 잔의 시간 · Time for Tea</div>
+  <div class="foot" data-i18n="common.product">차 한 잔의 시간 · Time for Tea</div>
 </div>
 
-<button class="clap-button" id="applause" aria-label="제작자에게 응원의 박수 보내기" title="응원의 박수">👏</button>
+<button class="clap-button" id="applause" data-i18n-aria-label="help.clap.aria" data-i18n-title="help.clap.title" aria-label="제작자에게 응원의 박수 보내기" title="응원의 박수">👏</button>
 <div class="modal-backdrop" id="clapModal" hidden>
   <div class="support-modal" role="dialog" aria-modal="true" aria-labelledby="clapTitle" aria-describedby="clapBody">
-    <button class="modal-close" id="clapClose" aria-label="닫기">×</button>
-    <h2 id="clapTitle">응원의 박수</h2>
-    <p id="clapBody">오늘 한 잔 잘 우렸다면, 제작자에게 응원의 박수를 보내 주세요.</p>
+    <button class="modal-close" id="clapClose" data-i18n-aria-label="help.clap.close" aria-label="닫기">×</button>
+    <h2 id="clapTitle" data-i18n="help.clap.title">응원의 박수</h2>
+    <p id="clapBody" data-i18n="help.clap.body">오늘 한 잔 잘 우렸다면, 제작자에게 응원의 박수를 보내 주세요.</p>
     <div class="modal-actions" id="clapChoices">
-      <button class="modal-primary" id="clapYes">박수</button>
-      <button class="modal-ghost" id="clapNo">괜찮습니다</button>
+      <button class="modal-primary" id="clapYes" data-i18n="help.clap.yes">박수</button>
+      <button class="modal-ghost" id="clapNo" data-i18n="help.clap.no">괜찮습니다</button>
     </div>
     <div class="modal-actions" id="clapDone" hidden>
-      <button class="modal-primary" id="clapDismiss">닫기</button>
+      <button class="modal-primary" id="clapDismiss" data-i18n="help.clap.close">닫기</button>
     </div>
   </div>
 </div>
 
+<script src="scripts/tags.js"></script>
+<script src="scripts/preferences.js"></script>
+<script src="scripts/i18n.js"></script>
+<script src="scripts/locales/ko.js"></script>
+<script src="scripts/locales/ko-help.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
+  const t = (key, vars) => TeaI18n.t(key, vars);
   const CREATOR_REACTION_ENDPOINT = "https://tea-timer-reactions.winterrain-lee.workers.dev/reaction";
+
+  function applyLocale(){
+    TeaI18n.apply();
+    document.title=t("help.title");
+    document.documentElement.lang=TeaI18n.getLocale();
+  }
 
   // Applause API & Modal logic
   let lastClapFocus = null;
@@ -178,8 +198,8 @@
   }
   function openClapModal(){
     lastClapFocus=document.activeElement;
-    $("clapTitle").textContent="응원의 박수";
-    $("clapBody").textContent="오늘 한 잔 잘 우렸다면, 제작자에게 응원의 박수를 보내 주세요.";
+    $("clapTitle").textContent=t("help.clap.title");
+    $("clapBody").textContent=t("help.clap.body");
     $("clapChoices").hidden=false;
     $("clapDone").hidden=true;
     $("clapModal").hidden=false;
@@ -201,10 +221,17 @@
   $("applause").onclick=openClapModal;
   $("clapClose").onclick=closeClapModal;
   $("clapDismiss").onclick=closeClapModal;
-  $("clapYes").onclick=()=>finishClapModal("감사합니다", "박수 잘 받았습니다. 덕분에 다음 찻자리가 더 즐거워졌습니다!", "clap");
-  $("clapNo").onclick=()=>finishClapModal("네, 알겠습니다", "괜찮습니다. 다음에 더 좋은 앱이 되도록 조용히 힘내 보겠습니다.", "down");
+  $("clapYes").onclick=()=>finishClapModal(t("help.clap.thanks"), t("help.clap.thanksBody"), "clap");
+  $("clapNo").onclick=()=>finishClapModal(t("help.clap.noThanks"), t("help.clap.noThanksBody"), "down");
   $("clapModal").addEventListener("click",e=>{ if(e.target===$("clapModal")) closeClapModal(); });
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("clapModal").hidden) closeClapModal(); });
+  TeaI18n.onChange(applyLocale);
+  window.addEventListener("storage", event => {
+    if (event.key !== TeaPreferences.KEY && event.key !== null) return;
+    const locale = TeaPreferences.createStore().read().values.locale;
+    if (locale && locale !== TeaI18n.getLocale()) TeaI18n.setLocale(locale);
+  });
+  applyLocale();
 })();
 </script>
 </body>

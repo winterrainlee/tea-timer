@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TW-05 글꼴·PNG 사전 점검</title>
+<style>
+  body { margin:16px; font:16px system-ui,sans-serif; background:#eee; color:#222; }
+  button { min-height:44px; padding:0 14px; } code { word-break:break-all; }
+  pre { white-space:pre-wrap; max-height:260px; overflow:auto; background:#fff; padding:12px; border:1px solid #bbb; }
+  .runs { display:grid; grid-template-columns:repeat(auto-fit,minmax(375px,1fr)); gap:18px; align-items:start; }
+  .run { background:#fff; padding:12px; border:1px solid #bbb; }
+  iframe { width:375px; height:660px; max-width:100%; border:1px solid #888; background:#171510; }
+  img { display:block; width:340px; max-width:100%; height:auto; margin-top:10px; background:#171510; border:1px solid #888; }
+  .pass { color:#075d1b; } .fail { color:#a60000; }
+</style>
+<h1>TW-05 글꼴·PNG 사전 점검</h1>
+<p>저장소 루트에서 <code>python3 -m http.server 8134 --bind 127.0.0.1</code>을 실행한 뒤 이 페이지를 엽니다. <strong>http://127.0.0.1:8134 전용</strong> harness이며, 이 origin의 <code>teaTimer.preferences.v1</code> 원본 값만 실행 동안 임시 교체했다가 복원합니다.</p>
+<p>실제 <code>index.html</code>을 fetch해 <code>&lt;base href="../"&gt;</code>를 둔 srcdoc iframe으로 실행합니다. 정상 모드와 외부 글꼴 차단 모드 모두 실제 카드 PNG 생성 경로를 사용합니다. Web Share는 PNG 파일만 수집하는 대역이며 전송하지 않습니다. 화면·원본 PNG 결과는 수동 확인용이며 글꼴 품질이나 실기기 결과를 판정하지 않습니다.</p>
+<button id="run">두 모드 PNG 점검 실행</button>
+<pre id="result" role="status">대기 중</pre>
+<div class="runs" id="runs"></div>
+<script>
+(() => {
+  const KEY = 'teaTimer.preferences.v1';
+  const result = document.querySelector('#result');
+  const runs = document.querySelector('#runs');
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(test, label, timeout = 15000) {
+    const start = performance.now();
+    while (!test()) {
+      if (performance.now() - start > timeout) throw new Error('시간 초과: ' + label);
+      await sleep(25);
+    }
+  }
+  function setStatus(lines, text, kind = '') {
+    lines.push((kind ? kind.toUpperCase() + ' ' : '') + text);
+    result.textContent = lines.join('\n');
+  }
+  function seedPreferences() {
+    return {
+      version: 1,
+      lastTeaId: 'oolong', lastVesselId: 'gaiwan', muted: true,
+      secDeltaByTea: { oolong: 0 }, locale: 'ko',
+      tagItems: [
+        { kind: 'builtin', id: 'taste.sweet' },
+        { kind: 'custom', text: '🍑 桃香 custom tag' }
+      ]
+    };
+  }
+  async function pngDataUrl(file) {
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error);
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+  }
+  async function validatePng(file) {
+    if (!file || file.type !== 'image/png' || file.size === 0) throw new Error('실제 PNG Blob을 수집하지 못했습니다.');
+    const url = await pngDataUrl(file), image = new Image();
+    image.src = url; await image.decode();
+    if (image.naturalWidth !== 680 || image.naturalHeight !== 900) {
+      throw new Error(`PNG 크기 ${image.naturalWidth}×${image.naturalHeight} (680×900 필요)`);
+    }
+    return url;
+  }
+  function srcdoc(source, blockExternalFonts) {
+    const csp = blockExternalFonts
+      ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'none'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; connect-src 'none'">`
+      : '';
+    return source.replace(/<head>/i, `<head><base href="../">${csp}`);
+  }
+  async function runMode(source, mode, lines) {
+    const card = document.createElement('section'); card.className = 'run';
+    const heading = document.createElement('h2'); heading.textContent = mode.name;
+    const state = document.createElement('p'); state.textContent = '실행 중';
+    const frame = document.createElement('iframe'); frame.title = mode.name + ' 앱 렌더';
+    card.append(heading, state, frame); runs.append(card);
+    const loaded = new Promise(resolve => frame.onload = resolve);
+    frame.srcdoc = srcdoc(source, mode.blockExternalFonts);
+    await loaded;
+    const w = frame.contentWindow, d = w.document, $ = id => d.getElementById(id);
+    const errors = [];
+    w.addEventListener('error', event => errors.push(event.message));
+    w.addEventListener('unhandledrejection', event => errors.push(String(event.reason)));
+    await until(() => $('brew') && !$('brew').disabled, mode.name + ' 앱 준비');
+
+    // Capture the File created by the app's own canvas.toBlob route; no share leaves this page.
+    const shared = [];
+    Object.defineProperty(w.navigator, 'canShare', { configurable:true, value:() => true });
+    Object.defineProperty(w.navigator, 'share', { configurable:true, value:async data => {
+      shared.push(data.files && data.files[0]);
+      throw new w.DOMException('fixture share cancelled', 'AbortError');
+    }});
+    const click = id => { const el = $(id); if (!el) throw new Error('대상 없음: ' + id); el.click(); };
+    const input = (el, value) => { el.value = value; el.dispatchEvent(new w.Event('input', { bubbles:true })); };
+    click('note');
+    click('editTitleBtn');
+    input($('teaTitleInput'), '🍵 阿里山 한국어 茶 제목');
+    $('teaTitleInput').dispatchEvent(new w.KeyboardEvent('keydown', { key:'Enter', bubbles:true, cancelable:true }));
+    input($('noteInput'), '한국어·繁體中文·emoji 🍃를 함께 적은 사용자 메모입니다.');
+    const tag = [...d.querySelectorAll('#tagsGrid button')].find(button => button.textContent.includes('桃香'));
+    if (!tag) throw new Error('custom tag을 찾지 못했습니다.');
+    tag.click();
+    click('cardBtn');
+    await until(() => !$('cardModalBackdrop').hidden, mode.name + ' 카드 미리보기');
+    click('shareCardBtn');
+    await until(() => shared.length > 0, mode.name + ' 실제 PNG 생성');
+    const dataUrl = await validatePng(shared[0]);
+    const image = new Image(); image.src = dataUrl; image.alt = mode.name + ' 680×900 PNG 원본';
+    const artifact = document.createElement('a'); artifact.href = dataUrl; artifact.download = mode.id + '-680x900.png'; artifact.textContent = '680×900 PNG 원본 열기/저장';
+    card.append(artifact, image);
+    if (errors.length) throw new Error('iframe 오류: ' + errors.join(' | '));
+    state.textContent = 'PASS: 실제 680×900 PNG 원본을 수집했습니다. iframe과 PNG를 수동으로 확인하세요.';
+    state.className = 'pass';
+    setStatus(lines, mode.name + ' 실제 PNG 680×900 PASS', 'pass');
+  }
+  document.querySelector('#run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') {
+      result.textContent = '중단: http://127.0.0.1:8134 전용 harness입니다.'; return;
+    }
+    this.disabled = true; runs.replaceChildren(); const lines = [];
+    const original = localStorage.getItem(KEY);
+    try {
+      const response = await fetch('../index.html', { cache:'no-store' });
+      if (!response.ok) throw new Error('index.html fetch 실패: ' + response.status);
+      const source = await response.text();
+      for (const mode of [
+        { id:'normal', name:'정상 글꼴 모드', blockExternalFonts:false },
+        { id:'blocked', name:'외부 글꼴 차단 모드', blockExternalFonts:true }
+      ]) {
+        localStorage.setItem(KEY, JSON.stringify(seedPreferences()));
+        await runMode(source, mode, lines);
+      }
+      setStatus(lines, '완료: 두 iframe과 두 PNG를 수동으로 비교하세요. 품질 판정·실기기 검증은 이 harness 범위 밖입니다.', 'pass');
+    } catch (error) {
+      setStatus(lines, error.message, 'fail');
+      const last = runs.lastElementChild && runs.lastElementChild.querySelector('p');
+      if (last) { last.textContent = 'FAIL: ' + error.message; last.className = 'fail'; }
+    } finally {
+      if (original === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, original);
+      this.disabled = false;
+    }
+  };
+})();
+</script>

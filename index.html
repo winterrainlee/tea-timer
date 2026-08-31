@@ -45,7 +45,7 @@
     body {
       background: radial-gradient(120% 75% at 50% 30%, var(--glow) 0%, var(--bg-1) 46%, var(--bg-0) 82%);
       color: var(--ink);
-      font-family: "Gowun Batang", serif;
+      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
@@ -570,7 +570,7 @@
     .slider-row .val {
       display: block;
       text-align: center;
-      font-family: "Gowun Batang", serif;
+      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
       font-weight: 700;
       font-size: 2.25rem;
       line-height: 1;
@@ -675,7 +675,7 @@
 
     .brew {
       width: 100%;
-      font-family: "Gowun Batang", serif;
+      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
       font-weight: 700;
       letter-spacing: .1em;
       font-size: .98rem;
@@ -716,7 +716,7 @@
       border: none;
       color: var(--ink-dim);
       cursor: pointer;
-      font-family: "Gowun Batang", serif;
+      font-family: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
       font-size: .88rem;
       font-weight: 700;
       display: inline-flex;
@@ -1223,6 +1223,9 @@
       transition: all 0.15s;
     }
 
+    .action-icon { width: 18px; height: 18px; flex-shrink: 0; vertical-align: middle; }
+    .return-to-timer, .btn-share-card { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+
     .btn-action:active {
       background: rgba(205, 191, 99, 0.15);
       border-color: var(--gold-soft);
@@ -1410,14 +1413,66 @@
     @media (prefers-reduced-motion: reduce) {
       .sheet-backdrop, .sheet-container, .card-modal-backdrop { transition: none; }
     }
+    /* TW-05: header tools keep the timer and its footer in place. */
+    .app { padding-top: calc(3.9rem + env(safe-area-inset-top, 0px)); }
+    .top-actions { pointer-events: none; }
+    .top-tools { display: flex; gap: .5rem; pointer-events: auto; }
+    .top-actions .reset-top { min-width: 64px; font-size: .98rem; }
+    .top-actions .top-tool { min-width: 44px; padding: 0 .15rem; gap: .3rem; font-family: inherit; font-size: .94rem; color: var(--ink); }
+    .top-tool svg, .nav-popover svg, .btn-edit-title svg, .action-grid svg { width: 19px; height: 19px; flex: none; }
+    .nav-popover { position: absolute; top: calc(100% + .4rem); right: 0; width: 252px; max-width: 100%; max-height: calc(100dvh - 88px); overflow-y: auto; padding: .45rem; border: 1px solid var(--gold-line); border-radius: 9px; background: #21180f; box-shadow: 0 8px 24px #0005; pointer-events: auto; }
+    .nav-popover[hidden] { display: none; }
+    .top-actions .nav-popover button, .top-actions .nav-popover a { width: 100%; min-height: 44px; padding: .6rem .65rem; gap: .65rem; justify-content: flex-start; font-family: inherit; font-size: .96rem; text-align: left; color: var(--ink); border-radius: 4px; }
+    .top-actions .nav-popover button:hover, .top-actions .nav-popover a:hover { background: #cdbf6310; }
+    .top-actions :focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 1px; }
+    .locale-check { margin-left: auto; visibility: hidden; }
+    [aria-checked="true"] .locale-check { visibility: visible; color: var(--gold-soft); }
+    .language-preview { padding: .55rem .65rem; font-size: .76rem; line-height: 1.6; color: var(--ink-dim); }
+    .nav-timer-notice { border-top: 1px solid var(--gold-line); padding: .6rem .65rem 0; font-size: .82rem; line-height: 1.6; color: var(--gold-soft); }
+    .top-actions .nav-timer-notice button { padding-left: 0; font-size: .85rem; }
+    #announcementDate { margin-left: .22rem; font: .6rem "Space Mono", monospace; color: var(--ink-dim); vertical-align: super; }
+    .announcements-box { text-align: left; padding: 1.2rem; width: min(100%, 420px); }
+    .announcements-box h2 { font-size: 1.18rem; color: var(--gold-soft); font-weight: 400; }
+    .announcement-updated { color: var(--ink-dim); font-size: .75rem; margin: .5rem 0 1rem; }
+    .announcements-box h3 { color: var(--ink-dim); font-size: .83rem; font-weight: 400; margin: 1.5rem 0 .65rem; }
+    .announcements-box .announcement-empty { color: var(--ink-dim); font-size: .88rem; line-height: 1.65; }
+    .announcements-box details { margin: .3rem 0 1rem; }
+    .announcements-box summary { min-height: 44px; padding: .7rem 1.2rem; text-align: center; cursor: pointer; list-style: none; line-height: 1.65; color: var(--gold-soft); }
+    .announcements-box summary::-webkit-details-marker { display: none; }
+    .announcements-box summary::after { content: "＋"; margin-left: .4rem; font-size: .8rem; }
+    .announcements-box details[open] summary::after { content: "−"; }
+    .announcements-box details p { font-size: .9rem; line-height: 1.85; margin: .5rem 0; color: var(--ink); }
+    .announcements-box .announcement-status { font-size: .76rem; color: var(--ink-dim); text-align: center; }
+    .tag-custom-label { font-size: .68rem; font-weight: 400; color: var(--ink-dim); margin-left: .25rem; }
+    #tagProtectionNotice { color: var(--ink-dim); font-size: .8rem; line-height: 1.6; }
+    @media (max-width: 340px) { .top-tools { gap: .3rem; } .top-actions { left: .7rem; right: .7rem; } }
   </style>
 </head>
 
 <body>
   <div class="app" id="timerApp">
     <div class="top-actions">
-      <button class="reset-top" id="reset">우림 끝</button>
-      <a class="help-link" href="help.html" aria-label="사용법 열기" title="사용법">사용법</a>
+      <button class="reset-top" id="reset" data-i18n="session.end">우림 끝</button>
+      <div class="top-tools">
+        <button type="button" id="languageButton" class="top-tool" aria-expanded="false" aria-controls="languagePopover" data-i18n-aria-label="language.open" aria-label="언어 선택"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h12M9 3v2M5 5c1 5 4 8 8 10M13 5c-1 5-4 8-9 11M14 21l4-11 4 11M16 17h4"/></svg><span id="languageLabel">한국어</span><span aria-hidden="true">▾</span></button>
+        <button type="button" id="menuButton" class="top-tool" aria-expanded="false" aria-controls="menuPopover" data-i18n-aria-label="nav.open" aria-label="메뉴 열기"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span data-i18n="nav.menu">메뉴</span></button>
+      </div>
+      <div class="nav-popover" id="languagePopover" hidden inert>
+        <div role="radiogroup" data-i18n-aria-label="language.label" aria-label="언어">
+          <button type="button" class="locale-option" data-locale="ko" role="radio" aria-checked="true" lang="ko">한국어<span class="locale-check" aria-hidden="true">✓</span></button>
+          <button type="button" class="locale-option" data-locale="zh-TW" role="radio" aria-checked="false" lang="zh-TW">繁體中文（台灣）<span class="locale-check" aria-hidden="true">✓</span></button>
+        </div>
+        <p class="language-preview" data-i18n="language.preview">번체 문구는 다음 단계에서 적용합니다. 현재는 한국어로 표시합니다.</p>
+        <div class="nav-timer-notice" hidden><p role="status" aria-live="polite"></p><button type="button" class="nav-return-timer"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m10 6-6 6 6 6M4 12h16"/></svg><span data-i18n="common.returnTimer">타이머로 돌아가기</span></button></div>
+      </div>
+      <div class="nav-popover" id="menuPopover" hidden inert>
+        <nav data-i18n-aria-label="nav.menu" aria-label="메뉴">
+          <button type="button" id="announcementsButton"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 10v5h4l11 5V5L7 10ZM7 15l2 6h3l-2-5M21 9v7"/></svg><span><span data-i18n="nav.announcements">공지사항</span><sup id="announcementDate" aria-hidden="true"></sup></span></button>
+          <a class="help-link" href="help.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1-1.5 3M12 17h.01"/></svg><span data-i18n="nav.help">사용법</span></a>
+          <a href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--bg-1)"/><circle cx="16" cy="12" r="2" fill="var(--bg-1)"/><circle cx="8" cy="18" r="2" fill="var(--bg-1)"/></svg><span data-i18n="nav.settings">설정</span></a>
+        </nav>
+        <div class="nav-timer-notice" hidden><p role="status" aria-live="polite"></p><button type="button" class="nav-return-timer"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m10 6-6 6 6 6M4 12h16"/></svg><span data-i18n="common.returnTimer">타이머로 돌아가기</span></button></div>
+      </div>
     </div>
 
     <div class="hdr">
@@ -1430,7 +1485,7 @@
     <main class="session-content">
     <div class="tea-picker">
       <div class="carousel">
-        <button class="chev" id="teaPrev" aria-label="이전 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        <button class="chev" id="teaPrev" aria-label="이전 차" data-i18n-aria-label="tea.previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg></button>
@@ -1439,7 +1494,7 @@
           <span class="cur"><span class="tea-dot" id="teaDot"></span><span id="teaCur">청향 우롱</span></span>
           <span class="ghost" id="teaGhostR"></span>
         </div>
-        <button class="chev" id="teaNext" aria-label="다음 차"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        <button class="chev" id="teaNext" aria-label="다음 차" data-i18n-aria-label="tea.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6" />
           </svg></button>
@@ -1453,17 +1508,17 @@
 
     <div class="hero" id="hero">
       <div class="message" id="timeLabel" aria-live="polite"></div>
-      <button class="vessel-nav prev" id="vesselPrev" aria-label="이전 우림 도구"><svg viewBox="0 0 24 24" fill="none"
+      <button class="vessel-nav prev" id="vesselPrev" aria-label="이전 우림 도구" data-i18n-aria-label="vessel.previous"><svg viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6" />
         </svg></button>
-      <button class="vessel-nav next" id="vesselNext" aria-label="다음 우림 도구"><svg viewBox="0 0 24 24" fill="none"
+      <button class="vessel-nav next" id="vesselNext" aria-label="다음 우림 도구" data-i18n-aria-label="vessel.next"><svg viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 18 15 12 9 6" />
         </svg></button>
       <div class="halo h1"></div>
       <div class="halo h2"></div>
-      <svg class="stage" id="stage" viewBox="0 0 200 224" aria-label="차 우림 타이머 시각화">
+      <svg class="stage" id="stage" viewBox="0 0 200 224" aria-label="차 우림 타이머 시각화" data-i18n-aria-label="timer.visualization">
         <defs>
           <radialGradient id="softTeaGlow" cx="50%" cy="44%" r="54%">
             <stop offset="0" stop-color="#fff1a6" stop-opacity=".24" />
@@ -1597,16 +1652,16 @@
 
     <div class="controls">
       <div class="slider-row">
-        <div class="top"><span>권장 우림</span><span class="temp-hint" id="tempHint">95°C / 20초</span></div>
+        <div class="top"><span data-i18n="infusion.recommendedLabel">권장 우림</span><span class="temp-hint" id="tempHint">95°C / 20초</span></div>
         <div class="infusion-line" id="infusionLine" aria-live="polite"></div>
-        <div class="val"><span id="secVal">1포 20초</span><span class="val-suffix">우리기</span></div>
+        <div class="val"><span id="secVal">1포 20초</span><span class="val-suffix" data-i18n="infusion.suffix">우리기</span></div>
         <div class="slider-line">
-          <button class="step" id="dec" aria-label="1초 줄이기">−</button>
+          <button class="step" id="dec" aria-label="1초 줄이기" data-i18n-aria-label="timer.decrease">−</button>
           <div class="range-wrap" id="rangeWrap">
             <span class="recommended-mark" aria-hidden="true"></span>
-            <input type="range" id="slider" min="5" max="120" step="1" value="20" aria-label="우림 시간(초)">
+            <input type="range" id="slider" min="5" max="120" step="1" value="20" aria-label="우림 시간(초)" data-i18n-aria-label="timer.duration">
           </div>
-          <button class="step" id="inc" aria-label="1초 늘리기">+</button>
+          <button class="step" id="inc" aria-label="1초 늘리기" data-i18n-aria-label="timer.increase">+</button>
         </div>
       </div>
 
@@ -1625,15 +1680,26 @@
         </svg>
         <span id="muteText">소리 끄기</span>
       </button>
-      <button class="note-button" id="note" aria-label="차 느낌 남기기">
+      <button class="note-button" id="note" aria-label="차 느낌 남기기" data-i18n-aria-label="note.open">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round">
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
         </svg>
-        <span>차 느낌</span>
+        <span data-i18n="note.shortTitle">차 느낌</span>
       </button>
     </footer>
+  </div>
+  <div class="card-modal-backdrop" id="announcementsBackdrop" hidden inert aria-hidden="true">
+    <section class="card-preview-box announcements-box" id="announcementsDialog" role="dialog" aria-labelledby="announcementsTitle" tabindex="-1">
+      <div class="card-dialog-header">
+        <h2 id="announcementsTitle" data-i18n="announcements.title">공지사항</h2>
+        <button type="button" class="btn-close-sheet" id="closeAnnouncementsBtn" aria-label="공지사항 닫기" data-i18n-aria-label="announcements.close">✕</button>
+      </div>
+      <p class="announcement-updated" id="announcementUpdated"></p>
+      <div class="modal-timer-notice" hidden><p role="status" aria-live="polite" aria-atomic="true"></p><button type="button" class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button></div>
+      <div id="announcementContent"></div>
+    </section>
   </div>
   <div class="flash" id="flash"></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1643,12 +1709,12 @@
     <div class="sheet-container" id="noteDialog" role="dialog" aria-labelledby="noteDialogTitle" tabindex="-1">
       <div class="sheet-handle"></div>
       <div class="sheet-header">
-        <h2 class="sheet-title" id="noteDialogTitle">이번 차의 느낌</h2>
-        <button class="btn-close-sheet" id="closeSheetBtn" aria-label="차 느낌 닫기">✕</button>
+        <h2 class="sheet-title" id="noteDialogTitle" data-i18n="note.title">이번 차의 느낌</h2>
+        <button class="btn-close-sheet" id="closeSheetBtn" aria-label="차 느낌 닫기" data-i18n-aria-label="note.close">✕</button>
       </div>
       <div class="modal-timer-notice" hidden>
         <p role="status" aria-live="polite" aria-atomic="true"></p>
-        <button class="btn-action return-to-timer">타이머로 돌아가기</button>
+        <button class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button>
       </div>
 
       <!-- Summary Card -->
@@ -1656,7 +1722,7 @@
         <div class="summary-top">
           <div class="tea-info-group">
             <span class="tea-title" id="teaTitleDisplay">🍃 청향 우롱 · 개완</span>
-            <button class="btn-edit-title" id="editTitleBtn" aria-label="차 이름 수정">✏️</button>
+            <button class="btn-edit-title" id="editTitleBtn" aria-label="차 이름 수정" data-i18n-aria-label="note.editTitle"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m16 3 5 5-12 12-6 1 1-6Z"/><path d="m14 5 5 5"/></svg></button>
           </div>
           <span class="session-date" id="sessionDateDisplay">2026-07-28</span>
         </div>
@@ -1666,22 +1732,24 @@
       </div>
 
       <!-- Tag Chips Grid -->
-      <div class="section-label" id="tagsLabel">오늘 떠오른 단어</div>
+      <div class="section-label" id="tagsLabel" data-i18n="note.tagsLabel">오늘 떠오른 단어</div>
       <div class="tags-grid" id="tagsGrid" role="group" aria-labelledby="tagsLabel">
         <!-- js에서 render -->
       </div>
 
+      <p id="tagProtectionNotice" hidden data-i18n="tag.protected"></p>
+
       <!-- Note Textarea -->
-      <label class="section-label" for="noteInput">조금 더 자세히 적는다면</label>
-      <textarea class="note-textarea" id="noteInput" placeholder="차를 마시며 느낀 점, 나만의 비유, 분위기나 장소를 자유롭게 적어보세요."></textarea>
+      <label class="section-label" for="noteInput" data-i18n="note.prompt">조금 더 자세히 적는다면</label>
+      <textarea class="note-textarea" id="noteInput" placeholder="차를 마시며 느낀 점, 나만의 비유, 분위기나 장소를 자유롭게 적어보세요." data-i18n-placeholder="note.placeholder"></textarea>
 
       <!-- Action Buttons -->
       <div class="action-grid">
-        <button class="btn-action" id="draftBtn" aria-describedby="draftHint">💾 임시저장</button>
-        <button class="btn-action" id="copyBtn">📋 텍스트 복사</button>
-        <button class="btn-action" id="cardBtn">🖼️ 카드 이미지 저장</button>
+        <button class="btn-action" id="draftBtn" aria-describedby="draftHint"><span data-i18n="note.saveDraft">임시저장</span></button>
+        <button class="btn-action" id="copyBtn"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></svg><span data-i18n="note.copy">텍스트 복사</span></button>
+        <button class="btn-action" id="cardBtn"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 5-5 4 4 3-3 5 5"/></svg><span data-i18n="note.card">카드 이미지 저장</span></button>
       </div>
-      <p class="draft-hint" id="draftHint">임시저장은 이번 우림 동안만 유지됩니다.<br>새로고침·앱 종료 뒤에는 복원되지 않습니다. 오래 남길 느낌은 텍스트나 이미지로 내보낼 수 있습니다.</p>
+      <p class="draft-hint" id="draftHint"><span data-i18n="note.draftHint">임시저장은 이번 우림 동안만 유지됩니다.</span><br><span data-i18n="note.draftLifetime">새로고침·앱 종료 뒤에는 복원되지 않습니다. 오래 남길 느낌은 텍스트나 이미지로 내보낼 수 있습니다.</span></p>
     </div>
   </div>
 
@@ -1689,38 +1757,42 @@
   <div class="card-modal-backdrop" id="cardModalBackdrop" hidden inert aria-hidden="true">
     <div class="card-preview-box" id="cardDialog" role="dialog" aria-labelledby="cardDialogTitle" tabindex="-1">
       <div class="card-dialog-header">
-        <h2 class="card-dialog-title" id="cardDialogTitle">카드 미리보기</h2>
-        <button class="btn-close-sheet" id="closeCardModalBtn" aria-label="카드 미리보기 닫기">✕</button>
+        <h2 class="card-dialog-title" id="cardDialogTitle" data-i18n="card.title">카드 미리보기</h2>
+        <button class="btn-close-sheet" id="closeCardModalBtn" aria-label="카드 미리보기 닫기" data-i18n-aria-label="card.close">✕</button>
       </div>
       <div class="modal-timer-notice" hidden>
         <p role="status" aria-live="polite" aria-atomic="true"></p>
-        <button class="btn-action return-to-timer">타이머로 돌아가기</button>
+        <button class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button>
       </div>
-      <div class="card-header-badge">TIME FOR TEA · TASTING NOTE</div>
+      <div class="card-header-badge" data-i18n="card.badge">TIME FOR TEA · TASTING NOTE</div>
       <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
       <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
       <div class="card-tags" id="cardTagsContainer"></div>
       <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
       <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
-      <button class="btn-share-card" id="shareCardBtn">공유 또는 이미지 저장</button>
+      <button class="btn-share-card" id="shareCardBtn"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V3m-5 5 5-5 5 5M5 12v8h14v-8"/></svg><span data-i18n="card.share">공유 또는 이미지 저장</span></button>
     </div>
   </div>
 
   <div class="card-modal-backdrop confirm-backdrop" id="endSessionBackdrop" hidden inert aria-hidden="true">
     <div class="card-preview-box confirm-box" id="endSessionDialog" role="dialog" aria-labelledby="endSessionTitle" aria-describedby="endSessionDescription" tabindex="-1">
-      <h2 id="endSessionTitle">느낌을 지우고 우림을 끝냅니다.</h2>
-      <p id="endSessionDescription">내보내지 않은 내용은 사라집니다.</p>
+      <h2 id="endSessionTitle" data-i18n="session.confirmTitle">느낌을 지우고 우림을 끝냅니다.</h2>
+      <p id="endSessionDescription" data-i18n="session.confirmDescription">내보내지 않은 내용은 사라집니다.</p>
       <div class="modal-timer-notice" hidden>
         <p role="status" aria-live="polite" aria-atomic="true"></p>
       </div>
       <div class="confirm-actions">
-        <button class="btn-action" id="cancelEndSessionBtn">취소</button>
-        <button class="btn-action" id="confirmEndSessionBtn">느낌 지우고 끝내기</button>
+        <button class="btn-action" id="cancelEndSessionBtn" data-i18n="common.cancel">취소</button>
+        <button class="btn-action" id="confirmEndSessionBtn" data-i18n="session.confirmEnd">느낌 지우고 끝내기</button>
       </div>
     </div>
   </div>
 
+  <script src="scripts/tags.js"></script>
   <script src="scripts/preferences.js"></script>
+  <script src="scripts/i18n.js"></script>
+  <script src="scripts/locales/ko.js"></script>
+  <script src="scripts/announcements.js"></script>
   <script>
     (() => {
       const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
@@ -1728,6 +1800,7 @@
       motionQuery.addEventListener('change', e => { reduce = e.matches; kickFrame(); });
       const SVGNS = "http://www.w3.org/2000/svg";
       const $ = id => document.getElementById(id);
+      const t = TeaI18n.t;
       const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => v < a ? a : v > b ? b : v;
       const mix = (c1, c2, t) => [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
       const rgb = c => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
@@ -1746,25 +1819,24 @@
       const sat = t => (1 - Math.exp(-SAT_K * t)) / SAT_D;   // 추출 포화 곡선: 초반 빠르게, 후반 완만
       const cjk = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
       const infText = n => `第${n <= 10 ? cjk[n] : n}泡`;
-      const koOrd = ["", "첫", "두 번째", "세 번째", "네 번째", "다섯 번째", "여섯 번째", "일곱 번째", "여덟 번째", "아홉 번째", "열 번째"];
-      const koInf = n => n === 1 ? "첫 우림" : `${koOrd[n] || n + '번째'} 우림`;
+      const koInf = n => n <= 10 ? t(`infusion.ordinal.${n}`) : t("infusion.ordinal.other", { n });
 
       // ---- data ----
       const TEAS = [
-        { id: "green", name: "녹차", cjk: "綠茶", temp: 80, base: 15, add: 10, light: [214, 221, 134], strong: [185, 196, 90], peak: .60 },
-        { id: "white", name: "백차", cjk: "白茶", temp: 90, base: 30, add: 10, light: [236, 220, 160], strong: [216, 180, 110], peak: .55 },
-        { id: "oolong", name: "청향 우롱", cjk: "清香烏龍", temp: 95, base: 20, add: 5, light: [222, 210, 132], strong: [198, 176, 86], peak: .66 },
-        { id: "nong", name: "농향 우롱", cjk: "濃香烏龍", temp: 98, base: 20, add: 5, light: [201, 143, 67], strong: [158, 101, 38], peak: .78 },
-        { id: "black", name: "홍차", cjk: "紅茶", temp: 90, base: 12, add: 5, light: [196, 98, 42], strong: [156, 58, 24], peak: .82 },
-        { id: "sheng", name: "보이 생차", cjk: "生普洱", temp: 95, base: 15, add: 5, light: [224, 168, 62], strong: [200, 126, 31], peak: .70 },
-        { id: "shou", name: "보이 숙차", cjk: "熟普洱", temp: 100, base: 20, add: 8, light: [122, 58, 30], strong: [74, 31, 14], peak: .90 },
+        { id: "green", get name() { return t("tea.green.name"); }, cjk: "綠茶", temp: 80, base: 15, add: 10, light: [214, 221, 134], strong: [185, 196, 90], peak: .60 },
+        { id: "white", get name() { return t("tea.white.name"); }, cjk: "白茶", temp: 90, base: 30, add: 10, light: [236, 220, 160], strong: [216, 180, 110], peak: .55 },
+        { id: "oolong", get name() { return t("tea.oolong.name"); }, cjk: "清香烏龍", temp: 95, base: 20, add: 5, light: [222, 210, 132], strong: [198, 176, 86], peak: .66 },
+        { id: "nong", get name() { return t("tea.nong.name"); }, cjk: "濃香烏龍", temp: 98, base: 20, add: 5, light: [201, 143, 67], strong: [158, 101, 38], peak: .78 },
+        { id: "black", get name() { return t("tea.black.name"); }, cjk: "紅茶", temp: 90, base: 12, add: 5, light: [196, 98, 42], strong: [156, 58, 24], peak: .82 },
+        { id: "sheng", get name() { return t("tea.sheng.name"); }, cjk: "生普洱", temp: 95, base: 15, add: 5, light: [224, 168, 62], strong: [200, 126, 31], peak: .70 },
+        { id: "shou", get name() { return t("tea.shou.name"); }, cjk: "熟普洱", temp: 100, base: 20, add: 8, light: [122, 58, 30], strong: [74, 31, 14], peak: .90 },
       ];
       const VESSELS = [
-        { id: "teapot", name: "티팟", label: "서양 티팟 · 도자 · 탕색 안 보임", family: "closed-pot", culture: "western", material: "porcelain", silhouette: "round-large", vis: "none", round: true, readoutTop: "18%", done: "pour", completion: "따라내세요 · 出湯", asset: "assets/vessels/teapot.png", requiresSeparationAction: false },
-        { id: "eastern-pot", name: "동양식 다호", shortName: "다호", label: "동양식 다호 · 자사 · 탕색 안 보임", family: "closed-pot", culture: "gongfu", material: "zisha-clay", silhouette: "compact", vis: "none", round: true, readoutTop: "18%", done: "pour", completion: "바로 따라내세요 · 出湯", asset: "assets/vessels/eastern-pot-zisha.png", requiresSeparationAction: false },
-        { id: "gaiwan", name: "개완", label: "개완 蓋碗 · 유리 · 탕색 보임", family: "lidded-bowl", culture: "gongfu", material: "glass", silhouette: "bowl", vis: "liquid", round: false, readoutTop: "18%", done: "lid", completion: "뚜껑 열고 따르세요 · 開蓋", asset: "assets/vessels/gaiwan-glass.png", requiresSeparationAction: false },
-        { id: "mug", name: "머그", label: "머그컵 · 도자 · 윗면만 보임", family: "cup", culture: "casual", material: "porcelain", silhouette: "tall-cup", vis: "top", round: false, readoutTop: "18%", done: "glow", completion: "드세요 · 出湯", asset: "assets/vessels/mug.png", requiresSeparationAction: false },
-        { id: "piaoyibei", name: "표일배", label: "표일배 飄逸杯 · 유리 · 버튼 배수", family: "separator", culture: "gongfu", material: "glass", silhouette: "silhouette", vis: "chamber", round: false, readoutTop: "18%", done: "button", completion: "버튼 눌러 내리세요 · 出湯", asset: "assets/vessels/piaoyibei-glass.png", requiresSeparationAction: true, steepOffset: 5 },
+        { id: "teapot", get name() { return t("vessel.teapot.name"); }, get label() { return t("vessel.teapot.label"); }, family: "closed-pot", culture: "western", material: "porcelain", silhouette: "round-large", vis: "none", round: true, readoutTop: "18%", done: "pour", get completion() { return t("vessel.teapot.completion"); }, asset: "assets/vessels/teapot.png", requiresSeparationAction: false },
+        { id: "eastern-pot", get name() { return t("vessel.eastern-pot.name"); }, get shortName() { return t("vessel.eastern-pot.shortName"); }, get label() { return t("vessel.eastern-pot.label"); }, family: "closed-pot", culture: "gongfu", material: "zisha-clay", silhouette: "compact", vis: "none", round: true, readoutTop: "18%", done: "pour", get completion() { return t("vessel.eastern-pot.completion"); }, asset: "assets/vessels/eastern-pot-zisha.png", requiresSeparationAction: false },
+        { id: "gaiwan", get name() { return t("vessel.gaiwan.name"); }, get label() { return t("vessel.gaiwan.label"); }, family: "lidded-bowl", culture: "gongfu", material: "glass", silhouette: "bowl", vis: "liquid", round: false, readoutTop: "18%", done: "lid", get completion() { return t("vessel.gaiwan.completion"); }, asset: "assets/vessels/gaiwan-glass.png", requiresSeparationAction: false },
+        { id: "mug", get name() { return t("vessel.mug.name"); }, get label() { return t("vessel.mug.label"); }, family: "cup", culture: "casual", material: "porcelain", silhouette: "tall-cup", vis: "top", round: false, readoutTop: "18%", done: "glow", get completion() { return t("vessel.mug.completion"); }, asset: "assets/vessels/mug.png", requiresSeparationAction: false },
+        { id: "piaoyibei", get name() { return t("vessel.piaoyibei.name"); }, get label() { return t("vessel.piaoyibei.label"); }, family: "separator", culture: "gongfu", material: "glass", silhouette: "silhouette", vis: "chamber", round: false, readoutTop: "18%", done: "button", get completion() { return t("vessel.piaoyibei.completion"); }, asset: "assets/vessels/piaoyibei-glass.png", requiresSeparationAction: true, steepOffset: 5 },
       ];
       const preferenceStore = TeaPreferences.createStore();
       const preferences = preferenceStore.read().values;
@@ -1800,7 +1872,7 @@
       const adjustedSecFor = n => clamp(recommendedSecFor(n) + (secDeltaByTea[tea().id] || 0), 5, 120);
       function savePreferences(changes) {
         const result = preferenceStore.patch(changes);
-        if (!result.ok) showToast("기기에 저장하지 못했습니다. 이번 화면에서만 적용됩니다.", 5000);
+        if (!result.ok) showToast(t("common.saveFailed"), 5000);
       }
       function rememberTimeAdjustment() {
         secDeltaByTea[tea().id] = sec - recommendedSecFor(infusion);
@@ -2099,7 +2171,7 @@
 
       // ---- format ----
       const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${(s / 60) | 0}:${String(s % 60).padStart(2, "0")}`; };
-      const brewLabel = (n, s) => `${n}포 ${s}초`;
+      const brewLabel = (n, s) => t("infusion.brew", { n, sec: s });
 
       // ---- tea / vessel UI ----
       function renderedTeaColor(t) {
@@ -2210,12 +2282,13 @@
         $("teaNext").disabled = loading || !(phase === "idle" || phase === "done");
         if (phase === "idle" || phase === "done") els.brew.disabled = loading;
         els.hero.setAttribute("aria-busy", loading ? "true" : "false");
+        if (!loading) flushPendingLocale();
       }
       async function selectVessel(delta) {
         if (vesselLoading || phase === "pour" || phase === "steep" || phase === "draining") return;
         if (blockSelectionForDraft()) return;
         if (infusionHistory.length > 0) {
-          showToast("진행 중인 차가 있습니다.\n[우림 끝]을 누르면 차와 도구를 바꿀 수 있습니다.");
+          showToast(t("notice.selectionBlocked"));
           return;
         }
         const idx = vesselIndex();
@@ -2225,7 +2298,7 @@
         setVesselLoading(true);
         try {
           if (!await prepareVesselAssets(nextVessel)) {
-            showToast("도구 이미지를 불러오지 못했습니다.");
+            showToast(t("notice.vesselFailed"));
             return;
           }
           if (vesselId !== originVesselId || phase !== originPhase || infusionHistory.length > 0 || blockSelectionForDraft()) {
@@ -2254,7 +2327,7 @@
         if (vesselLoading || phase === "pour" || phase === "steep" || phase === "draining") return;
         if (blockSelectionForDraft()) return;
         if (infusionHistory.length > 0) {
-          showToast("진행 중인 차가 있습니다.\n[우림 끝]을 누르면 차와 도구를 바꿀 수 있습니다.");
+          showToast(t("notice.selectionBlocked"));
           return;
         }
         teaIdx = (i + TEAS.length) % TEAS.length; paintTea();
@@ -2265,7 +2338,7 @@
       // ---- slider ----
       function updateInfusionLine() {
         els.infusionLine.textContent = infusionHistory.length
-          ? "우림 기록 " + infusionHistory.map(h => brewLabel(h.n, h.sec)).join(" / ")
+          ? t("infusion.historyPrefix") + infusionHistory.map(h => brewLabel(h.n, h.sec)).join(" / ")
           : "";
       }
       function syncSlider() {
@@ -2274,8 +2347,8 @@
         const p = ((sec - 5) / 115) * 100, recF = (rec - 5) / 115;
         els.slider.style.setProperty("--p", p + "%");
         els.rangeWrap.style.setProperty("--recommended-f", recF);
-        els.slider.setAttribute("aria-valuetext", `${sec}초, 권장 ${rec}초`);
-        els.tempHint.textContent = `${tea().temp}°C / ${rec}초`;
+        els.slider.setAttribute("aria-valuetext", t("infusion.slider", { sec, recommended: rec }));
+        els.tempHint.textContent = t("infusion.recommended", { temp: tea().temp, sec: rec });
         els.secVal.textContent = brewLabel(infusion, sec);
         updateInfusionLine();
       }
@@ -2503,12 +2576,12 @@
         els.time.textContent = displayedTime; els.timeLabel.textContent = "";
         els.timeLabel.setAttribute('aria-live', 'polite'); els.timeLabel.classList.remove("gold"); els.readout.classList.remove("done"); els.hero.classList.remove("urgent");
         if (reduce) { level = 1; enterSteep(performance.now()); kickFrame(); return; }
-        phase = "pour"; pourStart = performance.now(); level = 0; els.brew.textContent = "물 붓는 중…";
+        phase = "pour"; pourStart = performance.now(); level = 0; els.brew.textContent = t("brew.pouring");
         kickFrame();
       }
       function enterSteep(now) {
         phase = "steep"; steepStart = now; steepMs = sec * 1000; level = 1; lidTarget = 0;
-        els.brew.textContent = "우리는 중…";
+        els.brew.textContent = t("brew.steeping");
       }
       let isDrained = false;
 
@@ -2528,7 +2601,7 @@
         void chime();
         clearRing();
         els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.disabled = false;
-        els.brew.textContent = (vesselId === "piaoyibei") ? "버튼 눌러 내리기" : "차 따라내기";
+        els.brew.textContent = (vesselId === "piaoyibei") ? t("brew.drainButton") : t("brew.drain");
         updateModalTimerNotice();
         relWake();
       }
@@ -2542,9 +2615,9 @@
         if (phase !== "draining") return;
         phase = "done"; isDrained = true; drain = 1;
         prepareNextInfusion();
-        displayedMessage = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
+        displayedMessage = (vesselId === "piaoyibei") ? t("brew.drainedPiao") : t("brew.drained");
         els.timeLabel.textContent = displayedMessage;
-        els.brew.textContent = "다음 泡 우리기";
+        els.brew.textContent = t("brew.next");
         const cb = drainCallback; drainCallback = null; cb && cb();
         updateModalTimerNotice();
       }
@@ -2554,7 +2627,7 @@
         drainCallback = null;
         phase = "idle"; infusion = 1; sec = adjustedSecFor(infusion); pyDrained = false; isDrained = false; drain = 0; infusionHistory = []; activeBrew = null;
         setInf(); syncSlider(); previewIdle();
-        els.brew.disabled = vesselLoading; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = "우리기 시작";
+        els.brew.disabled = vesselLoading; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = t("brew.start");
         relWake();
         stopActiveAudio();
         if (actx && actx.state === "running") suspendAudioWhenIdle(0);
@@ -2630,7 +2703,7 @@
             els.hero.classList.toggle("urgent", urgent && !reduce);
             els.timeLabel.classList.toggle("gold", urgent);
           }
-          const message = urgent ? "곧 따라낼 준비" : "";
+          const message = urgent ? t("brew.urgent") : "";
           if (displayedMessage !== message) { displayedMessage = message; els.timeLabel.textContent = message; }
           const remSec = Math.ceil(remaining / 1000);
           if (!preWarned && remaining <= preWarnSec * 1000) { preWarned = true; preWarn(); lastTick = remSec; }
@@ -2648,7 +2721,9 @@
       }
 
       // ---- Tea Feeling Notes & Preferences ----
-      const customTags = preferences.customTags;
+      const customTags = TeaTags.dedupe(preferences.tagItems);
+      const tagText = item => TeaTags.label(item, t);
+      const selectedTagTexts = () => sessionDraftTags.map(tagText);
       let customTitle = "";
       let sessionDraftNote = "";
       let sessionDraftTags = [];
@@ -2657,7 +2732,8 @@
       const noteLayer = { backdrop: $("sheetBackdrop"), dialog: $("noteDialog"), close: $("closeSheetBtn") };
       const cardLayer = { backdrop: $("cardModalBackdrop"), dialog: $("cardDialog"), close: $("closeCardModalBtn") };
       const endLayer = { backdrop: $("endSessionBackdrop"), dialog: $("endSessionDialog"), close: $("cancelEndSessionBtn") };
-      const modalLayers = [noteLayer, cardLayer, endLayer];
+      const announcementLayer = { backdrop: $("announcementsBackdrop"), dialog: $("announcementsDialog"), close: $("closeAnnouncementsBtn") };
+      const modalLayers = [noteLayer, cardLayer, endLayer, announcementLayer];
       const modalStack = [];
       const topModal = () => modalStack[modalStack.length - 1];
       function syncModalState(focusTarget) {
@@ -2687,6 +2763,7 @@
       }
       function openModal(layer, opener) {
         if (modalStack.includes(layer)) return;
+        closePopover(false);
         layer.opener = opener || document.activeElement;
         layer.backdrop.hidden = false;
         layer.backdrop.removeAttribute("aria-hidden");
@@ -2717,6 +2794,7 @@
           e.preventDefault();
           if (top === endLayer) closeModal(endLayer);
           else if (top === cardLayer) closeModal(cardLayer);
+          else if (top === announcementLayer) closeModal(announcementLayer);
           else closeNoteSheet();
         } else if (e.key === "Tab") {
           const items = modalFocusables(top);
@@ -2729,15 +2807,16 @@
         }
       });
       function updateModalTimerNotice() {
+        updateNavTimerNotice();
         const active = phase === "pour" || phase === "steep" || phase === "draining" || phase === "done";
         for (const layer of modalLayers) {
           const notice = layer.dialog.querySelector(".modal-timer-notice");
           notice.hidden = !active;
           // Only update the exposed live region, so nested dialogs do not announce twice.
           if (layer !== topModal()) continue;
-          const message = layer === endLayer ? (phase === "done" ? "우림을 마쳤습니다. 취소하면 이번 우림을 이어갈 수 있습니다." : "타이머는 계속 진행되고 있습니다.")
-            : phase === "done" ? (isDrained ? "차를 따라냈습니다. 타이머로 돌아가 다음 우림을 시작할 수 있습니다." : "우림을 마쳤습니다. 타이머로 돌아가 차를 따라낼 수 있습니다.")
-            : phase === "draining" ? "차를 따라내고 있습니다." : "차를 우리는 중입니다. 느낌을 적는 동안에도 타이머는 계속됩니다.";
+          const message = layer === endLayer ? (phase === "done" ? t("notice.confirmDone") : t("notice.timerContinues"))
+            : phase === "done" ? (isDrained ? t("notice.drained") : t("notice.done"))
+            : phase === "draining" ? t("notice.draining") : t(layer === announcementLayer ? "notice.readingSteeping" : "notice.noteSteeping");
           const status = notice.querySelector('[role="status"]');
           if (status.textContent !== message) status.textContent = message;
         }
@@ -2745,6 +2824,7 @@
       document.querySelectorAll(".return-to-timer").forEach(button => {
         button.onclick = () => afterComposition(() => {
           if (topModal() === cardLayer) closeModal(cardLayer);
+          if (topModal() === announcementLayer) closeModal(announcementLayer);
           closeNoteSheet();
           (els.brew.disabled ? $("note") : els.brew).focus();
         });
@@ -2766,6 +2846,7 @@
           const action = pendingCompositionAction;
           pendingCompositionAction = null;
           action?.();
+          flushPendingLocale();
         }, 0);
       });
       function afterComposition(action) {
@@ -2783,6 +2864,7 @@
         const name = customTitle || (tea().name + " · " + vessel().name);
         display.textContent = getTeaEmoji(name) + " " + name;
         input.replaceWith(display);
+        flushPendingLocale();
       }
 
       function hasContentDraft() {
@@ -2792,7 +2874,7 @@
       }
       function blockSelectionForDraft() {
         if (!hasContentDraft()) return false;
-        showToast("작성한 느낌이 있습니다.\n차나 다구는 [우림 끝]을 누른 뒤 바꿀 수 있습니다.");
+        showToast(t("notice.draftBlocked"));
         return true;
       }
       // Only guard same-document departures; opening a new tab preserves this session.
@@ -2803,11 +2885,11 @@
         if (url.origin !== location.origin || !/(?:^|\/)(?:help|settings)\.html$/.test(url.pathname)) return;
         if (phase === "idle" && !infusionHistory.length && !hasContentDraft() && !vesselLoading && !titleEdit && !composingInput) return;
         e.preventDefault();
-        showToast("우림과 느낌을 유지하고 있습니다.\n필요한 느낌을 내보내고 [우림 끝]을 누른 뒤 이동할 수 있습니다.", 4200);
+        showToast(t("notice.navigationBlocked"), 4200);
       });
 
       function getTeaEmoji(name) {
-        if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
+        if (["nong", "black", "shou"].includes(tea().id)) return '🍂';
         return '🍃';
       }
 
@@ -2823,31 +2905,38 @@
       // Render Tags Grid
       function renderTagsGrid() {
         const grid = $("tagsGrid");
-        grid.innerHTML = "";
+        const focusedKey = grid.contains(document.activeElement) ? document.activeElement.dataset.tagKey : null;
+        grid.replaceChildren();
         customTags.forEach(tag => {
+          const identity = TeaTags.key(tag);
+          const isSelected = () => sessionDraftTags.some(item => TeaTags.key(item) === identity);
           const chip = document.createElement("button");
           chip.type = "button";
-          chip.className = "tag-chip" + (sessionDraftTags.includes(tag) ? " active" : "");
-          chip.textContent = "#" + tag;
-          chip.setAttribute("aria-pressed", sessionDraftTags.includes(tag));
+          chip.dataset.tagKey = identity;
+          chip.className = "tag-chip" + (isSelected() ? " active" : "");
+          chip.textContent = "#" + tagText(tag);
+          if (tag.kind === "custom") {
+            const badge = document.createElement("span");
+            badge.className = "tag-custom-label"; badge.textContent = t("tag.custom"); chip.appendChild(badge);
+          }
+          chip.setAttribute("aria-pressed", isSelected());
           chip.onclick = () => {
-            if (sessionDraftTags.includes(tag)) {
-              sessionDraftTags = sessionDraftTags.filter(t => t !== tag);
-              chip.classList.remove("active");
-            } else {
-              sessionDraftTags.push(tag);
-              chip.classList.add("active");
-            }
-            chip.setAttribute("aria-pressed", sessionDraftTags.includes(tag));
+            if (isSelected()) sessionDraftTags = sessionDraftTags.filter(item => TeaTags.key(item) !== identity);
+            else sessionDraftTags.push({ ...tag });
+            chip.classList.toggle("active", isSelected());
+            chip.setAttribute("aria-pressed", isSelected());
+            flushPendingLocale();
           };
           grid.appendChild(chip);
+          if (identity === focusedKey) chip.focus();
         });
+        $("tagProtectionNotice").hidden = !preferences.tagItemsProtected;
       }
 
       function updateSummaryCard() {
         const rawName = customTitle || (tea().name + " · " + vessel().name);
         const emoji = getTeaEmoji(rawName);
-        $("teaTitleDisplay").textContent = emoji + " " + rawName;
+        if ($("teaTitleDisplay")) $("teaTitleDisplay").textContent = emoji + " " + rawName;
 
         const today = new Date();
         const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
@@ -2856,10 +2945,10 @@
       }
       function updateInfusionSummary() {
         if (infusionHistory.length > 0) {
-          const historyStr = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" · ");
-          $("infusionHistoryDisplay").textContent = `${historyStr} (총 ${infusionHistory.length}포)`;
+          const historyStr = infusionHistory.map(h => t("infusion.brew", { n: h.n, sec: h.sec })).join(" · ");
+          $("infusionHistoryDisplay").textContent = t("infusion.summary", { history: historyStr, count: infusionHistory.length });
         } else {
-          $("infusionHistoryDisplay").textContent = "완료된 우림 없음";
+          $("infusionHistoryDisplay").textContent = t("infusion.none");
         }
       }
 
@@ -2870,7 +2959,7 @@
         const input = document.createElement("input");
         input.className = "edit-input-inline";
         input.id = "teaTitleInput";
-        input.setAttribute("aria-label", "차 이름");
+        input.setAttribute("aria-label", t("note.teaName"));
         input.value = customTitle || (tea().name + " · " + vessel().name);
         titleEdit = { input, initialValue: input.value };
         display.replaceWith(input);
@@ -2898,17 +2987,19 @@
           finishTitleEdit();
           sessionDraftNote = $("noteInput").value;
           closeModal(noteLayer);
+          flushPendingLocale();
         });
       }
 
       $("note").onclick = openNoteSheet;
       $("closeSheetBtn").onclick = closeNoteSheet;
+      $("noteInput").addEventListener("input", flushPendingLocale);
       $("sheetBackdrop").onclick = (e) => { if (e.target === $("sheetBackdrop")) closeNoteSheet(); };
 
       // Draft Save
       $("draftBtn").onclick = () => afterComposition(() => {
         closeNoteSheet();
-        showToast("이번 우림의 느낌을 임시저장했습니다.");
+        showToast(t("notice.draftSaved"));
       });
 
       // Copy Plain Text
@@ -2920,25 +3011,25 @@
         const today = new Date();
         const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
 
-        let historyLines = "완료된 우림 없음";
+        let historyLines = t("infusion.none");
         if (infusionHistory.length > 0) {
-          historyLines = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" / ");
+          historyLines = infusionHistory.map(h => t("infusion.brew", { n: h.n, sec: h.sec })).join(" / ");
         }
 
-        const tagsLine = sessionDraftTags.length > 0 ? sessionDraftTags.map(t => `#${t}`).join(" ") : "(선택 단어 없음)";
-        const noteLine = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : "(노트 없음)";
+        const tagsLine = sessionDraftTags.length > 0 ? selectedTagTexts().map(label => `#${label}`).join(" ") : t("export.noTags");
+        const noteLine = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : t("export.noNote");
 
-        const textToCopy = `[차 한 잔의 시간 시음 노트]
+        const textToCopy = `${t("export.heading")}
 ${emoji} ${rawName}
-📅 ${dateStr} (${infusionHistory.length ? infusionHistory.length + "포 우림" : "완료된 우림 없음"})
+📅 ${dateStr} (${infusionHistory.length ? t("infusion.count", { count: infusionHistory.length }) : t("infusion.none")})
 ⏱️ ${historyLines}
 🏷️ ${tagsLine}
 💬 ${noteLine}`;
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(textToCopy).then(() => showToast("텍스트를 복사했습니다.")).catch(() => showToast("텍스트를 복사하지 못했습니다."));
+          navigator.clipboard.writeText(textToCopy).then(() => showToast(t("notice.copied"))).catch(() => showToast(t("notice.copyFailed")));
         } else {
-          showToast("이 브라우저에서는 텍스트 복사를 지원하지 않습니다.");
+          showToast(t("notice.copyUnsupported"));
         }
       });
 
@@ -2964,9 +3055,7 @@ ${emoji} ${rawName}
       }
 
       // Card Image Generation (Canvas 680x900) & Preview
-      $("cardBtn").onclick = () => afterComposition(() => {
-        finishTitleEdit();
-        sessionDraftNote = $("noteInput").value;
+      function updateCardPreview() {
         const rawName = customTitle || (tea().name + " · " + vessel().name);
         const emoji = getTeaEmoji(rawName);
         const today = new Date();
@@ -2975,12 +3064,12 @@ ${emoji} ${rawName}
         // Update DOM preview modal
         $("cardTeaName").textContent = emoji + " " + rawName;
         $("cardInfusions").textContent = cardInfusionText();
-        $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"차 한 잔의 평화로운 순간"`;
+        $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"${t("card.emptyNote")}"`;
         $("cardFooterDate").textContent = `${dateStr} · 차 한 잔의 시간`;
 
         const cardTagsContainer = $("cardTagsContainer");
         cardTagsContainer.innerHTML = "";
-        const tagRows = getBalancedTagRows(sessionDraftTags);
+        const tagRows = getBalancedTagRows(selectedTagTexts());
         if (tagRows.length === 0) {
           cardTagsContainer.style.display = "none";
         } else {
@@ -2998,6 +3087,11 @@ ${emoji} ${rawName}
           });
         }
 
+      }
+      $("cardBtn").onclick = () => afterComposition(() => {
+        finishTitleEdit();
+        sessionDraftNote = $("noteInput").value;
+        updateCardPreview();
         openModal(cardLayer, $("cardBtn"));
       });
 
@@ -3011,10 +3105,20 @@ ${emoji} ${rawName}
       };
 
       function cardInfusionText() {
-        return `${infusionHistory.length ? infusionHistory.length + "포 우림" : "완료된 우림 없음"} (${vessel().name})`;
+        return `${infusionHistory.length ? t("infusion.count", { count: infusionHistory.length }) : t("infusion.none")} (${vessel().name})`;
       }
 
       async function renderAndShareCanvasCard() {
+        if (sharingSnapshot) return;
+        sharingSnapshot = true;
+        const snapshot = {
+          rawName: customTitle || (tea().name + " · " + vessel().name), emoji: getTeaEmoji(),
+          note: sessionDraftNote, tags: selectedTagTexts(), history: infusionHistory.map(item => ({ ...item })),
+          infusionText: cardInfusionText(), locale: TeaI18n.getLocale(), date: new Date(),
+        };
+        const st = (key, vars) => TeaI18n.translate(snapshot.locale, key, vars);
+        try {
+        await TeaI18n.prepareFonts(snapshot.rawName + snapshot.note + snapshot.tags.join(" "));
         const canvas = document.createElement("canvas");
         canvas.width = 680;
         canvas.height = 900;
@@ -3041,25 +3145,25 @@ ${emoji} ${rawName}
         ctx.fillStyle = "#cdbf63";
         ctx.font = "bold 16px 'Space Mono', monospace";
         ctx.textAlign = "center";
-        ctx.fillText("TIME FOR TEA · TASTING NOTE", 340, 110);
+        ctx.fillText(st("card.badge"), 340, 110);
 
         // Tea Name
-        const rawName = customTitle || (tea().name + " · " + vessel().name);
-        const emoji = getTeaEmoji(rawName);
+        const rawName = snapshot.rawName;
+        const emoji = snapshot.emoji;
         ctx.fillStyle = "#efe6d6";
-        ctx.font = "bold 38px 'Gowun Batang', serif";
+        ctx.font = `bold 38px ${TeaI18n.fontFamily}`;
         ctx.fillText(emoji + " " + rawName, 340, 185);
 
         // Infusion Info
         ctx.fillStyle = "#e4d691";
-        ctx.font = "22px 'Gowun Batang', serif";
-        ctx.fillText(cardInfusionText(), 340, 235);
+        ctx.font = `22px ${TeaI18n.fontFamily}`;
+        ctx.fillText(snapshot.infusionText, 340, 235);
 
         // History times
-        if (infusionHistory.length > 0) {
+        if (snapshot.history.length > 0) {
           ctx.fillStyle = "#9c8f78";
           ctx.font = "17px 'Space Mono', monospace";
-          const hStr = infusionHistory.map(h => `${h.n}포:${h.sec}초`).join("  ");
+          const hStr = snapshot.history.map(h => st("infusion.compact", { n: h.n, sec: h.sec })).join("  ");
           ctx.fillText(hStr, 340, 275);
         }
 
@@ -3071,9 +3175,9 @@ ${emoji} ${rawName}
         ctx.stroke();
 
         // Balanced Tag Rows (Canvas)
-        const tagRows = getBalancedTagRows(sessionDraftTags);
+        const tagRows = getBalancedTagRows(snapshot.tags);
         let startY = 370;
-        ctx.font = "bold 20px 'Gowun Batang', serif";
+        ctx.font = `bold 20px ${TeaI18n.fontFamily}`;
 
         tagRows.forEach(row => {
           let rowWidth = 0;
@@ -3101,7 +3205,7 @@ ${emoji} ${rawName}
         });
 
         // Note Quote Box
-        const noteText = sessionDraftNote.trim() || "차 한 잔의 평화로운 순간";
+        const noteText = snapshot.note.trim() || st("card.emptyNote");
         const quoteY = Math.max(startY + 30, 560);
 
         ctx.fillStyle = "rgba(0,0,0,0.3)";
@@ -3114,7 +3218,7 @@ ${emoji} ${rawName}
         ctx.stroke();
 
         ctx.fillStyle = "#efe6d6";
-        ctx.font = "italic 22px 'Gowun Batang', serif";
+        ctx.font = `italic 22px ${TeaI18n.fontFamily}`;
         ctx.textAlign = "left";
 
         // Multi-line note text wrapping
@@ -3136,10 +3240,10 @@ ${emoji} ${rawName}
         ctx.fillText(line, 110, lineY);
 
         // Footer Date & Brand
-        const today = new Date();
+        const today = snapshot.date;
         const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
         ctx.fillStyle = "#7d715c";
-        ctx.font = "18px 'Gowun Batang', serif";
+        ctx.font = `18px ${TeaI18n.fontFamily}`;
         ctx.textAlign = "center";
         ctx.fillText(`${dateStr} · 차 한 잔의 시간`, 340, 830);
 
@@ -3150,12 +3254,12 @@ ${emoji} ${rawName}
             canvas.toBlob(result => result ? resolve(result) : reject(new Error("PNG encoding failed")), "image/png");
           });
           const file = new File([blob], filename, { type: "image/png" });
-          const shareData = { files: [file], title: "차 한 잔의 시간", text: "차 느낌 카드" };
+          const shareData = { files: [file], title: st("card.shareTitle"), text: st("card.shareText") };
 
           if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
             try {
               await navigator.share(shareData);
-              showToast("카드 이미지를 공유했습니다.");
+              showToast(t("notice.shared"));
               return;
             } catch (shareError) {
               if (shareError.name === "AbortError") return;
@@ -3169,10 +3273,11 @@ ${emoji} ${rawName}
           link.href = objectUrl;
           link.click();
           setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-          showToast("카드 이미지 다운로드를 시작했습니다.");
+          showToast(t("notice.downloaded"));
         } catch (e) {
-          if (e.name !== "AbortError") showToast("이미지를 저장하지 못했습니다.");
+          if (e.name !== "AbortError") showToast(t("notice.imageFailed"));
         }
+        } catch { showToast(t("notice.imageFailed")); } finally { sharingSnapshot = false; flushPendingLocale(); }
       }
 
       // Brew Button Handler
@@ -3182,7 +3287,7 @@ ${emoji} ${rawName}
         if (phase === "done") {
           if (!isDrained) {
             els.brew.disabled = true;
-            els.brew.textContent = (vesselId === "piaoyibei") ? "내리는 중…" : "따라내는 중…";
+            els.brew.textContent = (vesselId === "piaoyibei") ? t("brew.drainingPiao") : t("brew.draining");
             drainVessel(() => {
               els.brew.disabled = false;
             });
@@ -3213,7 +3318,8 @@ ${emoji} ${rawName}
         sessionDraftTags = [];
         $("noteInput").value = "";
         reset();
-        if (hadContent) showToast("이번 차를 마무리했습니다.");
+        flushPendingLocale();
+        if (hadContent) showToast(t("notice.ended"));
       }
 
       $("vesselPrev").onclick = () => selectVessel(-1);
@@ -3224,7 +3330,7 @@ ${emoji} ${rawName}
         muted = !muted;
         this.classList.toggle("muted", muted);
         this.setAttribute("aria-pressed", muted);
-        const label = muted ? "소리 켜기" : "소리 끄기";
+        const label = muted ? t("sound.enable") : t("sound.disable");
         this.setAttribute("aria-label", label);
         if ($("muteText")) $("muteText").textContent = label;
         savePreferences({ muted });
@@ -3236,13 +3342,149 @@ ${emoji} ${rawName}
       let sx = 0; els.hero.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
       els.hero.addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) selectVessel(dx < 0 ? 1 : -1); }, { passive: true });
 
+      // Language/menu UI is intentionally separate from timer state transitions.
+      let openPopover = null;
+      let pendingLocale = null;
+      let sharingSnapshot = false;
+      const popovers = [
+        { panel: $("languagePopover"), button: $("languageButton") },
+        { panel: $("menuPopover"), button: $("menuButton") },
+      ];
+      function closePopover(restoreFocus = true) {
+        if (!openPopover) return;
+        const previous = openPopover;
+        openPopover = null;
+        previous.button.setAttribute("aria-expanded", "false");
+        previous.panel.hidden = true; previous.panel.inert = true;
+        if (restoreFocus) previous.button.focus();
+      }
+      function togglePopover(entry) {
+        if (openPopover === entry) { closePopover(); return; }
+        closePopover(false);
+        openPopover = entry;
+        entry.panel.hidden = false; entry.panel.inert = false;
+        entry.button.setAttribute("aria-expanded", "true");
+        updateNavTimerNotice();
+        (entry.panel.querySelector('[aria-checked="true"]') || entry.panel.querySelector('button, a')).focus();
+      }
+      popovers.forEach(entry => entry.button.onclick = () => togglePopover(entry));
+      document.addEventListener("pointerdown", e => {
+        if (openPopover && !openPopover.panel.contains(e.target) && !openPopover.button.contains(e.target)) closePopover(false);
+      });
+      document.addEventListener("focusin", e => {
+        if (openPopover && !openPopover.panel.contains(e.target) && !openPopover.button.contains(e.target)) closePopover(false);
+      });
+      document.addEventListener("keydown", e => {
+        if (!openPopover || e.isComposing || composingInput) return;
+        if (e.key === "Escape") { e.preventDefault(); closePopover(); return; }
+        if (["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
+          const inLanguageGroup = !!e.target.closest('[role="radiogroup"]');
+          const options = [...openPopover.panel.querySelectorAll(inLanguageGroup ? '[role="radio"]' : 'button, a')].filter(el => !el.closest('[hidden]'));
+          if (!inLanguageGroup && ["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+          const current = options.indexOf(document.activeElement);
+          const next = e.key === "Home" ? 0 : e.key === "End" ? options.length - 1 : (current + (["ArrowDown", "ArrowRight"].includes(e.key) ? 1 : -1) + options.length) % options.length;
+          e.preventDefault(); options[next]?.focus();
+          if (inLanguageGroup && options[next]) requestLocale(options[next].dataset.locale, true);
+        }
+      });
+      function safeForExternalLocale() {
+        return phase === "idle" && !infusionHistory.length && !hasContentDraft() && !vesselLoading && !titleEdit && !composingInput;
+      }
+      function flushPendingLocale() {
+        if (!pendingLocale || composingInput || sharingSnapshot) return;
+        if (!pendingLocale.explicit && !safeForExternalLocale()) return;
+        const choice = pendingLocale; pendingLocale = null;
+        const saved = choice.explicit ? preferenceStore.patch({ locale: choice.locale }) : { ok: true };
+        TeaI18n.setLocale(choice.locale);
+        if (!saved.ok) showToast(t("common.saveFailed"), 5000);
+      }
+      function requestLocale(locale, explicit) {
+        pendingLocale = { locale: TeaI18n.normalize(locale), explicit };
+        flushPendingLocale();
+      }
+      document.querySelectorAll("[data-locale]").forEach(button => {
+        button.onclick = () => { requestLocale(button.dataset.locale, true); closePopover(); };
+      });
+      window.addEventListener("storage", event => {
+        if (event.key !== TeaPreferences.KEY && event.key !== null) return;
+        // A time/tag-only save must not overwrite a language choice awaiting IME/PNG.
+        if (event.key !== null && !TeaPreferences.localeChanged(event.oldValue, event.newValue)) return;
+        requestLocale(preferenceStore.read().values.locale, false);
+      });
+      function updateNavTimerNotice() {
+        const active = phase !== "idle";
+        for (const { panel } of popovers) {
+          const notice = panel.querySelector(".nav-timer-notice");
+          notice.hidden = !active;
+          if (panel.hidden || !active) continue;
+          const msg = phase === "done" ? t(isDrained ? "notice.drained" : "notice.done") : t(phase === "draining" ? "notice.draining" : "notice.readingSteeping");
+          const status = notice.querySelector("p");
+          if (status.textContent !== msg) status.textContent = msg;
+        }
+      }
+      document.querySelectorAll(".nav-return-timer").forEach(button => button.onclick = () => {
+        closePopover(false); (els.brew.disabled ? $("note") : els.brew).focus();
+      });
+      function renderAnnouncements() {
+        const content = $("announcementContent");
+        content.replaceChildren();
+        for (const group of ["released", "planned"]) {
+          const heading = document.createElement("h3"); heading.dataset.i18n = `announcements.${group}`; content.appendChild(heading);
+          const items = TeaAnnouncements.items.filter(item => item.status === group);
+          if (!items.length && group === "released") {
+            const empty = document.createElement("p"); empty.className = "announcement-empty"; empty.dataset.i18n = "announcements.noReleased"; content.appendChild(empty);
+          }
+          for (const item of items) {
+            const details = document.createElement("details");
+            const summary = document.createElement("summary"); summary.dataset.i18n = item.titleKey;
+            const status = document.createElement("p"); status.className = "announcement-status"; status.dataset.i18n = "announcements.plannedStatus";
+            const body = document.createElement("p"); body.dataset.i18n = item.bodyKey;
+            details.append(summary, status, body); content.appendChild(details);
+          }
+        }
+      }
+      function updateLocaleLabels() {
+        TeaI18n.apply();
+        $("languageLabel").textContent = TeaI18n.getLocale() === "zh-TW" ? "繁體" : "한국어";
+        document.querySelectorAll("[data-locale]").forEach(button => {
+          const selected = button.dataset.locale === TeaI18n.getLocale();
+          button.setAttribute("aria-checked", selected);
+          button.tabIndex = selected ? 0 : -1;
+        });
+        const date = TeaAnnouncements.updatedOn;
+        const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
+        const displayDate = validDate ? date.replaceAll("-", ".") : "";
+        $("announcementDate").textContent = validDate && TeaAnnouncements.items.length ? date.slice(5).replace("-", "") : "";
+        $("announcementUpdated").textContent = validDate ? t("nav.updated", { date: displayDate }) : "";
+        if (validDate && TeaAnnouncements.items.length) $("announcementsButton").setAttribute("aria-description", t("nav.updated", { date: displayDate }));
+        else $("announcementsButton").removeAttribute("aria-description");
+        $("teaName").textContent = tea().name; $("teaCur").textContent = tea().name;
+        $("teaGhostL").textContent = TEAS[(teaIdx + TEAS.length - 1) % TEAS.length].name;
+        $("teaGhostR").textContent = TEAS[(teaIdx + 1) % TEAS.length].name;
+        paintVesselPicker(); setInf(); syncSlider();
+        const label = t(muted ? "sound.enable" : "sound.disable");
+        $("mute").setAttribute("aria-label", label); $("muteText").textContent = label;
+        els.brew.textContent = phase === "idle" ? t("brew.start") : phase === "pour" ? t("brew.pouring") : phase === "steep" ? t("brew.steeping") : phase === "draining" ? t(vesselId === "piaoyibei" ? "brew.drainingPiao" : "brew.draining") : isDrained ? t("brew.next") : t(vesselId === "piaoyibei" ? "brew.drainButton" : "brew.drain");
+        displayedMessage = phase === "done" ? (isDrained ? t(vesselId === "piaoyibei" ? "brew.drainedPiao" : "brew.drained") : vessel().completion) : (phase === "steep" && displayedUrgent ? t("brew.urgent") : "");
+        els.timeLabel.textContent = displayedMessage;
+        updateSummaryCard();
+        if (modalStack.includes(noteLayer)) renderTagsGrid();
+        if (modalStack.includes(cardLayer)) updateCardPreview();
+        updateModalTimerNotice(); updateNavTimerNotice();
+      }
+      $("announcementsButton").onclick = () => { closePopover(false); openModal(announcementLayer, $("menuButton")); };
+      $("closeAnnouncementsBtn").onclick = () => closeModal(announcementLayer);
+      $("announcementsBackdrop").onclick = e => { if (e.target === announcementLayer.backdrop) closeModal(announcementLayer); };
+      TeaI18n.onChange(updateLocaleLabels);
+      renderAnnouncements();
+
       // ---- boot ----
       function boot() {
         applyVesselFits();
         initSteam();
         buildDots(); buildSegState(); paintTea();
         sec = adjustedSecFor(infusion); syncSlider(); setInf(); previewIdle();
-        const label = muted ? "소리 켜기" : "소리 끄기";
+        const label = muted ? t("sound.enable") : t("sound.disable");
         $("mute").classList.toggle("muted", muted);
         $("mute").setAttribute("aria-pressed", muted);
         $("mute").setAttribute("aria-label", label);
@@ -3251,6 +3493,7 @@ ${emoji} ${rawName}
       // 선택 자산과 UI는 원격 폰트 성공을 기다리지 않고 즉시 준비한다.
       activateVesselAssets(vesselId);
       boot();
+      updateLocaleLabels();
 
       // ---- service worker (PWA, only when hosted) ----
       if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
