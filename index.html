@@ -1434,15 +1434,16 @@
     #announcementDate { margin-left: .22rem; font: .6rem "Space Mono", monospace; color: var(--ink-dim); vertical-align: super; }
     .announcements-box { text-align: left; padding: 1.2rem; width: min(100%, 420px); }
     .announcements-box h2 { font-size: 1.18rem; color: var(--gold-soft); font-weight: 400; }
-    .announcements-box h3 { color: var(--ink-dim); font-size: .83rem; font-weight: 400; margin: 1.5rem 0 .65rem; }
+    .announcements-box h3 { color: var(--gold-soft); font-size: 1.04rem; font-weight: 400; margin: 1.5rem 0 .65rem; }
     .announcements-box .announcement-empty { color: var(--ink-dim); font-size: .88rem; line-height: 1.65; }
-    .announcements-box details { margin: .3rem 0 1rem; }
-    .announcements-box summary { min-height: 44px; padding: .7rem 1.2rem; text-align: center; cursor: pointer; list-style: none; line-height: 1.65; color: var(--gold-soft); }
+    .announcement-list { margin: 0; padding-left: 1.1rem; list-style: disc; color: var(--ink); }
+    .announcements-box details { margin: 0 0 .5rem; }
+    .announcements-box summary { position: relative; min-height: 44px; padding: .55rem 1.2rem .55rem 0; text-align: left; cursor: pointer; list-style: none; font-size: .9rem; line-height: 1.85; color: var(--ink); word-break: keep-all; overflow-wrap: anywhere; }
     .announcements-box summary::-webkit-details-marker { display: none; }
-    .announcements-box summary::after { content: "＋"; margin-left: .4rem; font-size: .8rem; }
+    .announcements-box summary::after { content: "＋"; position: absolute; right: 0; top: .55rem; font-size: .8rem; }
     .announcements-box details[open] summary::after { content: "−"; }
     .announcements-box details p { font-size: .9rem; line-height: 1.85; margin: .5rem 0; color: var(--ink); }
-    .announcements-box .announcement-status { font-size: .76rem; color: var(--ink-dim); text-align: center; }
+    .announcements-box details .announcement-status { font-size: .76rem; color: var(--ink-dim); text-align: left; }
     .tag-custom-label { font-size: .68rem; font-weight: 400; color: var(--ink-dim); margin-left: .25rem; }
     #tagProtectionNotice { color: var(--ink-dim); font-size: .8rem; line-height: 1.6; }
     @media (max-width: 340px) { .top-tools { gap: .3rem; } .top-actions { left: .7rem; right: .7rem; } }
@@ -3433,12 +3434,19 @@ ${emoji} ${rawName}
           if (!items.length && group === "released") {
             const empty = document.createElement("p"); empty.className = "announcement-empty"; empty.dataset.i18n = "announcements.noReleased"; content.appendChild(empty);
           }
+          if (!items.length) continue;
+          const list = document.createElement("ul"); list.className = "announcement-list"; content.appendChild(list);
           for (const item of items) {
+            const row = document.createElement("li");
             const details = document.createElement("details");
-            const summary = document.createElement("summary"); summary.dataset.i18n = item.titleKey;
-            const status = document.createElement("p"); status.className = "announcement-status"; status.dataset.i18n = "announcements.plannedStatus";
+            const summary = document.createElement("summary"); summary.dataset.i18n = item.titleKey; summary.tabIndex = 0;
+            details.appendChild(summary);
+            if (group === "planned") {
+              const status = document.createElement("p"); status.className = "announcement-status"; status.dataset.i18n = "announcements.plannedStatus";
+              details.appendChild(status);
+            }
             const body = document.createElement("p"); body.dataset.i18n = item.bodyKey;
-            details.append(summary, status, body); content.appendChild(details);
+            details.appendChild(body); row.appendChild(details); list.appendChild(row);
           }
         }
       }
