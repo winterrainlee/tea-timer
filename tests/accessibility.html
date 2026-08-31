@@ -116,7 +116,7 @@
       click('cardBtn'); check('조합 완료 전 카드 열기 지연',$('cardModalBackdrop').hidden);
       compose(input,'compositionend'); fill(input,'카드 최종 차');
       await until(() => !$('cardModalBackdrop').hidden,'조합 후 카드');
-      check('카드에 최종 조합 제목 사용',$('cardTeaName').textContent === '🍃 카드 최종 차');
+      check('카드에 최종 조합 제목 사용',$('cardTeaName').textContent === '카드 최종 차');
       click('closeCardModalBtn');
       compose($('noteInput'),'compositionstart'); fill($('noteInput'),'메모 조합'); click('sheetBackdrop');
       compose($('noteInput'),'compositionend'); fill($('noteInput'),note + '\n조합 끝');
@@ -149,7 +149,7 @@
       });
       URL.revokeObjectURL(pngUrl);
       pngLink.hidden = false;
-      // Stress only DOM preview; Canvas long-text redesign belongs to later work.
+      // The visible preview is the same fixed-size Canvas used by the PNG export.
       click('editTitleBtn'); fill($('teaTitleInput'),'LongTeaName'.repeat(20)); key($('teaTitleInput'),'Enter');
       fill($('noteInput'),'아주 긴 메모와 공백없는문장'.repeat(120));
       [...$('tagsGrid').querySelectorAll('[data-tag-key]')].at(-1).click();

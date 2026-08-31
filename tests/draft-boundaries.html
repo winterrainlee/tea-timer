@@ -49,8 +49,8 @@
       const navigate = (options={}) => { navigationBlocked = undefined; help.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true,button:0,...options})); return navigationBlocked; };
       const name = () => $('teaTitleDisplay').textContent;
       async function exportCard(label, expected) {
-        click('cardBtn'); check(label + ' DOM 포 수', $('cardInfusions').textContent.includes(expected));
-        painted = []; const before = files.length; click('shareCardBtn');
+        painted = []; click('cardBtn'); check(label + ' DOM 포 수', $('cardInfusions').textContent.includes(expected));
+        const before = files.length; click('shareCardBtn');
         await until(() => files.length > before,'PNG ' + label);
         check(label + ' Canvas 포 수',painted.some(text => text.includes(expected)) && (expected !== '완료된 우림 없음' || !painted.some(text => /1포 우림/.test(text))));
         const file = files[files.length - 1], link = document.createElement('a');

@@ -1299,70 +1299,9 @@
       overflow-wrap: anywhere;
     }
 
-    .card-header-badge {
-      font-family: "Space Mono", monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      color: var(--gold);
-      margin-bottom: 1rem;
-    }
-
-    .card-tea-name {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 0.3rem;
-    }
-
-    .card-infusions {
-      font-size: 0.85rem;
-      color: var(--gold-soft);
-      margin-bottom: 1rem;
-    }
-
-    .card-tags {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .card-tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      justify-content: center;
-      width: 100%;
-    }
-
-    .card-tag {
-      max-width: 100%;
-      font-size: 0.78rem;
-      background: rgba(205, 191, 99, 0.14);
-      color: var(--gold-soft);
-      border: none;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      font-weight: 700;
-    }
-
-    .card-note-quote {
-      font-size: 0.9rem;
-      font-style: italic;
-      color: var(--ink);
-      line-height: 1.5;
-      border-left: 2px solid var(--gold);
-      padding-left: 0.8rem;
-      margin: 1rem 0;
-      text-align: left;
-    }
-
-    .card-footer-date {
-      font-size: 0.72rem;
-      color: var(--ink-faint);
-      margin-top: 1.2rem;
-    }
+    #cardDialog { width: min(100%, 380px); padding: 12px; }
+    #cardCanvas { display: block; width: 100%; height: auto; aspect-ratio: 680 / 900; }
+    #cardDialog .btn-share-card { margin-top: 12px; }
 
     .btn-share-card {
       min-height: 44px;
@@ -1749,12 +1688,15 @@
         <button class="btn-close-sheet" id="closeCardModalBtn" aria-label="카드 미리보기 닫기" data-i18n-aria-label="card.close">✕</button>
       </div>
       <p class="sr-only" data-timer-status role="status" aria-live="polite" aria-atomic="true"></p>
-      <div class="card-header-badge" data-i18n="card.badge">TIME FOR TEA · TASTING NOTE</div>
-      <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
-      <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
-      <div class="card-tags" id="cardTagsContainer"></div>
-      <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
-      <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
+      <canvas id="cardCanvas" width="680" height="900" role="img" aria-labelledby="cardTeaName" aria-describedby="cardInfusions cardHistory cardTagsContainer cardNoteQuote cardFooterDate"></canvas>
+      <div class="sr-only">
+        <div id="cardTeaName"></div>
+        <div id="cardInfusions"></div>
+        <div id="cardHistory"></div>
+        <div id="cardTagsContainer"></div>
+        <div id="cardNoteQuote"></div>
+        <div id="cardFooterDate"></div>
+      </div>
       <button class="btn-share-card" id="shareCardBtn"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V3m-5 5 5-5 5 5M5 12v8h14v-8"/></svg><span data-i18n="card.share">공유 또는 이미지 저장</span></button>
     </div>
   </div>
@@ -1779,6 +1721,7 @@
   <script src="scripts/locales/ko.js"></script>
   <script src="scripts/locales/zh-TW.js"></script>
   <script src="scripts/announcements.js"></script>
+  <script src="scripts/card-layout.js"></script>
   <script>
     (() => {
       const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
@@ -2626,7 +2569,7 @@
         activeBrew = null;
         updateInfusionLine();
         updateInfusionSummary();
-        if (modalStack.includes(cardLayer)) $("cardInfusions").textContent = cardInfusionText();
+        if (modalStack.includes(cardLayer)) updateCardPreview();
       }
       function prepareNextInfusion() {
         const last = infusionHistory[infusionHistory.length - 1];
@@ -3082,61 +3025,38 @@ ${emoji} ${rawName}
         }
       });
 
-      // Balanced Tag Rows for Card Image & Preview
-      function getBalancedTagRows(tags) {
-        if (!tags || tags.length === 0) return [];
-        const N = tags.length;
-        let L = 1;
-        if (N <= 4) L = 1;
-        else if (N <= 8) L = 2;
-        else L = 3;
-
-        const baseCount = Math.floor(N / L);
-        const remainder = N % L;
-        const rows = [];
-        let idx = 0;
-        for (let r = 0; r < L; r++) {
-          const count = baseCount + (r < remainder ? 1 : 0);
-          rows.push(tags.slice(idx, idx + count));
-          idx += count;
-        }
-        return rows;
+      // One rendered surface for the preview and the exported PNG.
+      let cardPreview = null;
+      let cardRenderVersion = 0;
+      function cardSnapshot() {
+        return {
+          rawName: customTitle || (tea().name + " · " + vessel().name),
+          note: sessionDraftNote, tags: selectedTagTexts(), history: infusionHistory.map(item => ({ ...item })),
+          infusionText: cardInfusionText(), locale: TeaI18n.getLocale(), date: new Date(),
+        };
       }
-
-      // Card Image Generation (Canvas 680x900) & Preview
+      function paintCardPreview(snapshot) {
+        const st = (key, vars) => TeaI18n.translate(snapshot.locale, key, vars);
+        const model = TeaCard.render($("cardCanvas"), snapshot, st, TeaI18n.fontFamily);
+        $("cardTeaName").textContent = model.title.lines.join("\n");
+        $("cardInfusions").textContent = model.summary;
+        $("cardHistory").textContent = model.history.rows.map(row => row.items.map(item => item.text).join(" · ")).join("\n");
+        $("cardTagsContainer").textContent = model.tags.rows.map(row => row.items.map(item => item.text).join(" ")).join("\n");
+        $("cardNoteQuote").textContent = model.note.lines.join("\n");
+        $("cardFooterDate").textContent = model.dateText + " · " + model.brand;
+        cardPreview = { snapshot, dateText: model.dateText };
+      }
       function updateCardPreview() {
-        const rawName = customTitle || (tea().name + " · " + vessel().name);
-        const emoji = getTeaEmoji(rawName);
-        const today = new Date();
-        const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
-
-        // Update DOM preview modal
-        $("cardTeaName").textContent = emoji + " " + rawName;
-        $("cardInfusions").textContent = cardInfusionText();
-        $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"${t("card.emptyNote")}"`;
-        $("cardFooterDate").textContent = `${dateStr} · 차 한 잔의 시간`;
-
-        const cardTagsContainer = $("cardTagsContainer");
-        cardTagsContainer.innerHTML = "";
-        const tagRows = getBalancedTagRows(selectedTagTexts());
-        if (tagRows.length === 0) {
-          cardTagsContainer.style.display = "none";
-        } else {
-          cardTagsContainer.style.display = "flex";
-          tagRows.forEach(row => {
-            const rowDiv = document.createElement("div");
-            rowDiv.className = "card-tags-row";
-            row.forEach(t => {
-              const span = document.createElement("span");
-              span.className = "card-tag";
-              span.textContent = "#" + t;
-              rowDiv.appendChild(span);
-            });
-            cardTagsContainer.appendChild(rowDiv);
-          });
-        }
-
+        const snapshot = cardSnapshot();
+        const version = ++cardRenderVersion;
+        paintCardPreview(snapshot);
+        TeaI18n.prepareFonts(snapshot.rawName + snapshot.note + snapshot.tags.join(" ")).then(() => {
+          if (version === cardRenderVersion && modalStack.includes(cardLayer)) paintCardPreview(snapshot);
+        });
       }
+      document.fonts?.addEventListener("loadingdone", () => {
+        if (modalStack.includes(cardLayer)) { ++cardRenderVersion; paintCardPreview(cardSnapshot()); }
+      });
       $("cardBtn").onclick = () => afterComposition(() => {
         finishTitleEdit();
         sessionDraftNote = $("noteInput").value;
@@ -3160,141 +3080,14 @@ ${emoji} ${rawName}
       async function renderAndShareCanvasCard() {
         if (sharingSnapshot) return;
         sharingSnapshot = true;
-        const snapshot = {
-          rawName: customTitle || (tea().name + " · " + vessel().name), emoji: getTeaEmoji(),
-          note: sessionDraftNote, tags: selectedTagTexts(), history: infusionHistory.map(item => ({ ...item })),
-          infusionText: cardInfusionText(), locale: TeaI18n.getLocale(), date: new Date(),
-        };
+        const snapshot = cardPreview.snapshot;
+        const dateStr = cardPreview.dateText;
         const st = (key, vars) => TeaI18n.translate(snapshot.locale, key, vars);
         try {
-        await TeaI18n.prepareFonts(snapshot.rawName + snapshot.note + snapshot.tags.join(" "));
+        // Copy pixels before any await: later fonts, locale or completed infusions cannot change this share.
         const canvas = document.createElement("canvas");
-        canvas.width = 680;
-        canvas.height = 900;
-        const ctx = canvas.getContext("2d");
-
-        // Background Gradient
-        const grad = ctx.createLinearGradient(0, 0, 0, 900);
-        grad.addColorStop(0, "#1c150c");
-        grad.addColorStop(1, "#100b07");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 680, 900);
-
-        // Outer Border
-        ctx.strokeStyle = "#4a3e20";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(30, 30, 620, 840);
-
-        // Inner Line
-        ctx.strokeStyle = "rgba(205,191,99,0.3)";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(40, 40, 600, 820);
-
-        // Header Badge
-        ctx.fillStyle = "#cdbf63";
-        ctx.font = "bold 16px 'Space Mono', monospace";
-        ctx.textAlign = "center";
-        ctx.fillText(st("card.badge"), 340, 110);
-
-        // Tea Name
-        const rawName = snapshot.rawName;
-        const emoji = snapshot.emoji;
-        ctx.fillStyle = "#efe6d6";
-        ctx.font = `bold 38px ${TeaI18n.fontFamily}`;
-        ctx.fillText(emoji + " " + rawName, 340, 185);
-
-        // Infusion Info
-        ctx.fillStyle = "#e4d691";
-        ctx.font = `22px ${TeaI18n.fontFamily}`;
-        ctx.fillText(snapshot.infusionText, 340, 235);
-
-        // History times
-        if (snapshot.history.length > 0) {
-          ctx.fillStyle = "#9c8f78";
-          ctx.font = "17px 'Space Mono', monospace";
-          const hStr = snapshot.history.map(h => st("infusion.compact", { n: h.n, sec: h.sec })).join("  ");
-          ctx.fillText(hStr, 340, 275);
-        }
-
-        // Divider Line
-        ctx.strokeStyle = "rgba(205,191,99,0.2)";
-        ctx.beginPath();
-        ctx.moveTo(120, 310);
-        ctx.lineTo(560, 310);
-        ctx.stroke();
-
-        // Balanced Tag Rows (Canvas)
-        const tagRows = getBalancedTagRows(snapshot.tags);
-        let startY = 370;
-        ctx.font = `bold 20px ${TeaI18n.fontFamily}`;
-
-        tagRows.forEach(row => {
-          let rowWidth = 0;
-          const chipWidths = row.map(t => ctx.measureText("#" + t).width + 30);
-          const gap = 12;
-          rowWidth = chipWidths.reduce((a, b) => a + b, 0) + (row.length - 1) * gap;
-          let startX = (680 - rowWidth) / 2;
-
-          row.forEach((t, i) => {
-            const w = chipWidths[i];
-            const h = 38;
-            // Option 3: Soft Fill Badge (No Border)
-            ctx.fillStyle = "rgba(205,191,99,0.16)";
-            ctx.beginPath();
-            ctx.roundRect(startX, startY - 26, w, h, 6);
-            ctx.fill();
-
-            ctx.fillStyle = "#e4d691";
-            ctx.textAlign = "center";
-            ctx.fillText("#" + t, startX + w / 2, startY);
-
-            startX += w + gap;
-          });
-          startY += 52;
-        });
-
-        // Note Quote Box
-        const noteText = snapshot.note.trim() || st("card.emptyNote");
-        const quoteY = Math.max(startY + 30, 560);
-
-        ctx.fillStyle = "rgba(0,0,0,0.3)";
-        ctx.fillRect(80, quoteY, 520, 140);
-        ctx.strokeStyle = "#cdbf63";
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(80, quoteY);
-        ctx.lineTo(80, quoteY + 140);
-        ctx.stroke();
-
-        ctx.fillStyle = "#efe6d6";
-        ctx.font = `italic 22px ${TeaI18n.fontFamily}`;
-        ctx.textAlign = "left";
-
-        // Multi-line note text wrapping
-        const words = noteText.split("");
-        let line = "";
-        let lineY = quoteY + 45;
-        for (let n = 0; n < words.length; n++) {
-          const testLine = line + words[n];
-          const metrics = ctx.measureText(testLine);
-          if (metrics.width > 460 && n > 0) {
-            ctx.fillText(line, 110, lineY);
-            line = words[n];
-            lineY += 36;
-            if (lineY > quoteY + 120) break;
-          } else {
-            line = testLine;
-          }
-        }
-        ctx.fillText(line, 110, lineY);
-
-        // Footer Date & Brand
-        const today = snapshot.date;
-        const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
-        ctx.fillStyle = "#7d715c";
-        ctx.font = `18px ${TeaI18n.fontFamily}`;
-        ctx.textAlign = "center";
-        ctx.fillText(`${dateStr} · 차 한 잔의 시간`, 340, 830);
+        canvas.width = TeaCard.WIDTH; canvas.height = TeaCard.HEIGHT;
+        canvas.getContext("2d").drawImage($("cardCanvas"), 0, 0);
 
         // Share PNG on mobile browsers. This is the reliable save path for installed Safari PWAs.
         try {
