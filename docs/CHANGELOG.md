@@ -9,6 +9,16 @@
 
 ## 기능 변경
 
+<a id="tw-worker-staged-deployment"></a>
+
+### 2026-08-31 — 운영 D1·접수 비활성 Worker 반영, 비밀키 등록 승인 대기
+
+사용자가 Cloudflare 재로그인과 운영 Worker 배포·D1 변경을 명시적으로 승인했다. 필요한 account/user 읽기·Workers/스크립트 쓰기·D1 쓰기 권한으로 인증을 갱신하고 운영 계정·대상 DB·Worker를 확인했다. 계정 내 Worker는 하나이며 신규 요청 제한 namespace와의 충돌은 없었다. 초기 운영 Worker 버전과 D1 Time Travel bookmark를 Git에서 제외한 `.local/deployment/2026-08-31/`에 기록했다. Wrangler의 `migrations list`는 migration 관리 테이블을 생성하므로 순수 조회만 수행한 것으로 기록하지 않는다. 사용자 박수 데이터는 변경하지 않았다.
+
+Wrangler migration runner로 운영 D1의 `0001_creator_feedback.sql`·`0002_messages_zh_cn.sql`을 적용했다. 전후 박수 행 수·최대 ID가 같고 신규 메시지 테이블이 비어 있음을 확인했다. 이어 `FEEDBACK_ENABLED=false`로 Worker `cb7132d0-974b-4aaf-95f4-7f168a6608a3`을 배포했다. 기존 `ADMIN_TOKEN`과 DB 바인딩을 유지하고 `FEEDBACK_LIMITER`(60초당 3회)·일일 만료 삭제 스케줄을 추가했다. 공개 health는 200, 키가 없는 비공개 조회는 503·CORS 없음·`no-store`를 확인했다. Python urllib의 최초 health 요청은 403이었고 기본 curl로 200을 확인했으며 인증 조회 성공으로 해석하지 않는다. 만료 삭제 스케줄 등록과 실제 운영 만료 행 삭제 검증도 구분한다.
+
+새 `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET`은 Git에서 제외한 로컬 파일에 권한 0600으로 생성했지만, 운영 Worker에 등록하는 전송은 자동 안전 검토가 별도 명시적 승인을 요구해 차단했다. 키 값은 출력·커밋·원격 전송하지 않았다. 운영에는 기존 `ADMIN_TOKEN`만 있으며 의견 접수는 비활성 상태다. 운영 메시지·박수 검증 요청은 보내지 않았다. 키 등록 승인 뒤 접수 활성화·세 언어 검증 메시지·인증 조회를 확인하고 정식 공지와 GitHub Pages 배포를 이어간다. 프런트엔드 v82·공지 초안·main·원격 Git·Pages는 그대로다.
+
 <a id="tw-release-readiness"></a>
 
 ### 2026-08-31 — 세 언어 최종 회귀·배포 준비, Cloudflare 재인증 대기
