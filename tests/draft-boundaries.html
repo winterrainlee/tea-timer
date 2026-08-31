@@ -100,7 +100,7 @@
       await exportCard('during-brew','완료된 우림 없음');
       click('closeSheetBtn'); click('reset');
       await until(() => $('brew').textContent === '차 따라내기','확인 중 우림 완료');
-      check('확인 중 타이머 계속·포커스 유지',focus('cancelEndSessionBtn') && $('endSessionDialog').querySelector('[role="status"]').textContent.includes('우림을 마쳤습니다'));
+      check('확인 중 타이머 계속·삭제 경고와 취소 포커스 유지', !$('endSessionBackdrop').hidden && focus('cancelEndSessionBtn') && $('endSessionDescription').textContent === '내보내지 않은 내용은 사라집니다.' && !$('endSessionDialog').querySelector('[role="status"]'));
       click('cancelEndSessionBtn'); check('종료 취소 뒤 완료 기록 보호',navigate() === true);
       click('note'); check('취소·재진입 완료 1포·제목 유지',$('infusionHistoryDisplay').textContent.includes('총 1포') && name() === '🍃 최종 조합 차');
       click('copyBtn'); check('완료 후 텍스트 1포',copied.includes('1포 5초') && !copied.includes('완료된 우림 없음'));

@@ -1210,7 +1210,7 @@
     }
 
     .action-icon { width: 18px; height: 18px; flex-shrink: 0; vertical-align: middle; }
-    .return-to-timer, .btn-share-card { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+    .btn-share-card { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
 
     .btn-action:active {
       background: rgba(205, 191, 99, 0.15);
@@ -1332,9 +1332,6 @@
     }
     .card-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
     .card-dialog-title { font-size: .92rem; color: var(--ink-dim); font-weight: 400; }
-    .modal-timer-notice { margin-bottom: 1rem; text-align: left; }
-    .modal-timer-notice p { font-size: .88rem; line-height: 1.6; margin: 0 0 .5rem; }
-    .modal-timer-notice button { padding: .4rem .7rem; }
     @media (prefers-reduced-motion: reduce) {
       .sheet-backdrop, .sheet-container, .card-modal-backdrop { transition: none; }
     }
@@ -1349,8 +1346,6 @@
     .top-actions :focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 1px; }
     .locale-check { margin-left: auto; visibility: hidden; }
     [aria-checked="true"] .locale-check { visibility: visible; color: var(--gold-soft); }
-    .nav-timer-notice { border-top: 1px solid var(--gold-line); padding: .6rem .65rem 0; font-size: .82rem; line-height: 1.6; color: var(--gold-soft); }
-    .top-actions .nav-timer-notice button { padding-left: 0; font-size: .85rem; }
     #announcementDate { margin-left: .22rem; font: .6rem "Space Mono", monospace; color: var(--ink-dim); vertical-align: super; }
     .announcements-box { text-align: left; padding: 1.2rem; width: min(100%, 420px); }
     .announcements-box h2 { font-size: 1.18rem; color: var(--gold-soft); font-weight: 400; }
@@ -1384,7 +1379,6 @@
           <button type="button" class="locale-option" data-locale="ko" role="radio" aria-checked="true" lang="ko">한국어<span class="locale-check" aria-hidden="true">✓</span></button>
           <button type="button" class="locale-option" data-locale="zh-TW" role="radio" aria-checked="false" lang="zh-TW">繁體中文（台灣）<span class="locale-check" aria-hidden="true">✓</span></button>
         </div>
-        <div class="nav-timer-notice" hidden><p role="status" aria-live="polite"></p><button type="button" class="nav-return-timer"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m10 6-6 6 6 6M4 12h16"/></svg><span data-i18n="common.returnTimer">타이머로 돌아가기</span></button></div>
       </div>
       <div class="nav-popover" id="menuPopover" hidden inert>
         <nav data-i18n-aria-label="nav.menu" aria-label="메뉴">
@@ -1392,7 +1386,6 @@
           <a class="help-link" href="help.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1-1.5 3M12 17h.01"/></svg><span data-i18n="nav.help">이용 안내</span></a>
           <a href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--bg-1)"/><circle cx="16" cy="12" r="2" fill="var(--bg-1)"/><circle cx="8" cy="18" r="2" fill="var(--bg-1)"/></svg><span data-i18n="nav.settings">설정</span></a>
         </nav>
-        <div class="nav-timer-notice" hidden><p role="status" aria-live="polite"></p><button type="button" class="nav-return-timer"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m10 6-6 6 6 6M4 12h16"/></svg><span data-i18n="common.returnTimer">타이머로 돌아가기</span></button></div>
       </div>
     </div>
 
@@ -1617,7 +1610,7 @@
         <h2 id="announcementsTitle">공지사항</h2>
         <button type="button" class="btn-close-sheet" id="closeAnnouncementsBtn" aria-label="공지사항 닫기" data-i18n-aria-label="announcements.close">✕</button>
       </div>
-      <div class="modal-timer-notice" hidden><p role="status" aria-live="polite" aria-atomic="true"></p><button type="button" class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button></div>
+      <p class="sr-only" data-timer-status role="status" aria-live="polite" aria-atomic="true"></p>
       <div id="announcementContent"></div>
     </section>
   </div>
@@ -1705,9 +1698,6 @@
     <div class="card-preview-box confirm-box" id="endSessionDialog" role="dialog" aria-labelledby="endSessionTitle" aria-describedby="endSessionDescription" tabindex="-1">
       <h2 id="endSessionTitle" data-i18n="session.confirmTitle">느낌을 지우고 우림을 끝냅니다.</h2>
       <p id="endSessionDescription" data-i18n="session.confirmDescription">내보내지 않은 내용은 사라집니다.</p>
-      <div class="modal-timer-notice" hidden>
-        <p role="status" aria-live="polite" aria-atomic="true"></p>
-      </div>
       <div class="confirm-actions">
         <button class="btn-action" id="cancelEndSessionBtn" data-i18n="common.cancel">취소</button>
         <button class="btn-action" id="confirmEndSessionBtn" data-i18n="session.confirmEnd">느낌 지우고 끝내기</button>
@@ -2531,7 +2521,7 @@
         clearRing();
         els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.disabled = false;
         els.brew.textContent = (vesselId === "piaoyibei") ? t("brew.drainButton") : t("brew.drain");
-        updateModalTimerNotice();
+        updateModalTimerStatus();
         relWake();
       }
 
@@ -2548,7 +2538,7 @@
         els.timeLabel.textContent = displayedMessage;
         els.brew.textContent = t("brew.next");
         const cb = drainCallback; drainCallback = null; cb && cb();
-        updateModalTimerNotice();
+        updateModalTimerStatus();
       }
 
       function reset({ allowWhileVesselLoading = false } = {}) {
@@ -2687,7 +2677,7 @@
           if (layer === top) layer.backdrop.removeAttribute("aria-hidden");
           else layer.backdrop.setAttribute("aria-hidden", "true");
         }
-        updateModalTimerNotice();
+        updateModalTimerStatus();
       }
       function openModal(layer, opener) {
         if (modalStack.includes(layer)) return;
@@ -2734,32 +2724,18 @@
           (items[next] || top.dialog).focus();
         }
       });
-      function updateModalTimerNotice() {
-        updateNavTimerNotice();
+      function updateModalTimerStatus() {
+        const layer = topModal();
+        const status = layer?.dialog.querySelector('[data-timer-status]');
+        if (!status) return;
+        // Only the top dialog announces state; no extra visible timer instructions.
         const active = phase === "pour" || phase === "steep" || phase === "draining" || phase === "done";
-        for (const layer of modalLayers) {
-          const notice = layer.dialog.querySelector(".modal-timer-notice");
-          if (notice) notice.hidden = !active;
-          // Only update the exposed live region, so nested dialogs do not announce twice.
-          if (layer !== topModal()) continue;
-          const isFeeling = layer === noteLayer || layer === cardLayer;
-          const message = !active ? ""
-            : isFeeling && phase === "done" ? t(isDrained ? "notice.feelingDrained" : "notice.feelingDone")
-            : layer === endLayer ? (phase === "done" ? t("notice.confirmDone") : t("notice.timerContinues"))
-            : phase === "done" ? (isDrained ? t("notice.drained") : t("notice.done"))
-            : phase === "draining" ? t("notice.draining") : t(layer === announcementLayer ? "notice.readingSteeping" : "notice.noteSteeping");
-          const status = notice ? notice.querySelector('[role="status"]') : layer.dialog.querySelector('[data-timer-status]');
-          if (status.textContent !== message) status.textContent = message;
-        }
+        const message = !active ? ""
+          : phase === "done" ? t(isDrained ? "notice.feelingDrained" : "notice.feelingDone")
+          : phase === "draining" ? t("notice.draining")
+          : t(layer === announcementLayer ? "notice.readingSteeping" : "notice.noteSteeping");
+        if (status.textContent !== message) status.textContent = message;
       }
-      document.querySelectorAll(".return-to-timer").forEach(button => {
-        button.onclick = () => afterComposition(() => {
-          if (topModal() === cardLayer) closeModal(cardLayer);
-          if (topModal() === announcementLayer) closeModal(announcementLayer);
-          closeNoteSheet();
-          (els.brew.disabled ? $("note") : els.brew).focus();
-        });
-      });
 
       // Let IME finish writing its final input before replacing an editor or hiding a sheet.
       let titleEdit = null;
@@ -3207,7 +3183,6 @@ ${emoji} ${rawName}
         openPopover = entry;
         entry.panel.hidden = false; entry.panel.inert = false;
         entry.button.setAttribute("aria-expanded", "true");
-        updateNavTimerNotice();
         (entry.panel.querySelector('[aria-checked="true"]') || entry.panel.querySelector('button, a')).focus();
       }
       popovers.forEach(entry => entry.button.onclick = () => togglePopover(entry));
@@ -3254,20 +3229,6 @@ ${emoji} ${rawName}
         // A time/tag-only save must not overwrite a language choice awaiting IME/PNG.
         if (event.key !== null && !TeaPreferences.localeChanged(event.oldValue, event.newValue)) return;
         requestLocale(preferenceStore.read().values.locale, false);
-      });
-      function updateNavTimerNotice() {
-        const active = phase !== "idle";
-        for (const { panel } of popovers) {
-          const notice = panel.querySelector(".nav-timer-notice");
-          notice.hidden = !active;
-          if (panel.hidden || !active) continue;
-          const msg = phase === "done" ? t(isDrained ? "notice.drained" : "notice.done") : t(phase === "draining" ? "notice.draining" : "notice.readingSteeping");
-          const status = notice.querySelector("p");
-          if (status.textContent !== msg) status.textContent = msg;
-        }
-      }
-      document.querySelectorAll(".nav-return-timer").forEach(button => button.onclick = () => {
-        closePopover(false); (els.brew.disabled ? $("note") : els.brew).focus();
       });
       function renderAnnouncements() {
         const content = $("announcementContent");
@@ -3321,7 +3282,7 @@ ${emoji} ${rawName}
         updateSummaryCard();
         if (modalStack.includes(noteLayer)) renderTagsGrid();
         if (modalStack.includes(cardLayer)) updateCardPreview();
-        updateModalTimerNotice(); updateNavTimerNotice();
+        updateModalTimerStatus();
       }
       $("announcementsButton").onclick = () => { closePopover(false); openModal(announcementLayer, $("menuButton")); };
       $("closeAnnouncementsBtn").onclick = () => closeModal(announcementLayer);
