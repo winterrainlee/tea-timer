@@ -7,7 +7,7 @@
     "settings.subtitle": "Preferences",
     "settings.language": "语言",
     "settings.language.ko": "한국어",
-    "settings.language.zhTW": "繁體中文（台灣）",
+    "settings.language.zhTW": "繁體中文",
     "settings.language.zhCN": "简体中文",
     "settings.storage.title": "注意事项",
     "settings.storage.body": "这些设置只会保存在当前设备的浏览器中。删除网站数据、使用无痕模式、重新安装浏览器或 App，或更换设备时，可能会重置。",
