@@ -1,0 +1,5 @@
+# Copy to .dev.vars only for isolated local Worker testing. Do not deploy these values.
+FEEDBACK_ENABLED=true
+FEEDBACK_READ_TOKEN=local-feedback-read-token
+FEEDBACK_RATE_SECRET=local-feedback-rate-secret
+ALLOWED_ORIGINS=http://127.0.0.1:8134,http://localhost:8134,http://127.0.0.1:8138,http://localhost:8138,http://127.0.0.1:8787,http://localhost:8787
