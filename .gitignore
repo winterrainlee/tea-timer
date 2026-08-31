@@ -5,3 +5,6 @@ dist/
 .env
 .env.*
 .wrangler/
+
+# Standalone UI mockups are kept outside the repository.
+/mockup-*.html
