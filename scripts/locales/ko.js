@@ -139,6 +139,8 @@ TeaI18n.register("ko", {
   "announcements.languageBody": "다국어 지원의 첫 단계로 번체 중국어와 간체 중국어를 제공합니다. 메인 화면 오른쪽 위에서 한국어·번체·간체를 선택할 수 있습니다.",
   "announcements.feedbackTitle": "제작자에게 메시지 보내기 기능 추가",
   "announcements.feedbackBody": "‘이용 안내’에서 제작자에게 메시지를 보낼 수 있습니다. 사용 소감이나 불편했던 점을 보내주시면 개선에 참고하겠습니다.",
+  "announcements.offlineTitle": "오프라인 사용 지원",
+  "announcements.offlineBody": "인터넷에 연결된 상태에서 한 번 접속한 뒤에는 비행기 모드에서도 차를 우리고 느낌을 남길 수 있습니다.",
   "announcements.plannedStatus": "검토 중 · 배포 일정 미정",
   "notice.readingSteeping": "차를 우리는 중입니다. 읽는 동안에도 타이머는 계속됩니다.",
   "tag.custom": "내 단어",

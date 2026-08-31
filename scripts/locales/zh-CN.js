@@ -139,6 +139,8 @@ TeaI18n.register("zh-CN", {
   "announcements.languageBody": "多语言支持的第一步，提供繁体中文和简体中文。可以从主界面右上角选择韩语、繁体中文或简体中文。",
   "announcements.feedbackTitle": "添加发消息给制作者功能",
   "announcements.feedbackBody": "现在可以在“使用说明”发消息给制作者。欢迎分享使用感受或遇到的不便，作为后续改善的参考。",
+  "announcements.offlineTitle": "离线使用功能",
+  "announcements.offlineBody": "联网打开一次后，即使开启飞行模式，也能泡茶并记下喝茶心得。",
   "announcements.plannedStatus": "审核中 · 发布日期未定",
   "notice.readingSteeping": "正在浸泡。阅读时，计时器仍会继续。",
   "tag.custom": "我的词",
