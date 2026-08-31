@@ -3,7 +3,7 @@
 > 검토일: 2026-08-31
 > 코드 기준: `8fb124d` (런타임 기준 `89a5043`) + 작업 트리의 대만 우선순위 문서 변경
 > 개발 브랜치: `codex/tw-readiness`
-> 상태: TW-01–03·TW-05·TW-06·간체 구현·로컬 검증·통합 완료(2026-08-31), TW-04 보류, TW-07 A안 구현·로컬 검증·실기기 확인 대기, TW-08 GitHub Pages 배포 후 실기기 검증 예정. 운영 의견함은 활성화·운영 curl 검증을 완료했으며 정적 앱 배포 전 상태다([운영 기록](CHANGELOG.md#tw-feedback-production-ready)). [TW-06 검증·통합 기록](CHANGELOG.md#tw-06-traditional-chinese)과 [간체 검증 기록](CHANGELOG.md#simplified-chinese-local)을 따르며 실기기·배포 완료와 구분한다. 아래 코드 위험·라인 번호는 착수 전 스냅샷이다.
+> 상태: TW-01–03·TW-05·TW-06·간체 구현·로컬 검증·통합 완료(2026-08-31), TW-04 보류, TW-07 A안 구현·로컬 검증·실기기 확인 대기, TW-08 Pages 배포·공개 브라우저 확인 후 실기기/PWA 검증 대기. 운영 의견함과 GitHub Pages 첫 배포를 완료했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready), [Pages 기록](CHANGELOG.md#tw-pages-deployed)). [TW-06 검증·통합 기록](CHANGELOG.md#tw-06-traditional-chinese)과 [간체 검증 기록](CHANGELOG.md#simplified-chinese-local)을 따르며 실기기·전체 완료와 구분한다. 아래 코드 위험·라인 번호는 착수 전 스냅샷이다.
 > 범위와 완료 조건의 원본: [ROADMAP.md](ROADMAP.md#taiwan-priority)
 
 ## 권장 순서
@@ -95,17 +95,17 @@ TW별로 검토 가능한 커밋을 나누고, TW-05는 ‘한국어 공통 기�
 
 ### 확인한 기준점
 
-- GitHub Pages API에서 배포 원본은 `main`의 `/`, 상태는 `built`, HTTPS 강제 사용을 확인했다. 원격 `main`과 마지막 Pages 빌드 커밋은 `2bfc01e8f134c18327fa551097681c95dbf49b39`, 공개 `sw.js`는 `v57`이다. 이 커밋은 현재 통합 브랜치의 조상이며 확인 시점의 원격 변경 누락은 없다. 실제 배포 직전에 다시 확인한다.
-- 준비 중 런타임은 `4a85f79`의 `v82`다. UI 가이드라인과 세 언어 검증 계획은 각각 `03bf9f0`, `50f1539`로 커밋했다. 뒤이은 검증 도구·문서 변경은 앱 런타임을 바꾸지 않는다.
-- Cloudflare 재로그인과 Worker·D1 권한은 후속 명시적 승인으로 갱신했다. 운영 D1의 `0001`·`0002` migration과 Worker 활성화, `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET` 등록을 완료했고 기존 박수 데이터·`ADMIN_TOKEN`을 보존했다. 운영 Worker 버전은 `06cc86c5-7b80-44af-9b07-f6f2682bb686`이다. health 200, 무인증 관리자 401·CORS 없음, 세 언어 테스트 메시지 생성·동일 UUID 재시도·인증 조회·`no-store`를 확인했으며 실제 박수 POST는 하지 않았다. `0 4 * * *` 삭제 스케줄 등록은 확인했지만 실제 만료 행 삭제는 미검증이다. [운영 기록](CHANGELOG.md#tw-feedback-production-ready)을 따른다. 공지 후보는 `tw-readiness-2026-08-31` 첫 releases 묶음과 SW v83으로 준비했지만 `main` 반영·push·GitHub Pages 배포는 아직이다.
+- GitHub Pages API에서 `main`·`origin/main`의 런타임 커밋 `7de9ada1ad488f9f1efbbfdc5bdd93f5fe661096`, 상태 `built`, HTTPS 강제 사용을 확인했다. 공개 주소의 캐시 자산 34개와 `sw.js`를 포함한 35개 GET 응답은 바이트가 일치했다. 기존 브라우저의 첫 v57 화면은 데이터 삭제 없이 두 번째 진입에서 v83으로 갱신됐다([Pages 기록](CHANGELOG.md#tw-pages-deployed)).
+- 배포 런타임은 `7de9ada1ad488f9f1efbbfdc5bdd93f5fe661096`의 `v83`이다. UI 가이드라인과 세 언어 검증 계획은 각각 `03bf9f0`, `50f1539`로 커밋했다. 뒤이은 검증 도구·문서 변경은 앱 런타임을 바꾸지 않는다.
+- Cloudflare 재로그인과 Worker·D1 권한은 후속 명시적 승인으로 갱신했다. 운영 D1의 `0001`·`0002` migration과 Worker 활성화, `FEEDBACK_READ_TOKEN`·`FEEDBACK_RATE_SECRET` 등록을 완료했고 기존 박수 데이터·`ADMIN_TOKEN`을 보존했다. 운영 Worker 버전은 `06cc86c5-7b80-44af-9b07-f6f2682bb686`이다. health 200, 무인증 관리자 401·CORS 없음, 세 언어 테스트 메시지 생성·동일 UUID 재시도·인증 조회·`no-store`를 확인했으며 실제 박수 POST는 집계 오염 방지를 위해 보내지 않았다. `0 4 * * *` 삭제 스케줄 등록은 확인했지만 실제 만료 행 삭제는 미검증이다. [운영 기록](CHANGELOG.md#tw-feedback-production-ready)을 따른다. 공지 묶음과 SW v83은 `main`·`origin/main` 및 GitHub Pages `built` 상태로 배포했다([Pages 기록](CHANGELOG.md#tw-pages-deployed)).
 
 ### 운영 반영 순서
 
 1. **계정·기준점 재확인:** Cloudflare 재인증을 마치고 계정·기존 Worker 버전·D1의 적용 migration·비밀키 이름·rate-limit namespace 중복 여부를 확인한다. 비밀키 값이나 실제 의견 본문은 로그·문서에 남기지 않는다. 사용자의 구버전 PWA·테스트 설정 보존 여부는 실기기 확인 항목으로 남긴다.
 2. **의견함 준비:** [의견함 배포 절차](creator-feedback.md#배포-순서와-남은-확인)대로 운영 D1 `0001`·`0002` 적용과 두 비밀키, 제한기, `FEEDBACK_ENABLED=true`, `ADMIN_TOKEN` 유지 상태를 확인했다.
 3. **Worker 먼저 검증:** 운영 health·접수·인증 조회·동일 요청 재시도·인증 없는 조회 차단을 확인했다. 실제 박수 POST는 보내지 않았고, 일일 삭제 스케줄은 등록만 확인했으며 실제 만료 행 삭제는 미검증이다.
-4. **공지·캐시 승격:** 네 항목을 첫 `releases` 묶음 `tw-readiness-2026-08-31`로 옮기고 `draft`를 비운 후보와 SW v83을 준비했다. `main` 반영·push·Pages 배포 후 공개 상태를 확인하고, 격리 브라우저에서 세 언어 공지·언어 전환 중 타이머·PNG·캐시 회귀를 통과했다.
-5. **정적 앱 배포:** 준비 브랜치의 코드·문서·검증 결과를 통합한 뒤 배포할 최종 커밋을 기록한다. 원격의 새로운 변경이 없는지 재확인하고 `main`에 반영·푸시한다. Pages 빌드의 커밋·상태와 공개 HTML/JS/SW가 일치하는지 확인한다. 푸시만 성공한 것을 배포 완료로 보고하지 않는다.
+4. **공지·캐시 승격:** 네 항목을 첫 `releases` 묶음 `tw-readiness-2026-08-31`으로 옮기고 `draft`를 비운 SW v83을 배포했다. 격리 브라우저에서 공지·언어 전환 중 타이머·PNG·캐시 회귀를 확인했고, 공개 브라우저에서는 타이머·언어 전환·공지·의견함 진입과 재접속 갱신을 확인했다.
+5. **정적 앱 배포:** 런타임 커밋 `7de9ada1ad488f9f1efbbfdc5bdd93f5fe661096`을 `main`·`origin/main`에 반영하고 Pages `built`, 공개 자산 바이트 일치와 캐시 갱신을 확인했다. 공개 브라우저 기본 흐름도 확인했으며 실제 iPhone/PWA 설치 업데이트는 남아 있다.
 6. **실기기 검증:** [세 언어 Safari/PWA 순서](design-localization.md#pages-device-validation)를 수행한다. 기존 설치 업데이트·오프라인·실제 공유·오디오 복귀·VoiceOver·OS IME·글꼴 검증과 현지인 표현 검수를 구분해 기록한다. 배포 성공만으로 TW-07/08을 완료 처리하지 않는다. 의견 정기 조회 자동화는 별도 주기 결정 후 등록한다.
 
 ### 장애 대응

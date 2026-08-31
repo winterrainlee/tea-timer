@@ -17,9 +17,23 @@
 
 운영 curl 검증에서 health는 200, 무인증 관리자 조회는 401이며 CORS 헤더가 없었다. 한국어·번체·간체 테스트 메시지 ID 1·2·3의 생성, 같은 UUID 재시도 시 같은 행 유지, 해당 행의 인증 조회 성공과 `Cache-Control: no-store`·CORS 없음까지 확인했다. 실제 박수 POST는 보내지 않았다. 일일 `0 4 * * *` 삭제 스케줄 등록도 확인했지만 실제 만료 행 삭제는 운영에서 아직 검증하지 않았다.
 
-코드 공지 네 항목은 현재 `releases`의 첫 묶음 `tw-readiness-2026-08-31`로 전환하고 `draft`를 비운 후보를 준비했으며, SW v83도 준비했다. 이 후보는 아직 `main` 반영·원격 push·GitHub Pages 배포 전이다. 최신 로컬 자동 검증은 Node 77개·Worker 7개·조회 도구 12개(총 96개)와 migration 원문·ID·sequence 보존을 통과했다. 격리 브라우저 8154에서 캐시 v83 갱신, 공지 11개·캐시 20개·언어 전환/타이머 49개·카드 PNG 138개(총 218개)도 통과했지만 공개 배포 후 검증은 아니다. iPhone 13 mini 한국어 화면은 사용자가 확인했지만 세 언어 설치형 PWA 완료로 확대하지 않는다. 공개 HTTPS 실기기/PWA, 기존 설치 업데이트, 오프라인·오디오 복귀, 글꼴·OS IME·실제 공유, 현지인 문구 검수와 정기 조회 자동화는 남아 있다.
+운영 검증은 시스템 `curl` 결과 기준이다. `query_feedback.py`의 urllib 요청은 Cloudflare에서 health와 함께 HTTP 403/error 1010을 받아 운영 조회 도구의 실제 접속은 아직 통과로 기록하지 않으며, 도구 수정은 별도 작업으로 남긴다.
+
+코드 공지 네 항목은 `releases`의 첫 묶음 `tw-readiness-2026-08-31`으로 전환하고 `draft`를 비운 SW v83으로 배포했다. 최신 로컬 자동 검증은 Node 77개·Worker 7개·조회 도구 12개(총 96개)와 migration 원문·ID·sequence 보존을 통과했다. 격리 브라우저 8154에서 캐시 v83 갱신, 공지 11개·캐시 20개·언어 전환/타이머 49개·카드 PNG 138개(총 218개)도 통과했다. 공개 브라우저의 기본 흐름은 [Pages 배포 기록](#tw-pages-deployed)에 기록했으며, iPhone 13 mini 한국어 화면은 사용자가 확인했지만 세 언어 설치형 PWA 완료로 확대하지 않는다. 공개 HTTPS 실기기/PWA, 기존 설치 업데이트, 오프라인·오디오 복귀, 글꼴·OS IME·실제 공유, 현지인 문구 검수와 정기 조회 자동화는 남아 있다.
 
 운영 Worker와 앱 배포를 구분해 기록하며, 이전의 승인 대기 상태는 [단계별 역사 기록](#tw-worker-staged-deployment)으로 보존한다.
+
+<a id="tw-pages-deployed"></a>
+
+### 2026-08-31 — GitHub Pages 첫 배포 완료, 필수 실기기 검증 대기
+
+런타임 배포 커밋 [`7de9ada1ad488f9f1efbbfdc5bdd93f5fe661096`](https://github.com/winterrainlee/tea-timer/commit/7de9ada1ad488f9f1efbbfdc5bdd93f5fe661096)이 `main` 및 `origin/main`에 반영됐고 GitHub Pages 상태 `built`를 확인했다. 생성 시각은 `2026-08-31T13:24:40Z`, 갱신 시각은 `2026-08-31T13:25:24Z`다. 공개 [앱 주소](https://winterrainlee.github.io/tea-timer/)에서 캐시 자산 34개와 `sw.js`를 포함한 35개 GET 응답의 바이트 일치를 확인했다.
+
+운영 의견함은 공식 Origin의 CORS preflight 204와 `Content-Type`을 포함한 POST 경로를 확인했다. 기존 브라우저의 첫 진입에서 오래된 v57 화면이 보였으나 사용자 데이터를 삭제하지 않고 두 번째 진입에서 새 v83 화면으로 갱신됐다. 이는 공개 캐시 갱신 확인이며 실제 iPhone 설치 업데이트 검증은 아직이다. 실제 박수 POST는 집계 오염 방지를 위해 의도적으로 보내지 않았다.
+
+공개 브라우저에서 실제 20초 우림 중 `ko`→`zh-TW`→`zh-CN` 전환(20→17→14→10초 지속), 공지를 연 채 완료→닫기→출탕→다음 포 준비→테스트 세션 종료를 확인했다. 한국어·음소거 원래값 복원과 이용 안내→제작자 소개→메시지 폼 진입, 빈 본문 전송 비활성도 확인했으며 추가 메시지는 전송하지 않았다. 이 검증은 실제 iOS/PWA 설치, 소리, OS 공유를 포함하지 않는다.
+
+공개 HTTPS의 세 언어 모바일 브라우저·설치형 PWA, 기존 iPhone 설치 업데이트, 오프라인·오디오 복귀, 글꼴·OS IME·실제 공유와 현지인 문구 검수, 만료 행 삭제 및 정기 조회 자동화는 남아 있다. TW-07·TW-08 전체 완료로 표시하지 않는다. 앞선 런타임 개발·로컬 검증은 [최종 준비 기록](#tw-release-readiness)과 [운영 의견함 기록](#tw-feedback-production-ready)에 둔다.
 
 <a id="tw-worker-staged-deployment"></a>
 
