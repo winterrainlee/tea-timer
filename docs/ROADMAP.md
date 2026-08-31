@@ -1,7 +1,7 @@
 # 차 한 잔의 시간 · Time for Tea — Roadmap
 
 > 기준일: 2026-08-31
-> 구현 기준: TW-01–03·TW-05·TW-06 구현·로컬 검증·통합. [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese)
+> 구현 기준: TW-01–03·TW-05·TW-06·간체 구현·로컬 검증·통합. [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese), [간체 기록](CHANGELOG.md#simplified-chinese-local)
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 문서 역할: 앱 철학에 따른 개발 방향·카테고리·우선순위와 완료 아이템의 색인. 제품·디자인·현재 구현 기준은 [DESIGN.md](DESIGN.md)를 따르고, 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에 둔다.
 > 상세 설계: [차 느낌](design-tea-feeling.md), [감각 단어장](sensory-vocabulary.md), [사용자 데이터·백업](data-portability.md), [한국어·번체·간체](design-localization.md), [화면 배치·메뉴 표현](design-navigation.md).
@@ -14,9 +14,9 @@
 
 **2026-08-31 우선순위 결정.** 대만에서 약 3개월간 중국어를 공부하고 사람들과 차를 마시는 실사용을 위해, 한국어를 유지하면서 대만 표현을 기준으로 한 번체 중국어를 먼저 지원한다. 앱 철학의 `친구에게 부담 없이 권하기`와 `차를 마시는 일이 먼저`를 이번 작업 선택의 기준으로 삼는다.
 
-Phase A 전체 완료나 Phase B·C의 장기 저장·백업을 기다리지 않는다. 아래 묶음을 현재 실행 우선순위로 사용하며, 기존 Phase는 범위와 후속 계획을 설명하는 분류로 유지한다. **TW-01–03은 구현·로컬 검증 완료, TW-04는 보류, TW-05는 한국어 구현·로컬 검증·사용자 화면 검토 완료, TW-06은 구현·로컬 검증·통합 완료, TW-07은 A안 구현·로컬 검증 후 실기기 확인 대기, TW-08은 GitHub Pages 배포 후 실기기 검증 예정**다. TW-04는 이번 묶음의 선행 조건·완료 기준에서 제외하며, 로컬 검증·배포 준비 뒤 GitHub Pages에 배포하고, 전체 묶음 완료는 배포 후 TW-07·08의 필수 실기기 검증까지 확인한 뒤 판단한다.
+Phase A 전체 완료나 Phase B·C의 장기 저장·백업을 기다리지 않는다. 아래 묶음을 현재 실행 우선순위로 사용하며, 기존 Phase는 범위와 후속 계획을 설명하는 분류로 유지한다. **TW-01–03은 구현·로컬 검증 완료, TW-04는 보류, TW-05는 한국어 구현·로컬 검증·사용자 화면 검토 완료, TW-06과 간체는 구현·로컬 검증·통합 완료, TW-07은 A안 구현·로컬 검증 후 실기기 확인 대기, TW-08은 GitHub Pages 배포 후 실기기 검증 예정**다. TW-04는 이번 묶음의 선행 조건·완료 기준에서 제외하며, 로컬 검증·배포 준비 뒤 GitHub Pages에 배포하고, 전체 묶음 완료는 배포 후 TW-07·08의 필수 실기기 검증까지 확인한 뒤 판단한다.
 
-**진행 상태(2026-08-31):** 통합 브랜치 `codex/tw-readiness`에서 [개발 흐름](../AGENTS.md)에 따라 기능별 분기·검증·병합한다. TW-01–03과 [TW-05 한국어 공통 기반·UI](CHANGELOG.md#tw-05-close)에 이어 [TW-06 번체 문구·독립 기본 단어](CHANGELOG.md#tw-06-traditional-chinese)를 구현·검증·통합했다. TW-07 A안 카드 조판을 구현·로컬 검증했다([기록](CHANGELOG.md#tw-07-balanced-card)). 실기기 확인과 TW-08은 남아 있다. TW-04는 [실사용 수요에 따라 보류](DESIGN.md#early-pour-policy)하며, `main` 반영·원격 푸시·배포는 하지 않았다.
+**진행 상태(2026-08-31):** 통합 브랜치 `codex/tw-readiness`에서 [개발 흐름](../AGENTS.md)에 따라 기능별 분기·검증·병합한다. TW-01–03과 [TW-05 한국어 공통 기반·UI](CHANGELOG.md#tw-05-close), [TW-06 번체 문구·독립 기본 단어](CHANGELOG.md#tw-06-traditional-chinese), [간체 카탈로그·독립 기본 단어·의견함 확장](CHANGELOG.md#simplified-chinese-local)을 구현·로컬 검증·통합했다. TW-07 A안 카드 조판도 구현·로컬 검증했다([기록](CHANGELOG.md#tw-07-balanced-card)). 실기기 확인과 TW-08은 남아 있다. 공지 4개는 초안 상태이고 런타임 `releases[]`는 비어 있으며, 운영 의견함은 `FEEDBACK_ENABLED=false`로 운영 반영 전이다. TW-04는 [실사용 수요에 따라 보류](DESIGN.md#early-pour-policy)하며, `main` 반영·원격 푸시·배포는 하지 않았다.
 
 ### 우선 아이템과 완료 확인
 
@@ -29,15 +29,15 @@ Phase A 전체 완료나 Phase B·C의 장기 저장·백업을 기다리지 않
 | TW-05 완료 | [한국어·번체 공통 번역 기반과 기본 메뉴](CHANGELOG.md#tw-05-close) | 도움말·설정·언어 | 기존 차·다구 ID를 유지한 채 표시 문자열을 분리한다. 태그 호환·언어 기억·누락 문구 폴백과 메인 언어 선택·기본 메뉴·공지사항 읽기를 검증한다. 우림 중 언어 전환·공지 열기는 상태를 보존하고 별도 문서 이동 보호는 유지한다 |
 | TW-06 완료 | [현재 기능의 번체 중국어 문구·독립 기본 단어](CHANGELOG.md#tw-06-traditional-chinese) | 도움말·설정·언어 | 메인·설정·도움말·공지·차 느낌·공유·접근성 문구, 언어별 기본 15개와 기존 원문 보존을 구현·로컬 검증·통합했다. [독립 기본 목록 계약](design-localization.md#locale-default-vocabulary)을 따르며 현지인 검수는 배포 후 진행한다 |
 | TW-07 로컬 검증·실기기 대기 | [번체 글꼴·작은 화면·카드 검증](CHANGELOG.md#tw-07-balanced-card) | UI·화면 구조·내비게이션 | 375×660에서 글자 누락·잘림·버튼 겹침이 없고, 번체·한국어 혼합 사용자 문장이 680×900 PNG에도 정상 표시된다. [A안(균형형)의 배치·표시 한도·원문 보존](design-tea-feeling.md#card-layout-draft)을 적용하고 미리보기와 PNG의 일치를 확인한다. 온라인·오프라인의 글꼴 폴백을 확인한다 |
-| TW-08 배포 후 실기기 검증 예정 | [한국어·번체 실사용 회귀 검증](design-localization.md#device-validation-scope) | 성능·PWA·오디오 | [사용자 결정](design-localization.md#pages-device-validation)에 따라 임시 인증서를 설치하지 않고 GitHub Pages 배포 후 공개 HTTPS에서 검증한다. 두 언어에서 차 선택→우림→정상 완료·출탕→다음 포→기록·공유를 모바일 브라우저와 설치형 PWA로 확인한다. 정상 완료·출탕·다음 포·세션 종료의 중복 처리 방지, 언어 기억·설정 보존·앱 복귀 후 오디오·캐시 갱신과 오프라인 앱 셸을 검증한다 |
+| TW-08 배포 후 실기기 검증 예정 | [한국어·번체·간체 실사용 회귀 검증](design-localization.md#device-validation-scope) | 성능·PWA·오디오 | [사용자 결정](design-localization.md#pages-device-validation)에 따라 임시 인증서를 설치하지 않고 GitHub Pages 배포 후 공개 HTTPS에서 검증한다. 세 언어(`ko`·`zh-TW`·`zh-CN`)에서 차 선택→우림→정상 완료·출탕→다음 포→기록·공유를 모바일 브라우저와 설치형 PWA로 확인한다. 정상 완료·출탕·다음 포·세션 종료의 중복 처리 방지, 언어 기억·설정 보존·앱 복귀 후 오디오·캐시 갱신과 오프라인 앱 셸을 검증한다 |
 
 TW-02의 [공통 토스트 C·문구 통일](CHANGELOG.md#common-toast)에 이어 시트·카드 dialog·입력 보존·44px 영역을 반영했다. TW-06 화면 검토 뒤 [차 느낌 중복 안내·상단 여백](CHANGELOG.md#feeling-sheet-spacing)과 [단어 칩 간격](CHANGELOG.md#feeling-chip-spacing)을 정리했다. 실기기 스크린리더·OS IME·설치형 PWA 검증은 남아 있으며 최종 TW-08 검증과 구분한다.
 
 2026-08-31 [로컬 최종 점검](CHANGELOG.md#tw-08-local-final-check)에서 Node 67개·브라우저 404개와 앱 서버 중단 시 캐시 복구를 통과했다. 실제 배포 공지 적용·배포 준비와 사용자의 실기기 결과는 남아 있다. 이 결과만으로 TW-07/08 전체 완료를 표시하지 않는다.
 
-**첫 배포 공지 검토 후 추가 범위(2026-08-31):** 이름·연락처 없는 비공개 의견함과 이메일 대신 Codex 조회를 [구현·로컬 검증](CHANGELOG.md#creator-feedback-local)했다. [의견함 설계](creator-feedback.md)에 따라 이용 안내의 메시지 작성, AI 제작·검토 고지, Worker/D1 접수·비공개 조회, 로컬 조회 도구를 준비했다. 네 항목의 한국어·번체 공지 문구도 준비했으며 예정 항목은 ‘준비 중’으로 정리했다. 사용자가 의견함 동작을 확인했으며, 후속으로 [제작자 소개에 통합하고 문구를 정리](CHANGELOG.md#feedback-creator-section)했다. **남은 단계:** 운영 Worker/DB/비밀키 반영, 서버 확인 후 네 항목 공지 게시와 GitHub Pages 배포, 배포 후 HTTPS 실기기 검증. 정기 조회 자동화는 주기를 정할 때 별도로 등록한다.
+**첫 배포 공지 검토 후 추가 범위(2026-08-31):** 이름·연락처 없는 비공개 의견함과 이메일 대신 Codex 조회를 [구현·로컬 검증](CHANGELOG.md#creator-feedback-local)했다. [의견함 설계](creator-feedback.md)에 따라 이용 안내의 메시지 작성, AI 제작·검토 고지, Worker/D1 접수·비공개 조회, 로컬 조회 도구를 준비했다. 네 항목의 한국어·번체·간체 공지 초안을 준비했지만 런타임 `releases[]`는 비어 있고, 예정 항목은 ‘준비 중’으로 정리된 상태다. 운영 의견함은 `FEEDBACK_ENABLED=false`로 비활성 상태이며 사용자가 로컬 의견함 동작을 확인했다([기록](CHANGELOG.md#feedback-creator-section)). **남은 단계:** 운영 Worker/DB/비밀키 반영과 의견함 서버 확인, 네 항목 공지 게시, GitHub Pages 배포, 배포 후 HTTPS 실기기 검증. 정기 조회 자동화는 주기를 정할 때 별도로 등록한다.
 
-**간체 추가(2026-08-31):** 사용자 승인에 따라 중국 대륙 간체와 별도 기본 단어 15개·의견함을 [구현·로컬 검증](CHANGELOG.md#simplified-chinese-local)했다. 간체 실기기 확인은 배포 후 범위에 추가하며 영어·일본어는 후속으로 유지한다.
+**간체 추가(2026-08-31):** 사용자 승인에 따라 중국 대륙 간체와 별도 기본 단어 15개·의견함을 [구현·로컬 검증](CHANGELOG.md#simplified-chinese-local)했다. 공지 4개 초안도 세 언어로 준비했으나 `releases[]` 게시와 운영 의견함 활성화(`FEEDBACK_ENABLED=false`)는 남아 있다. 간체 실기기 확인은 배포 후 범위에 추가하며 영어·일본어는 후속으로 유지한다.
 
 TW-01의 설정 보존 계약을 TW-05에 반영하고, TW-05의 번역 키·기본 태그 구분 뒤 TW-06을 적용한다. TW-02·03의 새 문구도 번역 범위에 포함하며, 보류한 TW-04의 문구는 포함하지 않는다. 번체 문구 초안 검토는 안정화와 함께 진행할 수 있지만, TW-07·08은 통합된 버전으로 확인한다.
 
