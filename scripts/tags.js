@@ -16,6 +16,13 @@ const TeaTags = (() => {
     ["taste.sour", "신맛"], ["taste.bitter", "쓴맛"],
     ["texture.clean", "깔끔함"], ["texture.coating", "텁텁함"],
     ["finish.lingering", "여운"],
+    ["tw.aroma.vegetal", "青香"], ["tw.aroma.floral", "花香"],
+    ["tw.aroma.sweet", "甜香"], ["tw.aroma.fruity", "果香"], ["tw.aroma.roasted", "焙香"],
+    ["tw.taste.umami", "鮮"], ["tw.taste.sweet", "甜"],
+    ["tw.taste.salty", "鹹"], ["tw.taste.sour", "酸"], ["tw.taste.bitter", "苦"],
+    ["tw.mouthfeel.fresh", "清爽"], ["tw.mouthfeel.fine", "細膩"],
+    ["tw.mouthfeel.astringent", "粗澀"], ["tw.mouthfeel.full", "濃稠"],
+    ["tw.mouthfeel.aftertaste", "餘韻感"],
   ]);
   // Keep every historical builtin readable while exposing the confirmed 15-item set by default.
   const BUILTIN_IDS = Object.freeze(BUILTIN_ITEMS.map(([id]) => id));
@@ -25,6 +32,13 @@ const TeaTags = (() => {
     "texture.clean", "texture.coating", "taste.astringent", "body.full", "finish.lingering",
   ]);
   const DEFAULT_ITEMS = Object.freeze(DEFAULT_IDS.map(id => Object.freeze({ kind: "builtin", id })));
+  const TW_DEFAULT_IDS = Object.freeze([
+    "tw.aroma.vegetal", "tw.aroma.floral", "tw.aroma.sweet", "tw.aroma.fruity", "tw.aroma.roasted",
+    "tw.taste.umami", "tw.taste.sweet", "tw.taste.salty", "tw.taste.sour", "tw.taste.bitter",
+    "tw.mouthfeel.fresh", "tw.mouthfeel.fine", "tw.mouthfeel.astringent", "tw.mouthfeel.full", "tw.mouthfeel.aftertaste",
+  ]);
+  const TW_DEFAULT_ITEMS = Object.freeze(TW_DEFAULT_IDS.map(id => Object.freeze({ kind: "builtin", id })));
+  const BUILTIN_LABELS = Object.freeze(Object.fromEntries(BUILTIN_ITEMS));
   const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
   const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -44,8 +58,8 @@ const TeaTags = (() => {
   function resolve(items) {
     return isValidItems(items) ? items.map(normalize) : null;
   }
-  function defaults() {
-    return DEFAULT_ITEMS.map(normalize);
+  function defaults(locale = "ko") {
+    return (locale === "zh-TW" ? TW_DEFAULT_ITEMS : DEFAULT_ITEMS).map(normalize);
   }
   function key(item) {
     if (!isValidItem(item)) return null;
@@ -53,7 +67,8 @@ const TeaTags = (() => {
   }
   function label(item, t) {
     if (!isValidItem(item)) return "";
-    return item.kind === "builtin" ? t(`tag.${item.id}`) : item.text;
+    // Keep the unused second parameter for callers from the localized-label API.
+    return item.kind === "builtin" ? BUILTIN_LABELS[item.id] : item.text;
   }
   function dedupe(items) {
     if (!Array.isArray(items)) return [];
@@ -67,7 +82,7 @@ const TeaTags = (() => {
   }
 
   return Object.freeze({
-    BUILTIN_IDS, DEFAULT_IDS, BUILTIN_ITEMS, DEFAULT_ITEMS, defaults, isValidItem, isValidItems,
+    BUILTIN_IDS, DEFAULT_IDS, DEFAULT_ITEMS, TW_DEFAULT_IDS, TW_DEFAULT_ITEMS, BUILTIN_ITEMS, defaults, isValidItem, isValidItems,
     resolve, normalize, key, label, dedupe,
   });
 })();

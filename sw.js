@@ -1,5 +1,5 @@
 // 차 한 잔의 시간 · Time for Tea — 문서 갱신 + 정적 자산 cache-first
-const CACHE_VERSION = "v62";
+const CACHE_VERSION = "v63";
 const CACHE_PREFIX = "chahanjan-";
 const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
@@ -17,6 +17,9 @@ const SHELL_ASSETS = [
   "./scripts/locales/ko.js",
   "./scripts/locales/ko-settings.js",
   "./scripts/locales/ko-help.js",
+  "./scripts/locales/zh-TW.js",
+  "./scripts/locales/zh-TW-settings.js",
+  "./scripts/locales/zh-TW-help.js",
   "./scripts/announcements.js",
   "./manifest.webmanifest",
 ];

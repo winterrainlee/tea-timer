@@ -1391,7 +1391,6 @@
     .top-actions :focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 1px; }
     .locale-check { margin-left: auto; visibility: hidden; }
     [aria-checked="true"] .locale-check { visibility: visible; color: var(--gold-soft); }
-    .language-preview { padding: .55rem .65rem; font-size: .76rem; line-height: 1.6; color: var(--ink-dim); }
     .nav-timer-notice { border-top: 1px solid var(--gold-line); padding: .6rem .65rem 0; font-size: .82rem; line-height: 1.6; color: var(--gold-soft); }
     .top-actions .nav-timer-notice button { padding-left: 0; font-size: .85rem; }
     #announcementDate { margin-left: .22rem; font: .6rem "Space Mono", monospace; color: var(--ink-dim); vertical-align: super; }
@@ -1427,7 +1426,6 @@
           <button type="button" class="locale-option" data-locale="ko" role="radio" aria-checked="true" lang="ko">한국어<span class="locale-check" aria-hidden="true">✓</span></button>
           <button type="button" class="locale-option" data-locale="zh-TW" role="radio" aria-checked="false" lang="zh-TW">繁體中文（台灣）<span class="locale-check" aria-hidden="true">✓</span></button>
         </div>
-        <p class="language-preview" data-i18n="language.preview">번체 문구는 다음 단계에서 적용합니다. 현재는 한국어로 표시합니다.</p>
         <div class="nav-timer-notice" hidden><p role="status" aria-live="polite"></p><button type="button" class="nav-return-timer"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m10 6-6 6 6 6M4 12h16"/></svg><span data-i18n="common.returnTimer">타이머로 돌아가기</span></button></div>
       </div>
       <div class="nav-popover" id="menuPopover" hidden inert>
@@ -1767,6 +1765,7 @@
   <script src="scripts/preferences.js"></script>
   <script src="scripts/i18n.js"></script>
   <script src="scripts/locales/ko.js"></script>
+  <script src="scripts/locales/zh-TW.js"></script>
   <script src="scripts/announcements.js"></script>
   <script>
     (() => {
@@ -2881,7 +2880,7 @@
       function renderTagsGrid() {
         const grid = $("tagsGrid");
         const focusedKey = grid.contains(document.activeElement) ? document.activeElement.dataset.tagKey : null;
-        const fresh = preferenceStore.read().values;
+        const fresh = preferenceStore.read(TeaI18n.getLocale()).values;
         // A settings edit must not remove words already selected for this card.
         const items = TeaTags.dedupe([...fresh.tagItems, ...sessionDraftTags]);
         grid.querySelectorAll("[data-tag-key]").forEach(chip => chip.remove());
@@ -2941,7 +2940,7 @@
           return;
         }
         const tag = { kind: "custom", text };
-        const result = preferenceStore.addTag(tag);
+        const result = preferenceStore.addTag(tag, TeaI18n.getLocale());
         if (!result.ok) {
           $("feelingTagStatus").textContent = t(result.reason === "protected" ? "tag.add.protected" : "tag.add.failed");
           input.focus();
@@ -2993,6 +2992,7 @@
         const input = document.createElement("input");
         input.className = "edit-input-inline";
         input.id = "teaTitleInput";
+        input.setAttribute("data-i18n-aria-label", "note.teaName");
         input.setAttribute("aria-label", t("note.teaName"));
         input.value = customTitle || (tea().name + " · " + vessel().name);
         titleEdit = { input, initialValue: input.value };

@@ -1,4 +1,4 @@
-// Korean source catalog. Traditional Chinese is completed in TW-06.
+// Korean UI catalog. Vocabulary labels retain their source language in scripts/tags.js.
 TeaI18n.register("ko", {
   "tea.green.name": "녹차",
   "tea.white.name": "백차",
@@ -116,7 +116,6 @@ TeaI18n.register("ko", {
   "note.draftLifetime": "새로고침·앱 종료 뒤에는 복원되지 않습니다. 오래 남길 느낌은 텍스트나 이미지로 내보낼 수 있습니다.",
   "language.label": "언어",
   "language.open": "언어 선택",
-  "language.preview": "번체 문구는 다음 단계에서 적용합니다. 현재는 한국어로 표시합니다.",
   "nav.menu": "메뉴",
   "nav.open": "메뉴 열기",
   "nav.announcements": "공지사항",

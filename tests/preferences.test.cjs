@@ -233,7 +233,7 @@ test('valid tagItems take priority and preserve builtin/custom identity and raw 
   assert.deepEqual(TeaTags.dedupe(values.tagItems), tagItems.slice(0, 2));
   assert.equal(TeaTags.key(tagItems[0]), 'builtin/taste.sweet');
   assert.equal(TeaTags.key(tagItems[1]), 'custom/단맛');
-  assert.equal(TeaTags.label(tagItems[0], key => ({ 'tag.taste.sweet': '甜味' })[key]), '甜味');
+  assert.equal(TeaTags.label(tagItems[0], key => ({ 'tag.taste.sweet': '甜味' })[key]), '단맛');
   assert.equal(TeaTags.label(tagItems[1], () => 'wrong'), '단맛');
   assert.equal(store.patch({ tagItems: [{ kind: 'custom', text: '새 단어' }] }).ok, true);
   const saved = JSON.parse(storage.raw());
@@ -267,10 +267,37 @@ test('same-text custom and explicit empty lists remain unchanged, while restore 
   assert.deepEqual(JSON.parse(empty.storage.raw()).tagItems, []);
   assert.equal(store.restoreTags().ok, true);
   const restored = JSON.parse(storage.raw());
-  assert.deepEqual(restored.tagItems, TeaTags.defaults());
+  assert.deepEqual(restored.tagItems, TeaTags.defaults('zh-TW'));
   assert.deepEqual(restored.customTags, ['식물향']);
   assert.equal(restored.extra.keep, true);
   assert.equal(restored.muted, false);
+});
+
+test('locale affects only a missing-list default projection and never rewrites stored locale or source items', () => {
+  const { storage, store } = storeFor(payload({ locale: 'ko' }));
+  const raw = JSON.parse(storage.raw());
+  delete raw.customTags;
+  storage.setItem(KEY, JSON.stringify(raw));
+  assert.deepEqual(store.read('zh-TW').values.tagItems, TeaTags.defaults('zh-TW'));
+  assert.equal(store.read('zh-TW').values.locale, 'ko');
+  assert.deepEqual(store.read().values.tagItems, TeaTags.defaults('ko'));
+  assert.equal(store.patch({ muted: true }).ok, true);
+  assert.equal(JSON.parse(storage.raw()).locale, 'ko');
+
+  const saved = storeFor(payload({ locale: 'zh-TW', tagItems: TeaTags.defaults('ko') }));
+  assert.deepEqual(saved.store.read('zh-TW').values.tagItems, TeaTags.defaults('ko'));
+  assert.equal(saved.store.patch({ muted: true }).ok, true);
+  assert.deepEqual(JSON.parse(saved.storage.raw()).tagItems, TeaTags.defaults('ko'));
+});
+
+test('no-argument restore uses the latest stored locale and explicit items keep UI choice separate', () => {
+  const { storage, store } = storeFor(payload({ locale: 'zh-TW', tagItems: [], customTags: [], extra: { keep: true } }));
+  assert.equal(store.restoreTags().ok, true);
+  assert.deepEqual(JSON.parse(storage.raw()).tagItems, TeaTags.defaults('zh-TW'));
+  assert.equal(store.restoreTags(TeaTags.defaults('ko')).ok, true);
+  const saved = JSON.parse(storage.raw());
+  assert.deepEqual(saved.tagItems, TeaTags.defaults('ko'));
+  assert.deepEqual(saved.extra, { keep: true });
 });
 
 test('legacy tags remain literal custom items, including duplicates and empty lists', () => {

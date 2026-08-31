@@ -1,13 +1,27 @@
 # 차 한 잔의 시간 · 변경 이력
 
 > 정리일: 2026-08-31
-> 구현 기준: TW-01–03·TW-05 + [차 느낌 작성 중 단어 추가](#feeling-inline-tags)
+> 구현 기준: TW-01–03·TW-05 + [TW-06 번체·독립 기본 단어](#tw-06-traditional-chinese)
 
 이 문서는 당시 변경 내용과 구현 범위를 보존하는 개발 이력입니다. 현재 구현 상태와 현재 스펙은 [ROADMAP.md](ROADMAP.md) 및 [DESIGN.md](DESIGN.md)를 기준으로 하며, ROADMAP에는 이 문서의 해당 항목 링크만 둡니다. 상세 설계는 [design-tea-feeling.md](design-tea-feeling.md), [sensory-vocabulary.md](sensory-vocabulary.md), [data-portability.md](data-portability.md)에서 관리합니다.
 
 기존 로드맵의 주요 완료 내역을 옮긴 문서이며 전체 Git 이력을 나열한 것은 아닙니다. 완료일은 기존 로드맵 기준으로 보존하므로 관련 커밋의 작성일과 다를 수 있습니다.
 
 ## 기능 변경
+
+<a id="tw-06-traditional-chinese"></a>
+
+### 2026-08-31 — TW-06 번체 문구와 언어별 독립 기본 단어
+
+승인한 초안을 메인·설정·이용 안내·공지·차 느낌·접근성·텍스트/PNG 공유에 적용했다. 동양식 다호는 번체에서 `茶壺`로 표시하고 제품명은 유지한다. 초안 수명은 한 포가 아닌 이번 차 세션 전체로 설명한다. 현지인 문구 검수는 사용자 결정대로 배포 후 진행한다.
+
+- 한국어와 번체는 각각 기본 15개를 제공한다. 기존 25개 한국어 builtin ID의 원문을 고정하고 번체에는 별도 `tw.` ID를 부여했다. 저장된 목록·빈 목록·legacy·custom·선택 단어는 언어 전환으로 바꾸지 않는다. 목록을 편집한 적이 없을 때만 현재 화면 언어의 기본 목록을 보여준다. 다른 탭의 언어 적용 유예나 언어 저장 실패 중에도 첫 단어 추가는 보이는 목록을 기준으로 저장한다. 상세 근거·15개 원문·복원 계약은 [다국어 설계 §7.4](design-localization.md#locale-default-vocabulary)를 따른다.
+- 세 번체 카탈로그를 각 페이지와 SW 사전 캐시에 추가하고 v63으로 갱신했다. 이전의 “번체는 다음 단계” 안내를 제거했다. 동적 제목 입력의 접근성 이름도 언어 전환을 따른다. TW-07 A안 카드 조판은 이번 변경에 포함하지 않았다.
+- Node: `node --test tests/*.test.cjs` **61개 통과**. 두 언어의 전체 248개 고유 키·치환 변수 일치, 의도한 제품명/기존 단어 외 한국어 혼용 없음, 기존 데이터·손상/빈 목록·저장 실패·현재 UI locale에 따른 추가/복원을 확인했다.
+- 브라우저: 전용 `http://127.0.0.1:8134/tests/`에서 `traditional-chinese.html` **21개**, `localization.html` **49개**, `inline-tags.html` **37개**, `draft-boundaries.html` **66개**, `accessibility.html` **35개**, `session-async.html` **9개**, `announcements.html` **11개**, `ui-consistency.html` **60개**, `offline-assets.html` **14개** 통과. 번체 전환·원문·현재 UI 기본값·실제 5초 우림·완료/출탕/다음 포·IME/공유 유예·초안 보호·44px·작은 화면·캐시 응답을 확인했다. UI 검사는 합성 입력과 플랫폼 대역을 포함하며 실기기 결과와 구분한다.
+- 산출물: 375×660 번체 작성 시트 실제 렌더, 번체 원문 텍스트 복사와 실제 680×900 PNG를 확인했다. `font-preflight.html`에서 한국어·번체·이모지 혼합 입력의 정상/외부 글꼴 차단 PNG 2종을 생성했다. Git 외부 `/Users/kioku/.codex/visualizations/2026/08/31/01a05671-a428-7392-940b-09ee1a7816ad/tw06/`에 로그·원본 PNG·스크린샷을 보관한다. 이미지 보조 검토는 E4B의 일부 OCR 오류·JSON 형식 실패를 기록하고 실제 이미지/Canvas 문자열과 대조했다. 26B는 그 텍스트 근거만 검토했으며 이미지 직접 판독으로 취급하지 않는다.
+- 이번 검증에서는 실제 iPhone·OS IME·스크린리더·OS 공유 시트·오디오 출력·설치형 PWA·서버 중단 오프라인·기존 설치 캐시 업데이트를 완료하지 않았다. 긴 입력의 A안 조판·전체 기기 글꼴 보장은 TW-07·08에 남긴다. Mac/iPhone용 8138 서버는 앱 런타임 파일만 허용하고 문서·테스트·`.git`은 제공하지 않는다. LAN HTTP 확인과 HTTPS가 필요한 검증은 [기기 검증 경계](design-localization.md#device-validation-scope)를 따른다.
+- 기능 브랜치 `codex/tw-06-traditional-chinese`에서 구현·로컬 검증을 마쳤다. 통합 브랜치 병합은 다음 단계이며 `main` 반영·원격 푸시·배포는 하지 않았다.
 
 <a id="feeling-inline-tags"></a>
 

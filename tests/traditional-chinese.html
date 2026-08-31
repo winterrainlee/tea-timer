@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TW-06 繁體中文回歸驗證</title>
+<style>
+  body { margin:16px; font:16px system-ui; background:#eee; color:#222; }
+  button { min-height:44px; } iframe { width:375px; height:660px; border:1px solid #888; background:#171510; }
+  pre { max-height:280px; overflow:auto; white-space:pre-wrap; } #artifacts a { display:block; }
+</style>
+<h1>TW-06 繁體中文回歸驗證</h1>
+<p><code>python3 -m http.server 8134 --bind 127.0.0.1</code>로 저장소 루트를 제공한 뒤 실행합니다. <strong>127.0.0.1:8134 전용</strong>이며 이 origin의 테스트 설정만 지웁니다.</p>
+<p>실제 앱 iframe을 사용합니다. clipboard·share·PNG URL 대역은 이 harness 안에서만 사용하며 OS 공유 UI나 설치형 PWA 검증을 대체하지 않습니다.</p>
+<button id="run">繁體中文回歸驗證 실행</button>
+<pre id="result" role="status">대기 중</pre>
+<div id="artifacts"></div>
+<iframe id="app" title="繁體中文 검증 대상"></iframe>
+<script>
+(() => {
+  const frame = document.querySelector('#app'), result = document.querySelector('#result'), artifacts = document.querySelector('#artifacts');
+  const KEY = 'teaTimer.preferences.v1';
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(predicate, name, ms = 12000) {
+    const start = performance.now(); while (!predicate()) { if (performance.now() - start > ms) throw new Error('시간 초과: ' + name); await sleep(25); }
+  }
+  function seed(value) { localStorage.clear(); if (value !== undefined) localStorage.setItem(KEY, JSON.stringify(value)); }
+  const errors = [];
+  async function load(page = 'index.html') {
+    frame.src = '../' + page + '?tw06=' + Date.now(); await new Promise(resolve => frame.onload = resolve);
+    const w = frame.contentWindow, d = w.document;
+    await until(() => page === 'settings.html' ? d.getElementById('newTagInput') : page === 'index.html' ? d.getElementById('brew') : d.querySelector('main'), page + ' boot');
+    w.addEventListener('error', event => errors.push(event.message || String(event.error)));
+    w.addEventListener('unhandledrejection', event => errors.push(String(event.reason)));
+    return { w, d, $: id => d.getElementById(id) };
+  }
+  const click = el => { if (!el) throw new Error('대상 없음'); el.click(); };
+  const input = (w, el, value) => { el.value = value; el.dispatchEvent(new w.Event('input', { bubbles:true })); el.dispatchEvent(new w.Event('change', { bubbles:true })); };
+  const key = (w, el, value) => el.dispatchEvent(new w.KeyboardEvent('keydown', { key:value, bubbles:true, cancelable:true }));
+  const defaultIds = locale => locale === 'zh-TW' ? 'tw.aroma.vegetal' : 'aroma.plant';
+  const expected = ['青香','花香','甜香','果香','焙香','鮮','甜','鹹','酸','苦','清爽','細膩','粗澀','濃稠','餘韻感'];
+  document.querySelector('#run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') { result.textContent = '중단: http://127.0.0.1:8134 전용 harness입니다.'; return; }
+    this.disabled = true; artifacts.replaceChildren(); errors.length = 0; const lines = [];
+    const check = (name, ok) => { if (!ok) throw new Error(name); lines.push('PASS ' + name); result.textContent = lines.join('\n'); };
+    try {
+      seed(); let app = await load(); let { w, d, $ } = app;
+      click($('languageButton')); click(d.querySelector('[data-locale="zh-TW"]')); await until(() => d.documentElement.lang === 'zh-TW', 'zh main locale');
+      let saved = JSON.parse(localStorage.getItem(KEY));
+      check('메인 번체 UI와 locale patch만 저장', d.body.textContent.includes('開始泡茶') && d.body.textContent.includes('選單') && saved.locale === 'zh-TW' && !Object.hasOwn(saved, 'tagItems') && !Object.hasOwn(saved, 'customTags'));
+      click($('note'));
+      const labels = [...d.querySelectorAll('#tagsGrid [data-tag-key]')].map(el => el.textContent.replace(/^#/, '').replace('我的字詞', '').trim());
+      check('번체 기본 태그 원문과 ID', JSON.stringify(labels) === JSON.stringify(expected) && d.querySelector('[data-tag-key="builtin/tw.aroma.vegetal"]'));
+      const first = d.querySelector('#tagsGrid [data-tag-key]'); click(first); $('noteInput').value = '保留的筆記'; $('noteInput').dispatchEvent(new w.Event('input', { bubbles:true }));
+      click($('closeSheetBtn')); click($('languageButton')); click(d.querySelector('[data-locale="ko"]')); await until(() => d.documentElement.lang === 'ko', 'ko return'); click($('note'));
+      check('zh 선택 태그와筆記는 ko 전환 뒤에도 표시·해제 가능', d.querySelector('[data-tag-key="builtin/tw.aroma.vegetal"]')?.getAttribute('aria-pressed') === 'true' && $('noteInput').value === '保留的筆記');
+      click(d.querySelector('[data-tag-key="builtin/tw.aroma.vegetal"]')); check('언어 밖 선택 태그 해제 가능', d.querySelector('[data-tag-key="builtin/tw.aroma.vegetal"]')?.getAttribute('aria-pressed') === 'false');
+      click($('closeSheetBtn'));
+
+      // An external raw locale is deferred by a note draft; a subsequent add must use the visible Korean defaults.
+      seed({ version:1, locale:'ko' }); app = await load(); ({ w, d, $ } = app); click($('note')); input(w, $('noteInput'), 'defer');
+      const rawZh = JSON.stringify({ version:1, locale:'zh-TW' }); localStorage.setItem(KEY, rawZh);
+      w.dispatchEvent(new w.StorageEvent('storage', { key:KEY, newValue:rawZh, storageArea:w.localStorage }));
+      check('외부 locale은 초안 중 유예', d.documentElement.lang === 'ko');
+      click($('addFeelingTagBtn')); input(w, $('feelingTagInput'), '현재UI'); click($('confirmFeelingTagBtn'));
+      saved = JSON.parse(localStorage.getItem(KEY));
+      check('유예 중 추가는 현재 UI 기본값으로 저장', saved.locale === 'zh-TW' && saved.tagItems[0].id === defaultIds('ko') && saved.tagItems.at(-1).text === '현재UI');
+      click(d.querySelector('[data-tag-key="custom/현재UI"]')); input(w, $('noteInput'), ''); click($('closeSheetBtn')); await until(() => d.documentElement.lang === 'zh-TW', 'deferred external zh flush');
+
+      seed({ version:1, locale:'ko' }); app = await load(); ({ w, d, $ } = app); click($('note'));
+      click(d.querySelector('[data-tag-key="builtin/aroma.plant"]')); click($('closeSheetBtn'));
+      click($('languageButton')); click(d.querySelector('[data-locale="zh-TW"]')); click($('note'));
+      const keptKo = d.querySelector('[data-tag-key="builtin/aroma.plant"]');
+      check('한국어 선택 단어도 번체 전환 뒤 원문 보존', keptKo?.getAttribute('aria-pressed') === 'true' && keptKo.textContent.includes('식물향'));
+      click($('addFeelingTagBtn')); input(w, $('feelingTagInput'), '茶席新詞'); click($('confirmFeelingTagBtn'));
+      saved = JSON.parse(localStorage.getItem(KEY));
+      check('번체 카드 작성 중 추가도 설정에 번체 기본 목록과 저장', saved.tagItems[0].id === 'tw.aroma.vegetal' && saved.tagItems.at(-1).text === '茶席新詞' && d.querySelector('[data-tag-key="custom/茶席新詞"]')?.getAttribute('aria-pressed') === 'true');
+
+      seed(); app = await load('settings.html'); ({ w, d, $ } = app); click($('localeZhTw'));
+      await until(() => d.documentElement.lang === 'zh-TW', 'zh settings locale');
+      check('375px 번체 설정은 가로 넘침 없음', d.documentElement.scrollWidth <= 375 && d.body.scrollWidth <= 375);
+      $('newTagInput').value = '自訂詞'; click($('addTagBtn'));
+      saved = JSON.parse(localStorage.getItem(KEY));
+      check('번체 설정 추가는 번체 기본 15개와 사용자 원문을 저장', saved.tagItems.length === 16 && saved.tagItems[0].id === 'tw.aroma.vegetal' && saved.tagItems.at(-1).text === '自訂詞');
+      const originalConfirm = w.confirm;
+      try { w.confirm = () => false; click($('restoreTagsBtn')); } finally { w.confirm = originalConfirm; }
+      check('복원 취소는 저장 목록을 유지', JSON.parse(localStorage.getItem(KEY)).tagItems.length === 16);
+      try { w.confirm = () => true; click($('restoreTagsBtn')); } finally { w.confirm = originalConfirm; }
+      saved = JSON.parse(localStorage.getItem(KEY)); check('복원 적용은 현재 번체 15개로 대체', saved.tagItems.length === 15 && saved.tagItems[0].id === 'tw.aroma.vegetal');
+
+      seed(); app = await load('settings.html'); ({ w, d, $ } = app); const originalSetItem = w.Storage.prototype.setItem;
+      try {
+        w.Storage.prototype.setItem = () => { throw new Error('harness locale save failure'); };
+        click($('localeZhTw')); check('언어 저장 실패도 화면 번체 적용', d.documentElement.lang === 'zh-TW' && localStorage.getItem(KEY) === null);
+      } finally { w.Storage.prototype.setItem = originalSetItem; }
+      input(w, $('newTagInput'), '失敗後追加'); click($('addTagBtn')); saved = JSON.parse(localStorage.getItem(KEY));
+      check('저장 실패 뒤 성공한 추가도 현재 번체 기본값 사용', !Object.hasOwn(saved, 'locale') && saved.tagItems[0].id === defaultIds('zh-TW') && saved.tagItems.at(-1).text === '失敗後追加');
+
+      app = await load(); ({ w, d, $ } = app); click($('languageButton')); click(d.querySelector('[data-locale="zh-TW"]')); await until(() => d.documentElement.lang === 'zh-TW', 'zh png locale');
+      click($('note')); click($('editTitleBtn')); input(w, $('teaTitleInput'), '原文茶名'); key(w, $('teaTitleInput'), 'Enter');
+      input(w, $('noteInput'), 'PNG 原文筆記'); const selected = d.querySelector('[data-tag-key="builtin/tw.aroma.vegetal"]'); click(selected);
+      let copied = ''; Object.defineProperty(w.navigator, 'clipboard', { configurable:true, value:{ writeText:async text => { copied = text; } } });
+      click($('copyBtn')); await until(() => copied, 'text copy');
+      check('번체 텍스트 복사도 사용자 원문과 선택 단어 보존', copied.includes('原文茶名') && copied.includes('PNG 原文筆記') && copied.includes('#青香') && copied.includes('차 한 잔의 시간'));
+      click($('cardBtn'));
+      check('번체 카드 미리보기 UI 라벨·원문·제품명', $('cardDialogTitle').textContent === '卡片預覽' && $('cardTagsContainer').textContent.includes('青香') && $('cardNoteQuote').textContent.includes('PNG 原文筆記') && $('cardTeaName').textContent.includes('原文茶名') && $('cardFooterDate').textContent.includes('차 한 잔의 시간'));
+      let shared, png, drawn = []; const originalGetContext = w.HTMLCanvasElement.prototype.getContext;
+      const originalCanShare = w.navigator.canShare, originalShare = w.navigator.share;
+      w.HTMLCanvasElement.prototype.getContext = function (...args) { const ctx = originalGetContext.apply(this, args), fillText = ctx.fillText.bind(ctx); ctx.fillText = (...values) => { drawn.push(String(values[0])); return fillText(...values); }; return ctx; };
+      Object.defineProperty(w.navigator, 'canShare', { configurable:true, value: data => !!data.files?.length });
+      Object.defineProperty(w.navigator, 'share', { configurable:true, value: async data => { shared = data; } });
+      try { click($('shareCardBtn')); await until(() => shared?.files?.[0], 'PNG share capture'); png = shared.files[0]; }
+      finally {
+        w.HTMLCanvasElement.prototype.getContext = originalGetContext;
+        Object.defineProperty(w.navigator, 'canShare', { configurable:true, value: originalCanShare });
+        Object.defineProperty(w.navigator, 'share', { configurable:true, value: originalShare });
+      }
+      const imageUrl = await new Promise((resolve, reject) => { const reader = new w.FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(png); });
+      const dimensions = await new Promise((resolve, reject) => { const image = new w.Image(); image.onload = () => resolve([image.width, image.height]); image.onerror = reject; image.src = imageUrl; });
+      const link = document.createElement('a'); link.href = imageUrl; link.download = 'tw06-card.png'; link.textContent = 'PNG artifact: 680×900 繁體中文 card'; artifacts.append(link);
+      check('680×900 PNG와 원문 title/note/선택 태그 draw', png.type === 'image/png' && dimensions[0] === 680 && dimensions[1] === 900 && drawn.some(text => text.includes('原文茶名')) && drawn.includes('PNG 原文筆記') && drawn.includes('#青香'));
+
+      seed({ version:1, locale:'zh-TW' }); app = await load('help.html'); ({ d } = app);
+      check('도움말 번체 UI는 외부 applause 동작 없이 렌더', d.documentElement.lang === 'zh-TW' && d.body.textContent.includes('使用說明') && d.body.textContent.includes('開始泡茶'));
+      check('375px 번체 도움말은 가로 넘침 없음', d.documentElement.scrollWidth <= 375 && d.body.scrollWidth <= 375);
+      app = await load(); ({ w, d, $ } = app); click($('note'));
+      input(w, $('noteInput'), '한국어·繁體中文·emoji 🍃 原文筆記');
+      check('375px 번체 작성 시트는 가로 넘침 없이 44px 단어 조작 제공', d.documentElement.scrollWidth <= 375 && [...d.querySelectorAll('#tagsGrid [data-tag-key]')].every(el => { const r = el.getBoundingClientRect(); return r.width >= 44 && r.height >= 44; }));
+      check('iframe 오류 없음', errors.length === 0);
+      lines.push('완료: ' + lines.filter(line => line.startsWith('PASS ')).length + '개 통과'); result.textContent = lines.join('\n');
+    } catch (error) { lines.push('FAIL ' + (error?.stack || error.message || String(error))); result.textContent = lines.join('\n'); }
+    finally { this.disabled = false; }
+  };
+})();
+</script>

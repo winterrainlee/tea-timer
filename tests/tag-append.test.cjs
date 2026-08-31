@@ -44,6 +44,22 @@ test('uses defaults when no tag list exists and honors explicit empty lists', ()
   assert.deepEqual(empty.store.addTag({ kind: 'custom', text: '새' }).items, [{ kind: 'custom', text: '새' }]);
 });
 
+test('seeds a first edit from the explicit UI locale even when stored locale changed elsewhere', () => {
+  const { storage, store } = storeFor(JSON.stringify({ version: 1, locale: 'ko', metadata: { keep: true } }));
+  const result = store.addTag({ kind: 'custom', text: '我的詞' }, 'zh-TW');
+  assert.deepEqual(result.items, [...TeaTags.defaults('zh-TW'), { kind: 'custom', text: '我的詞' }]);
+  const saved = JSON.parse(storage.raw());
+  assert.equal(saved.locale, 'ko');
+  assert.deepEqual(saved.tagItems, result.items);
+  assert.deepEqual(saved.metadata, { keep: true });
+});
+
+test('uses stored locale for a missing-list seed without an explicit UI locale', () => {
+  const { store } = storeFor(JSON.stringify({ version: 1, locale: 'zh-TW' }));
+  const result = store.addTag({ kind: 'custom', text: '我的詞' });
+  assert.deepEqual(result.items, [...TeaTags.defaults('zh-TW'), { kind: 'custom', text: '我的詞' }]);
+});
+
 test('is idempotent by custom identity and needs no write for an existing tag', () => {
   const { storage, store } = storeFor(payload({ tagItems: [{ kind: 'custom', text: '원문' }] }));
   const result = store.addTag({ kind: 'custom', text: '원문' });
