@@ -10,6 +10,7 @@ const SHELL_ASSETS = [
   "./index.html",
   "./help.html",
   "./settings.html",
+  "./styles/ui.css",
   "./scripts/tags.js",
   "./scripts/preferences.js",
   "./scripts/i18n.js",

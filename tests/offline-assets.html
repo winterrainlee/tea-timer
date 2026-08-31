@@ -12,7 +12,7 @@ document.getElementById('run').onclick = async () => {
   if (location.origin !== 'http://127.0.0.1:8134') {
     result.textContent = '중단: 127.0.0.1:8134 전용'; return;
   }
-  const paths = ['index.html', 'settings.html', 'help.html', 'scripts/preferences.js', 'scripts/tags.js', 'scripts/i18n.js', 'scripts/announcements.js', 'scripts/locales/ko.js', 'scripts/locales/ko-settings.js', 'scripts/locales/ko-help.js'];
+  const paths = ['index.html', 'settings.html', 'help.html', 'styles/ui.css', 'scripts/preferences.js', 'scripts/tags.js', 'scripts/i18n.js', 'scripts/announcements.js', 'scripts/locales/ko.js', 'scripts/locales/ko-settings.js', 'scripts/locales/ko-help.js'];
   try {
     const keys = await caches.keys();
     const shellName = keys.find(key => key === 'chahanjan-shell-v62');
