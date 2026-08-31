@@ -90,10 +90,31 @@ const TeaCard = (() => {
     const dateText = date.getFullYear() + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getDate()).padStart(2, '0');
     return { title, summary, history, tags, note, dateText, brand: '차 한 잔의 시간' };
   }
+  function placeBlocks(model) {
+    const blocks = {};
+    let height = 0;
+    const add = (name, size, gap = 0) => {
+      height += gap;
+      blocks[name] = { top: height, height: size };
+      height += size;
+    };
+    add('badge', 24);
+    add('title', 38 + (model.title.lines.length - 1) * 48, 24);
+    add('summary', 26, 22);
+    if (model.history.rows.length) add('history', 24 + (model.history.rows.length - 1) * 36, 22);
+    add('divider', 1, 28);
+    if (model.tags.rows.length) add('tags', 42 + (model.tags.rows.length - 1) * 52, 28);
+    add('note', model.note.lines.length * 42 + 26, model.tags.rows.length ? 24 : 28);
+    // Center the actual content above the fixed footer; unused lines reserve no space.
+    const offset = Math.round((60 + 794 - height) / 2);
+    for (const block of Object.values(blocks)) block.top += offset;
+    return blocks;
+  }
   function render(canvas, snapshot, t, family) {
     canvas.width = WIDTH; canvas.height = HEIGHT;
     const ctx = canvas.getContext('2d');
     const model = layout(snapshot, ctx, t, family);
+    const blocks = placeBlocks(model);
     const grad = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
     grad.addColorStop(0, '#21190e'); grad.addColorStop(1, '#100b07');
     ctx.fillStyle = grad; ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -104,28 +125,28 @@ const TeaCard = (() => {
       ctx.textBaseline = 'middle'; ctx.textAlign = align; ctx.fillStyle = color;
       ctx.fillText(value, x, y);
     }
-    text(t('card.badge'), 340, 86, 24, '#e4d691');
-    model.title.lines.forEach((line, i) => text(line, 340, 142 + i * 48, 38, '#efe6d6', 'center', true));
-    text(model.summary, 340, 237, 26, '#e4d691');
+    text(t('card.badge'), 340, blocks.badge.top + 12, 24, '#e4d691');
+    model.title.lines.forEach((line, i) => text(line, 340, blocks.title.top + 19 + i * 48, 38, '#efe6d6', 'center', true));
+    text(model.summary, 340, blocks.summary.top + 13, 26, '#e4d691');
     model.history.rows.forEach((row, r) => {
       let x = (WIDTH - row.width) / 2;
-      row.items.forEach(item => { text(item.text, x, 284 + r * 36, 24, '#b8a98e', 'left'); x += item.width + 18; });
+      row.items.forEach(item => { text(item.text, x, blocks.history.top + 12 + r * 36, 24, '#b8a98e', 'left'); x += item.width + 18; });
     });
-    ctx.strokeStyle = '#584827'; ctx.beginPath(); ctx.moveTo(58, 346); ctx.lineTo(622, 346); ctx.stroke();
-    const startY = 439 - (model.tags.rows.length - 1) * 26;
+    ctx.strokeStyle = '#584827'; ctx.beginPath(); ctx.moveTo(58, blocks.divider.top); ctx.lineTo(622, blocks.divider.top); ctx.stroke();
     model.tags.rows.forEach((row, r) => {
       let x = (WIDTH - row.width) / 2;
+      const rowY = blocks.tags.top + 21 + r * 52;
       row.items.forEach(item => {
         if (!item.more) {
-          ctx.fillStyle = '#352e19'; ctx.beginPath(); ctx.roundRect(x, startY + r * 52 - 21, item.width, 42, 5); ctx.fill();
+          ctx.fillStyle = '#352e19'; ctx.beginPath(); ctx.roundRect(x, rowY - 21, item.width, 42, 5); ctx.fill();
         }
-        text(item.text, x + item.width / 2, startY + r * 52, 28, item.more ? '#b8a98e' : '#e4d691', 'center', true);
+        text(item.text, x + item.width / 2, rowY, 28, item.more ? '#b8a98e' : '#e4d691', 'center', true);
         x += item.width + 10;
       });
     });
-    ctx.fillStyle = '#151009'; ctx.fillRect(58, 544, CONTENT, 236);
-    ctx.fillStyle = '#b5a459'; ctx.fillRect(58, 544, 3, 236);
-    const noteStart = 662 - (model.note.lines.length - 1) * 21;
+    ctx.fillStyle = '#151009'; ctx.fillRect(58, blocks.note.top, CONTENT, blocks.note.height);
+    ctx.fillStyle = '#b5a459'; ctx.fillRect(58, blocks.note.top, 3, blocks.note.height);
+    const noteStart = blocks.note.top + 34;
     model.note.lines.forEach((line, i) => text(line, 80, noteStart + i * 42, 28, '#efe6d6', 'left'));
     text(model.dateText, 58, 825, 22, '#b8a98e', 'left');
     text(model.brand, 622, 825, 22, '#b8a98e', 'right');
