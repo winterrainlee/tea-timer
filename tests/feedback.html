@@ -35,10 +35,12 @@ document.getElementById('run').onclick = async function () {
     const write=value=>{input.value=value;input.dispatchEvent(new w.Event('input',{bubbles:true}));};
     const submit=()=>{$('feedbackForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));};
     check('제작 AI 활용 별도 고지',d.querySelector('[data-i18n="help.creator.ai"]').textContent.includes('AI'));
+    const creator=$('feedbackOpen').closest('details');
+    creator.querySelector('summary').click();
     $('feedbackOpen').focus();$('feedbackOpen').click();
     check('대화상자 진입과 배경 비활성',!$('feedbackBackdrop').hidden&&d.querySelector('.page').inert&&$('applause').inert);
     check('초기 X 포커스·44px 터치',d.activeElement===$('feedbackClose')&&$('feedbackClose').getBoundingClientRect().height>=44&&send.getBoundingClientRect().height>=44);
-    check('전송 전 보관·AI·개별 답장 고지',['90일','AI','개별 답장'].every(x=>$('feedbackPrivacy').textContent.includes(x)));
+    check('전송 전 보관·AI·이메일 문의 고지',['90일','AI','이메일'].every(x=>$('feedbackPrivacy').textContent.includes(x)));
     d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));check('Tab 입력란 이동',d.activeElement===input);
     d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));check('빈 입력에서는 X로 순환',d.activeElement===$('feedbackClose'));
     write('   \n');submit();await tick();check('공백 거부',send.disabled&&f.calls.length===0);
@@ -51,7 +53,7 @@ document.getElementById('run').onclick = async function () {
     $('feedbackOpen').click();check('닫았다 열어도 원문 보존',input.value==='  찻잔🍵\n原文  ');
     submit();await tick();check('통신 실패 시 원문 보존',input.value==='  찻잔🍵\n原文  '&&!send.disabled&&$('feedbackStatus').dataset.error==='true');
     const first=f.calls[0];check('원문·언어·UUID 전송 계약',first.message===input.value&&first.locale==='ko'&&/^[a-f0-9-]{36}$/.test(first.requestId));
-    w.changeFixtureLocale('zh-TW');check('번체 전환 시 원문·개별 답장 고지',input.value===first.message&&$('feedbackPrivacy').textContent.includes('個別回覆'));
+    w.changeFixtureLocale('zh-TW');check('번체 전환 시 원문·이메일 문의 고지',input.value===first.message&&$('feedbackPrivacy').textContent.includes('電子郵件'));
     f.mode='success';submit();await tick();check('불확실한 재시도 ID·원언어 고정',JSON.stringify(f.calls[1])===JSON.stringify(first));
     check('확인된 성공에만 입력 비움',input.value===''&&$('feedbackStatus').dataset.error==='false');
     write('두 번째');f.mode='malformed';submit();await tick();check('잘못된 성공 응답은 내용 보존',input.value==='두 번째'&&$('feedbackStatus').dataset.error==='true');
