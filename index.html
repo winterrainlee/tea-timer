@@ -3428,9 +3428,8 @@ ${emoji} ${rawName}
       function renderAnnouncements() {
         const content = $("announcementContent");
         content.replaceChildren();
-        for (const group of ["released", "planned"]) {
+        for (const { id: group, items } of TeaAnnouncements.getSections()) {
           const heading = document.createElement("h3"); heading.dataset.i18n = `announcements.${group}`; content.appendChild(heading);
-          const items = TeaAnnouncements.items.filter(item => item.status === group);
           if (!items.length && group === "released") {
             const empty = document.createElement("p"); empty.className = "announcement-empty"; empty.dataset.i18n = "announcements.noReleased"; content.appendChild(empty);
           }
@@ -3461,9 +3460,10 @@ ${emoji} ${rawName}
         const date = TeaAnnouncements.updatedOn;
         const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
         const displayDate = validDate ? date.replaceAll("-", ".") : "";
-        $("announcementDate").textContent = validDate && TeaAnnouncements.items.length ? date.slice(5).replace("-", "") : "";
+        const hasAnnouncements = TeaAnnouncements.getSections().some(section => section.items.length);
+        $("announcementDate").textContent = validDate && hasAnnouncements ? date.slice(5).replace("-", "") : "";
         $("announcementsTitle").textContent = validDate ? t("announcements.datedTitle", { date: displayDate }) : t("announcements.title");
-        if (validDate && TeaAnnouncements.items.length) $("announcementsButton").setAttribute("aria-description", t("nav.updated", { date: displayDate }));
+        if (validDate && hasAnnouncements) $("announcementsButton").setAttribute("aria-description", t("nav.updated", { date: displayDate }));
         else $("announcementsButton").removeAttribute("aria-description");
         $("teaName").textContent = tea().name; $("teaCur").textContent = tea().name;
         $("teaGhostL").textContent = TEAS[(teaIdx + TEAS.length - 1) % TEAS.length].name;

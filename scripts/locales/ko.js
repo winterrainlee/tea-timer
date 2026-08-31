@@ -129,6 +129,7 @@ TeaI18n.register("ko", {
   "announcements.close": "공지사항 닫기",
   "announcements.released": "업데이트",
   "announcements.planned": "예정된 업데이트",
+  "announcements.past": "지난 업데이트",
   "announcements.noReleased": "아직 게시된 업데이트가 없습니다.",
   "announcements.plannedTitle": "언어 선택과 메뉴를 준비하고 있습니다.",
   "announcements.plannedBody": "메인 우상단에서 언어를 고르고, 메뉴에서 공지사항·사용법·설정을 열 수 있도록 준비하고 있습니다. 차와 다구 이미지, 타이머, 하단의 소리·차 느낌 위치는 유지합니다. 번체 중국어 지원은 문구와 사용성을 검토한 뒤 제공합니다.",
