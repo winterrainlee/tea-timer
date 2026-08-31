@@ -170,13 +170,13 @@
 
       // Five-second real timer: menus/announcements do not stop it; one record then next infusion is n=2.
       input(w, $('slider'), '5'); click($('brew')); await sleep(50);
-      click($('menuButton')); check('우림 중 메뉴 return 표시', !$('menuPopover').hidden && !d.querySelector('#menuPopover .nav-timer-notice').hidden);
+      click($('menuButton')); check('메뉴·언어·공지·종료 확인에 중복 안내·복귀 버튼 없음', !$('menuPopover').hidden && !d.querySelector('.nav-timer-notice, .modal-timer-notice, .return-to-timer, .nav-return-timer'));
       click($('announcementsButton'));
-      check('우림 중 공지 modal/inert 열림', !$('announcementsBackdrop').hidden && $('announcementsDialog').getAttribute('aria-modal') === 'true' && $('timerApp').inert === true);
+      check('우림 중 공지 modal/inert 열림', !$('announcementsBackdrop').hidden && $('announcementsDialog').getAttribute('aria-modal') === 'true' && $('timerApp').inert === true && $('announcementsDialog').querySelector('[data-timer-status]').classList.contains('sr-only'));
       keyboard(w, $('announcementsDialog'), 'Escape');
       check('공지 Escape 닫기·메뉴 opener 복귀', $('announcementsBackdrop').hidden && d.activeElement === $('menuButton'));
-      click($('menuButton')); click($('announcementsButton')); check('우림 중 공지 return 경로 열림', !$('announcementsBackdrop').hidden);
-      click(d.querySelector('#announcementsDialog .return-to-timer'));
+      click($('menuButton')); click($('announcementsButton')); click($('closeAnnouncementsBtn'));
+      check('우림 중 공지 X 닫기·메뉴 포커스·초안 유지', $('announcementsBackdrop').hidden && d.activeElement === $('menuButton') && $('noteInput').value === 'draft');
       const timeSeconds = text => { const [minutes, seconds] = text.split(':').map(Number); return minutes * 60 + seconds; };
       const activeBeforeLocale = {
         vessel: $('vesselName').textContent, slider: $('slider').value, time: $('time').textContent,
