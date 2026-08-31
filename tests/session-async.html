@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TW-03 비동기 세션 경계 검증</title>
+<style>
+  body { margin: 16px; font: 16px system-ui; background: #eee; color: #222; }
+  button { min-height: 44px; }
+  iframe { width: 375px; height: 660px; border: 1px solid #888; }
+  pre { white-space: pre-wrap; }
+</style>
+<h1>TW-03 비동기 세션 경계 검증</h1>
+<p>전용 테스트 origin에서만 실행합니다: 저장소 루트에서 <code>python3 -m http.server 8134 --bind 127.0.0.1</code> 실행 후 이 페이지를 엽니다. iframe은 실제 앱 HTML에 테스트 전용 Audio/Wake/Image 지연기를 앞쪽에서 주입합니다.</p>
+<p>실제 UI와 5초 타이머를 사용합니다. 합성 입력은 OS IME·스크린리더 검증을 대신하지 않습니다.</p>
+<button id="run">검증 실행</button>
+<pre id="result" role="status">대기 중</pre>
+<iframe id="app" title="검증 대상 타이머"></iframe>
+<script>
+  const frame = document.getElementById('app');
+  const output = document.getElementById('result');
+  const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(predicate, label, timeout = 12000) {
+    const started = performance.now();
+    while (!predicate()) {
+      if (performance.now() - started > timeout) throw new Error('시간 초과: ' + label);
+      await pause(30);
+    }
+  }
+
+  function installAsyncFakes() {
+    const control = window.__sessionAsync = {
+      delayAudio: false, delayImage: false, oscillators: 0, releases: 0,
+      audioResolvers: [], imageResolvers: [], wakeResolvers: [], errors: []
+    };
+    window.addEventListener('error', event => control.errors.push(event.message || 'window error'));
+    window.addEventListener('unhandledrejection', event => control.errors.push(String(event.reason)));
+    class FakeNode { connect() { return this; } disconnect() {} }
+    class FakeGain extends FakeNode { constructor() { super(); this.gain = { value: 0, setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {} }; } }
+    class FakeOscillator extends FakeNode { constructor() { super(); this.frequency = { value: 0 }; this.detune = { value: 0 }; } start() { control.oscillators++; } stop() { if (this.onended) this.onended(); } }
+    class FakeAudioContext {
+      constructor() { this.state = 'suspended'; this.currentTime = 0; this.destination = new FakeNode(); }
+      resume() { return control.delayAudio ? new Promise(resolve => control.audioResolvers.push(() => { this.state = 'running'; resolve(); })) : Promise.resolve().then(() => { this.state = 'running'; }); }
+      suspend() { this.state = 'suspended'; return Promise.resolve(); }
+      createGain() { return new FakeGain(); }
+      createOscillator() { return new FakeOscillator(); }
+    }
+    window.AudioContext = window.webkitAudioContext = FakeAudioContext;
+    Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request() {
+      return new Promise(resolve => control.wakeResolvers.push(() => resolve({ released: false, release() { this.released = true; control.releases++; return Promise.resolve(); } })));
+    } } });
+    window.Image = class TestImage {
+      constructor() { this.onload = null; this.onerror = null; this.decoding = 'auto'; this.pending = false; }
+      set src(value) { this._src = value; this.pending = control.delayImage; if (!this.pending) setTimeout(() => this.onload && this.onload(), 0); }
+      get src() { return this._src || ''; }
+      decode() { return this.pending ? new Promise(resolve => control.imageResolvers.push(() => { this.pending = false; this.onload && this.onload(); resolve(); })) : Promise.resolve(); }
+    };
+    control.resolveAudio = () => control.audioResolvers.splice(0).forEach(resolve => resolve());
+    control.resolveImages = () => control.imageResolvers.splice(0).forEach(resolve => resolve());
+    control.resolveWake = () => control.wakeResolvers.splice(0).forEach(resolve => resolve());
+  }
+
+  document.getElementById('run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') {
+      output.textContent = '중단: http://127.0.0.1:8134/tests/session-async.html 에서만 실행할 수 있습니다.';
+      return;
+    }
+    this.disabled = true;
+    const lines = [];
+    const runs = [];
+    const check = (name, value) => { if (!value) throw new Error(name); lines.push('PASS ' + name); output.textContent = lines.join('\n'); };
+    try {
+      const source = await fetch('../index.html?session-async=' + Date.now()).then(response => response.text());
+      const setup = '<base href="../"><script>(' + installAsyncFakes.toString() + ')();<\/script>';
+      async function load({ muted = true } = {}) {
+        localStorage.setItem('teaTimer.preferences.v1', JSON.stringify({ version: 1, lastTeaId: 'oolong', lastVesselId: 'gaiwan', muted, secDeltaByTea: { oolong: -15 }, customTags: ['단맛', '꽃향'] }));
+        frame.srcdoc = source.replace('<head>', '<head>' + setup);
+        await new Promise(resolve => frame.onload = resolve);
+        const w = frame.contentWindow, d = w.document, $ = id => d.getElementById(id);
+        await until(() => !$('brew').disabled, '앱 준비');
+        const c = w.__sessionAsync;
+        runs.push(c);
+        return { $, c };
+      }
+      const setFiveSeconds = $ => {
+        const slider = $('slider');
+        slider.value = '5';
+        slider.dispatchEvent(new slider.ownerDocument.defaultView.Event('input', { bubbles: true }));
+      };
+
+      {
+        const { $, c } = await load({ muted: false });
+        c.delayAudio = true; setFiveSeconds($); $('brew').click();
+        await until(() => $('brew').textContent === '차 따라내기', '5초 우림 완료', 9000);
+        check('지연된 예고음·완료음 대기', c.audioResolvers.length > 0 && c.oscillators === 0);
+        $('reset').click(); check('초안 없는 종료는 즉시 idle', $('brew').textContent === '우리기 시작');
+        c.resolveAudio(); await pause(80);
+        check('종료 뒤 지연 AudioContext가 oscillator를 만들지 않음', c.oscillators === 0);
+      }
+
+      {
+        const { $, c } = await load();
+        setFiveSeconds($); $('brew').click();
+        await until(() => c.wakeResolvers.length === 1, 'Wake Lock 요청');
+        $('reset').click(); c.resolveWake();
+        await until(() => c.releases === 1, '늦은 Wake Lock release');
+        check('종료 뒤 resolve된 Wake Lock이 release됨', $('brew').textContent === '우리기 시작' && c.releases === 1);
+      }
+
+      async function verifyDraftDuringVesselLoad(kind) {
+        const { $, c } = await load();
+        c.delayImage = true; $('vesselNext').click();
+        await until(() => c.imageResolvers.length > 0, '다구 자산 decode 대기');
+        $('note').click();
+        if (kind === 'title') { $('editTitleBtn').click(); $('teaTitleInput').value = '제목만 초안'; }
+        if (kind === 'tag') $('tagsGrid').querySelector('button').click();
+        if (kind === 'note') $('noteInput').value = '메모만 초안';
+        c.resolveImages();
+        await until(() => $('hero').getAttribute('aria-busy') === 'false', '다구 자산 처리');
+        const preserved = kind === 'title' ? $('teaTitleInput').value === '제목만 초안'
+          : kind === 'tag' ? $('tagsGrid').querySelector('button').getAttribute('aria-pressed') === 'true'
+          : $('noteInput').value === '메모만 초안';
+        check('자산 준비 중 ' + kind + ' 단독 초안은 원 다구에 남음', $('vesselName').textContent === '개완' && preserved);
+      }
+      await verifyDraftDuringVesselLoad('title');
+      await verifyDraftDuringVesselLoad('tag');
+      await verifyDraftDuringVesselLoad('note');
+
+      {
+        const { $ } = await load();
+        setFiveSeconds($); $('brew').click();
+        await until(() => $('brew').textContent === '차 따라내기', 'drain 전 완료', 9000);
+        $('brew').click(); await until(() => $('brew').textContent === '따라내는 중…', 'drain 시작');
+        $('reset').click(); await pause(1700);
+        $('note').click();
+        check('drain 종료 뒤 다음 포 callback이 되살아나지 않음', $('brew').textContent === '우리기 시작' && $('infusionHistoryDisplay').textContent === '완료된 우림 없음' && $('infLabel').textContent.includes('一'));
+      }
+      check('각 iframe 실행에서 브라우저 예외 없음', runs.every(run => run.errors.length === 0));
+      lines.push('완료: 9개 통과. 실제 OS IME·오디오 출력·Wake Lock 기기 동작은 별도 검증입니다.');
+      output.textContent = lines.join('\n');
+    } catch (error) {
+      output.textContent = lines.join('\n') + '\nFAIL ' + error.message;
+    } finally { this.disabled = false; }
+  };
+</script>
+</html>
