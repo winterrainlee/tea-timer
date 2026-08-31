@@ -125,6 +125,7 @@ TeaI18n.register("ko", {
   "announcements.title": "공지사항",
   "announcements.datedTitle": "공지사항 ({date})",
   "announcements.close": "공지사항 닫기",
+  "announcements.draft": "업데이트 초안",
   "announcements.released": "업데이트",
   "announcements.planned": "예정된 업데이트",
   "announcements.past": "지난 업데이트",
