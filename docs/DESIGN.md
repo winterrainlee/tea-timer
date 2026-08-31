@@ -74,7 +74,7 @@
 | 모바일 렌더 부하 제어 | **반영됨** | 상태 기반 단일 스케줄러, idle 정지, 진행 중 30fps 제한, 완료 대기 12fps 제한, 초 단위 텍스트 갱신, reduced-motion 정적 렌더 |
 | `[이번 차의 느낌]` | **부분 반영** | 기록 바텀시트, 기본·커스텀 태그, 자유 문장·제목 수정, 세션 초안, 텍스트 복사, Canvas PNG 공유·다운로드까지 구현. IndexedDB 장기 저장·백업/복원·단어장·누적 기록 화면은 미구현 |
 | 제작자 반응 전송 | **반영됨** | 메인 화면에서는 제거하고 도움말의 박수 모달만 유지. Cloudflare Worker/D1에 `clap`·`down` 집계 |
-| PWA 캐시 갱신 | **반영됨** | `chahanjan-shell-v58`/`static-v58`, 문서 network-first + 정적 자산 cache-first, 이전 앱 캐시 정리 |
+| PWA 캐시 갱신 | **반영됨** | `chahanjan-shell-v59`/`static-v59`, 문서 network-first + 정적 자산 cache-first, 이전 앱 캐시 정리 |
 
 ### 2.2 주의할 불일치
 - 통합 전 `CLAUDE.md`에는 개완 뚜껑 열림이 적용된 것으로 적혀 있었으나, 현재 `index.html` 기준으로는 미작동이라 정정했다.
@@ -459,7 +459,7 @@ stage
 
 ### 7.2 PWA와 캐시
 - manifest는 `display: standalone`, `orientation: portrait`, `theme_color: #120d09`를 사용한다.
-- 현재 캐시는 `chahanjan-shell-v58`과 `chahanjan-static-v58`으로 분리한다. 설치 시 로컬 문서 셸·공통 저장 JS와 아이콘·다구·다하 자산을 사전 캐시하고, 활성화 시 `chahanjan-` 접두어의 이전 버전만 삭제한 뒤 열린 클라이언트를 즉시 제어한다.
+- 현재 캐시는 `chahanjan-shell-v59`과 `chahanjan-static-v59`으로 분리한다. 설치 시 로컬 문서 셸·공통 저장 JS와 아이콘·다구·다하 자산을 사전 캐시하고, 활성화 시 `chahanjan-` 접두어의 이전 버전만 삭제한 뒤 열린 클라이언트를 즉시 제어한다.
 - HTML·manifest·탐색 요청은 network-first로 최신 문서를 우선하고 오프라인이면 shell 캐시 또는 `index.html`로 폴백한다. 버전이 지정된 이미지·아이콘은 cache-first로 반환해 재방문 때 대형 정적 자산을 다시 요청하지 않는다.
 - 외부 origin 요청은 가로채지 않고, 앱과 무관한 다른 Cache Storage 항목도 삭제하지 않는다.
 - 앱 코드·자산 변경을 배포할 때는 `CACHE_VERSION`을 올려 설치된 PWA의 앱 셸을 갱신한다. 개발 문서만 바꿀 때는 런타임 캐시 버전을 올리지 않는다.
@@ -543,6 +543,7 @@ idle
 - `prefers-reduced-motion`이면 urgent animation과 플래시 animation을 끈다.
 - vessel/tea 셰브런 대비는 `--ink-dim`으로 보강되었다.
 - 색만으로 완료를 알리지 않고 숫자, 메시지, 소리, 플래시를 같이 쓴다.
+- 공통 토스트는 작은 말풍선 C와 ‘-습니다’체를 사용한다. 표시·문구 기준은 [공통 알림](design-navigation.md#common-toast)을 따른다.
 
 ### 8.2 접근성 검증 기준
 - 새 제스처를 추가할 때는 기존 버튼 접근성과 충돌하지 않아야 한다.

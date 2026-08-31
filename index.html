@@ -1213,27 +1213,44 @@
     .toast {
       position: fixed;
       width: max-content;
-      max-width: calc(100vw - 2rem);
-      text-align: center;
-      top: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background: rgba(37, 28, 18, 0.95);
-      border: 1px solid var(--gold);
-      color: var(--gold-soft);
-      padding: 0.6rem 1.2rem;
-      border-radius: 999px;
+      max-width: min(calc(100vw - 32px), 428px);
+      text-align: left;
+      white-space: pre-line;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      top: calc(58px + env(safe-area-inset-top, 0px));
+      left: max(16px, calc((100vw - 460px) / 2 + 16px));
+      transform: translateY(-8px);
+      background: #2b2318;
+      border: 1px solid #655935;
+      color: var(--ink);
+      padding: 14px 18px;
+      border-radius: 9px;
       font-size: 0.88rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      line-height: 1.6;
+      box-shadow: 0 4px 10px #00000029;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.25s ease;
+      transition: opacity 0.25s ease, transform 0.25s ease;
       z-index: 200;
+    }
+
+    .toast::before {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: 24px;
+      width: 8px;
+      height: 8px;
+      background: inherit;
+      border-left: 1px solid #655935;
+      border-top: 1px solid #655935;
+      transform: rotate(45deg);
     }
 
     .toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translateY(0);
     }
 
     /* Generated Card Preview Overlay */
@@ -2114,7 +2131,7 @@
       async function selectVessel(delta) {
         if (vesselLoading || phase === "pour" || phase === "steep" || phase === "draining") return;
         if (infusionHistory.length > 0) {
-          showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
+          showToast("진행 중인 차가 있습니다.\n[우림 끝]을 누르면 차와 도구를 바꿀 수 있습니다.");
           return;
         }
         const idx = vesselIndex();
@@ -2124,7 +2141,7 @@
         setVesselLoading(true);
         try {
           if (!await prepareVesselAssets(nextVessel)) {
-            showToast("도구 이미지를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+            showToast("도구 이미지를 불러오지 못했습니다.");
             return;
           }
           if (vesselId !== originVesselId || phase !== originPhase || infusionHistory.length > 0) {
@@ -2152,7 +2169,7 @@
       function selectTea(i) {
         if (vesselLoading || phase === "pour" || phase === "steep") return;
         if (infusionHistory.length > 0) {
-          showToast("아직 우리고 있는 중인 차가 있습니다. 차를 바꾸려면 [우림 끝]을 눌러주세요 🍵");
+          showToast("진행 중인 차가 있습니다.\n[우림 끝]을 누르면 차와 도구를 바꿀 수 있습니다.");
           return;
         }
         teaIdx = (i + TEAS.length) % TEAS.length; paintTea();
@@ -2640,7 +2657,7 @@
       // Draft Save
       $("draftBtn").onclick = () => {
         sessionDraftNote = $("noteInput").value;
-        showToast("임시 저장되었습니다 💾");
+        showToast("이번 우림의 느낌을 임시 저장했습니다.");
       };
 
       // Copy Plain Text
@@ -2667,9 +2684,9 @@ ${emoji} ${rawName}
 💬 ${noteLine}`;
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(textToCopy).then(() => showToast("클립보드에 텍스트가 복사되었습니다 📋")).catch(() => showToast("복사 실패"));
+          navigator.clipboard.writeText(textToCopy).then(() => showToast("텍스트를 복사했습니다.")).catch(() => showToast("텍스트를 복사하지 못했습니다."));
         } else {
-          showToast("클립보드 미지원 환경");
+          showToast("이 브라우저에서는 텍스트 복사를 지원하지 않습니다.");
         }
       };
 
@@ -2880,7 +2897,7 @@ ${emoji} ${rawName}
           if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
             try {
               await navigator.share(shareData);
-              showToast("카드 이미지 공유를 마쳤습니다 🖼️");
+              showToast("카드 이미지를 공유했습니다.");
               return;
             } catch (shareError) {
               if (shareError.name === "AbortError") return;
@@ -2894,9 +2911,9 @@ ${emoji} ${rawName}
           link.href = objectUrl;
           link.click();
           setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-          showToast("카드 이미지 다운로드를 시작했습니다 🖼️");
+          showToast("카드 이미지 다운로드를 시작했습니다.");
         } catch (e) {
-          if (e.name !== "AbortError") showToast("이미지 저장 실패");
+          if (e.name !== "AbortError") showToast("이미지를 저장하지 못했습니다.");
         }
       }
 
@@ -2921,7 +2938,7 @@ ${emoji} ${rawName}
       $("reset").onclick = () => {
         if (vesselLoading) return;
         if (infusionHistory.length > 0) {
-          showToast("오늘의 차 세션을 마감했습니다 🍵");
+          showToast("이번 차를 마무리했습니다.");
         }
         customTitle = "";
         sessionDraftNote = "";
