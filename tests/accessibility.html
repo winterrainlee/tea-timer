@@ -125,12 +125,14 @@
       click('closeSheetBtn');
       // Use the real five-second timer, not an internal state shortcut.
       fill($('slider'),'5'); click('brew'); click('note');
-      check('우림 중 열린 시트 안내',$('noteDialog').querySelector('[role="status"]').textContent.includes('우리는 중'));
+      check('우림 중 시각 안내·복귀 버튼 없이 스크린리더 알림 유지', !$('noteDialog').querySelector('.modal-timer-notice, .return-to-timer') && $('noteDialog').querySelector('[data-timer-status]').classList.contains('sr-only') && $('noteDialog').querySelector('[data-timer-status]').textContent.includes('우리는 중'));
       click('cardBtn');
       await until(() => $('brew').textContent === '차 따라내기','5초 우림 완료');
-      check('우림 완료가 중첩 창·포커스를 유지',focus('closeCardModalBtn') && !$('cardModalBackdrop').hidden && $('cardDialog').querySelector('[role="status"]').textContent.includes('우림을 마쳤습니다'));
-      $('cardDialog').querySelector('.return-to-timer').click();
-      check('복귀는 창만 닫고 출탕 버튼으로 이동',focus('brew') && $('sheetBackdrop').hidden && $('cardModalBackdrop').hidden && $('brew').textContent === '차 따라내기');
+      check('우림 완료가 중첩 창·포커스를 유지하고 보이지 않는 상태만 갱신',focus('closeCardModalBtn') && !$('cardModalBackdrop').hidden && !$('cardDialog').querySelector('.modal-timer-notice, .return-to-timer') && $('cardDialog').querySelector('[data-timer-status]').textContent === '우림을 마쳤습니다.');
+      click('closeCardModalBtn');
+      check('카드 X는 작성 시트로 복귀하고 초안 유지', focus('cardBtn') && !$('sheetBackdrop').hidden && $('cardModalBackdrop').hidden && $('noteInput').value.endsWith('조합 끝'));
+      click('closeSheetBtn');
+      check('시트 X는 출탕하지 않고 메인으로 복귀',focus('note') && $('sheetBackdrop').hidden && $('brew').textContent === '차 따라내기');
       click('brew'); await until(() => $('brew').textContent === '다음 泡 우리기','출탕 완료');
       click('note'); check('완료된 1포와 초안 유지',$('infusionHistoryDisplay').textContent.includes('총 1포') && $('noteInput').value.endsWith('조합 끝'));
       click('cardBtn');

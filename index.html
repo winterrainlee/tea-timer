@@ -960,12 +960,12 @@
 
     .sheet-container {
       width: min(100vw, 440px);
-      max-height: 88vh;
-      max-height: 88dvh;
+      max-height: calc(100vh - max(1rem, env(safe-area-inset-top, 0px)));
+      max-height: calc(100dvh - max(1rem, env(safe-area-inset-top, 0px)));
       background: #1a140d;
       border: 1px solid var(--line);
       border-radius: 20px 20px 0 0;
-      padding: 1.25rem 1.15rem 1.4rem;
+      padding: .75rem 1.15rem 1.4rem;
       padding-bottom: max(1.4rem, env(safe-area-inset-bottom, 0px));
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -979,19 +979,11 @@
       transform: translateY(0);
     }
 
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      background: var(--line);
-      border-radius: 2px;
-      margin: 0 auto 1rem;
-    }
-
     .sheet-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.1rem;
+      margin-bottom: .5rem;
     }
 
     .sheet-title {
@@ -1669,15 +1661,11 @@
   <!-- Bottom Sheet Component for Tea Feeling Note -->
   <div class="sheet-backdrop" id="sheetBackdrop" hidden inert aria-hidden="true">
     <div class="sheet-container" id="noteDialog" role="dialog" aria-labelledby="noteDialogTitle" tabindex="-1">
-      <div class="sheet-handle"></div>
       <div class="sheet-header">
         <h2 class="sheet-title" id="noteDialogTitle" data-i18n="note.title">이번 차의 느낌</h2>
         <button class="btn-close-sheet" id="closeSheetBtn" aria-label="차 느낌 닫기" data-i18n-aria-label="note.close">✕</button>
       </div>
-      <div class="modal-timer-notice" hidden>
-        <p role="status" aria-live="polite" aria-atomic="true"></p>
-        <button class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button>
-      </div>
+      <p class="sr-only" data-timer-status role="status" aria-live="polite" aria-atomic="true"></p>
 
       <!-- Summary Card -->
       <div class="summary-card">
@@ -1733,10 +1721,7 @@
         <h2 class="card-dialog-title" id="cardDialogTitle" data-i18n="card.title">카드 미리보기</h2>
         <button class="btn-close-sheet" id="closeCardModalBtn" aria-label="카드 미리보기 닫기" data-i18n-aria-label="card.close">✕</button>
       </div>
-      <div class="modal-timer-notice" hidden>
-        <p role="status" aria-live="polite" aria-atomic="true"></p>
-        <button class="btn-action return-to-timer" data-i18n="common.returnTimer">타이머로 돌아가기</button>
-      </div>
+      <p class="sr-only" data-timer-status role="status" aria-live="polite" aria-atomic="true"></p>
       <div class="card-header-badge" data-i18n="card.badge">TIME FOR TEA · TASTING NOTE</div>
       <div class="card-tea-name" id="cardTeaName">🍃 청향 우롱</div>
       <div class="card-infusions" id="cardInfusions">3포 우림 (개완)</div>
@@ -2784,13 +2769,16 @@
         const active = phase === "pour" || phase === "steep" || phase === "draining" || phase === "done";
         for (const layer of modalLayers) {
           const notice = layer.dialog.querySelector(".modal-timer-notice");
-          notice.hidden = !active;
+          if (notice) notice.hidden = !active;
           // Only update the exposed live region, so nested dialogs do not announce twice.
           if (layer !== topModal()) continue;
-          const message = layer === endLayer ? (phase === "done" ? t("notice.confirmDone") : t("notice.timerContinues"))
+          const isFeeling = layer === noteLayer || layer === cardLayer;
+          const message = !active ? ""
+            : isFeeling && phase === "done" ? t(isDrained ? "notice.feelingDrained" : "notice.feelingDone")
+            : layer === endLayer ? (phase === "done" ? t("notice.confirmDone") : t("notice.timerContinues"))
             : phase === "done" ? (isDrained ? t("notice.drained") : t("notice.done"))
             : phase === "draining" ? t("notice.draining") : t(layer === announcementLayer ? "notice.readingSteeping" : "notice.noteSteeping");
-          const status = notice.querySelector('[role="status"]');
+          const status = notice ? notice.querySelector('[role="status"]') : layer.dialog.querySelector('[data-timer-status]');
           if (status.textContent !== message) status.textContent = message;
         }
       }
