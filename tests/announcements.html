@@ -42,7 +42,7 @@ document.getElementById('run').onclick = async function () {
       const d = frame.contentDocument;
       d.getElementById('menuButton').click(); d.getElementById('announcementsButton').click();
       const headings = [...d.querySelectorAll('#announcementContent h3')];
-      const past = headings.find(el => el.textContent === '지난 업데이트');
+      const past = headings.find(el => el.dataset.i18n === 'announcements.past');
       check(fixture.name + ' 지난 업데이트 조건부 노출', Boolean(past) === fixture.past);
       check(fixture.name + ' 공지 창 정상 진입', !d.getElementById('announcementsBackdrop').hidden);
       if (fixture.past) {

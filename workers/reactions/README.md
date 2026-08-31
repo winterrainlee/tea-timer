@@ -5,7 +5,7 @@ Cloudflare Worker + D1 backend for the private applause/downvote counter and cre
 ## Endpoints
 
 - `POST /reaction`
-  - Public browser endpoint used by `index.html`
+  - Public browser endpoint used by the applause dialog in `help.html`
   - Body: `{"app":"tea-timer","reaction":"clap"}` or `{"app":"tea-timer","reaction":"down"}`
 - `GET /admin/reactions`
   - Private summary endpoint
@@ -22,6 +22,8 @@ Cloudflare Worker + D1 backend for the private applause/downvote counter and cre
   - Returns only rows newer than 90 days, in ascending ID order. The scheduled Worker handler deletes expired rows daily; it cannot delete provider backups or copies already downloaded by a reader.
 
 ## Common Commands
+
+The `db:local` / `db:remote` scripts initialize tables from `schema.sql`; they do not upgrade an existing table's constraints. For an existing feedback database, use the migration runner in **Feedback setup** below. In particular, rerunning `db:remote` does not apply the `zh-CN` constraint migration.
 
 ```bash
 npm run db:local
@@ -49,6 +51,8 @@ npx wrangler secret put FEEDBACK_READ_TOKEN
 ```
 
 Set `FEEDBACK_ENABLED=true` only as a Worker environment variable after the binding is live. Keep `ADMIN_TOKEN` unchanged. Update `ALLOWED_ORIGINS` with the deployed app origin(s); local testing can override it with an explicit LAN origin when needed.
+
+Before the enabled deployment, make the reviewed deployment configuration agree with that value: a later deploy of the checked-in `FEEDBACK_ENABLED=false` would disable the inbox again. Do not enable it merely to pass a dry run. The complete release order and data-preserving recovery constraints are recorded in [the TW release checklist](../../docs/tw-implementation-plan.md#release-execution).
 
 For isolated local D1 work, copy `.dev.vars.example` to ignored `.dev.vars`, initialize the local database, and start the Worker. The example values are dummy local credentials. The checked-in rate-limit binding is simulated by Wrangler locally; add an explicit LAN origin to `.dev.vars` only when that local UI is served from a LAN address.
 
