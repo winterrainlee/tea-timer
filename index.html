@@ -1093,7 +1093,8 @@
     .tags-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.35rem 0.4rem;
+      align-items: flex-start;
+      gap: 0 0.4rem;
       margin-bottom: 1.25rem;
     }
 
@@ -1125,6 +1126,32 @@
     }
 
     .tag-add-toggle { color: var(--gold-soft); background: transparent; border: 1px dashed var(--gold-line); }
+    /* Match the settings vocabulary fill while keeping separate 44px hit targets. */
+    .tags-grid .tag-chip {
+      position: relative;
+      isolation: isolate;
+      padding: 12px .5rem;
+      font-size: var(--ui-text-tag);
+      line-height: 20px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+    }
+    .tags-grid .tag-chip::before {
+      content: "";
+      position: absolute;
+      inset: 6px 0;
+      z-index: -1;
+      pointer-events: none;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: background .15s, box-shadow .15s;
+    }
+    .tags-grid .tag-chip.active::before {
+      background: rgba(205, 191, 99, 0.22);
+      box-shadow: 0 0 10px rgba(205, 191, 99, 0.25);
+    }
+    .tags-grid .tag-add-toggle::before { background: transparent; border: 1px dashed var(--gold-line); }
     .tag-add-editor { margin: -0.5rem 0 1.25rem; }
     .tag-add-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .tag-add-input {
