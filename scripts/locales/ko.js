@@ -51,6 +51,8 @@ TeaI18n.register("ko", {
   "notice.timerContinues": "타이머는 계속 진행되고 있습니다.",
   "notice.drained": "차를 따라냈습니다. 타이머로 돌아가 다음 우림을 시작할 수 있습니다.",
   "notice.done": "우림을 마쳤습니다. 타이머로 돌아가 차를 따라낼 수 있습니다.",
+  "notice.feelingDone": "우림을 마쳤습니다.",
+  "notice.feelingDrained": "차를 따라냈습니다.",
   "notice.draining": "차를 따라내고 있습니다.",
   "notice.noteSteeping": "차를 우리는 중입니다. 느낌을 적는 동안에도 타이머는 계속됩니다.",
   "notice.draftBlocked": "작성한 느낌이 있습니다.\n차나 다구는 [우림 끝]을 누른 뒤 바꿀 수 있습니다.",

@@ -51,6 +51,8 @@ TeaI18n.register("zh-TW", {
   "notice.timerContinues": "計時器仍在繼續。",
   "notice.drained": "茶已倒出。回到計時器後可以開始下一泡。",
   "notice.done": "時間到了，可以倒茶了。回到計時器後可以倒出茶湯。",
+  "notice.feelingDone": "時間到了，可以倒茶了。",
+  "notice.feelingDrained": "茶已倒出。",
   "notice.draining": "正在倒出茶湯。",
   "notice.noteSteeping": "正在浸泡。記錄感受時，計時器仍會繼續。",
   "notice.draftBlocked": "已有記下的喝茶心得。\n按下［結束泡茶］後才能更換茶或茶具。",
