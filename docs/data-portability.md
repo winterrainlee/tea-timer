@@ -177,7 +177,7 @@ IndexedDB
 느낌 입력 시작
 → 현재 세션 draft 자동 보존
 
-사용자가 '기기에 남기기'
+사용자가 '브라우저 기록으로 남기기'
 → IndexedDB Tea Session으로 확정
 ```
 
