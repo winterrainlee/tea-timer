@@ -1,15 +1,31 @@
 // Shared v1 storage boundary. Keep raw user data separate from runtime defaults.
 const TeaPreferences = (() => {
   "use strict";
+  const tags = typeof TeaTags !== "undefined"
+    ? TeaTags
+    : (typeof require === "function" ? require("./tags.js") : null);
   const KEY = "teaTimer.preferences.v1";
   const TEA_IDS = Object.freeze(["green", "white", "oolong", "nong", "black", "sheng", "shou"]);
   const VESSEL_IDS = Object.freeze(["teapot", "eastern-pot", "gaiwan", "mug", "piaoyibei"]);
   const ALIASES = Object.freeze({ nong: "dark-oolong", sheng: "sheng-puer", shou: "shou-puer" });
-  const DEFAULT_TAGS = Object.freeze(["단맛", "꽃향", "과일", "곡물", "구운맛", "견과", "풀", "나무", "흙", "연기", "떫음", "부드러움", "맑음", "묵직함"]);
+  // Derive the Korean fallback from the shared registry; retain a standalone fallback for script loading.
+  const DEFAULT_TAGS = Object.freeze(tags
+    ? tags.DEFAULT_IDS.map(id => Object.fromEntries(tags.BUILTIN_ITEMS)[id] || id)
+    : ["식물향", "꽃향", "달콤한 향", "과일향", "구운 향", "감칠맛", "단맛", "짠맛", "신맛", "쓴맛", "깔끔함", "텁텁함", "떫음", "묵직함", "여운"]);
+  const LOCALES = Object.freeze(["ko", "zh-TW"]);
   const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
   const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
   const isDelta = value => Number.isInteger(value) && Math.abs(value) <= 115;
   const isTags = value => Array.isArray(value) && value.every(tag => typeof tag === "string");
+  function localeChanged(oldValue, newValue) {
+    const storedLocale = text => {
+      try {
+        const raw = JSON.parse(text);
+        return isObject(raw) && raw.version === 1 && LOCALES.includes(raw.locale) ? raw.locale : "ko";
+      } catch { return "ko"; }
+    };
+    return storedLocale(oldValue) !== storedLocale(newValue);
+  }
   function canonicalTea(id) {
     if (TEA_IDS.includes(id)) return id;
     return Object.keys(ALIASES).find(key => ALIASES[key] === id) || "oolong";
@@ -21,12 +37,20 @@ const TeaPreferences = (() => {
       const value = isDelta(source[id]) ? source[id] : (own(ALIASES, id) ? source[ALIASES[id]] : undefined);
       if (isDelta(value)) secDeltaByTea[id] = value;
     });
+    const hasTagItems = own(raw, "tagItems");
+    const validTagItems = hasTagItems && tags && tags.isValidItems(raw.tagItems);
+    const tagItems = validTagItems ? tags.resolve(raw.tagItems)
+      : isTags(raw.customTags) ? raw.customTags.map(text => ({ kind: "custom", text }))
+      : tags ? tags.defaults() : [];
     return {
       lastTeaId: canonicalTea(raw.lastTeaId),
       lastVesselId: VESSEL_IDS.includes(raw.lastVesselId) ? raw.lastVesselId : "gaiwan",
       muted: typeof raw.muted === "boolean" ? raw.muted : false,
       secDeltaByTea,
       customTags: isTags(raw.customTags) ? [...raw.customTags] : [...DEFAULT_TAGS],
+      locale: LOCALES.includes(raw.locale) ? raw.locale : "ko",
+      tagItems,
+      tagItemsProtected: hasTagItems && !validTagItems,
     };
   }
   function createStore(getStorage = () => localStorage) {
@@ -52,6 +76,8 @@ const TeaPreferences = (() => {
         if (key === "lastVesselId") return VESSEL_IDS.includes(value);
         if (key === "muted") return typeof value === "boolean";
         if (key === "customTags") return isTags(value);
+        if (key === "locale") return LOCALES.includes(value);
+        if (key === "tagItems") return tags && tags.isValidItems(value);
         if (key === "secDeltaByTea") return isObject(value) && Object.entries(value).every(
           ([id, delta]) => TEA_IDS.includes(id) && (delta === null || isDelta(delta))
         );
@@ -63,6 +89,10 @@ const TeaPreferences = (() => {
       // Read at the moment of the edit, never save a page-load snapshot.
       const { raw, writable, reason } = readRaw();
       if (!writable) return { ok: false, reason };
+      if ((own(changes, "tagItems") || own(changes, "customTags"))
+        && own(raw, "tagItems") && (!tags || !tags.isValidItems(raw.tagItems))) {
+        return { ok: false, reason: "protected" };
+      }
       const next = { ...raw };
       if (isObject(raw.secDeltaByTea)) {
         next.secDeltaByTea = { ...raw.secDeltaByTea };
@@ -73,6 +103,7 @@ const TeaPreferences = (() => {
         });
       }
       Object.entries(changes).forEach(([key, value]) => {
+        if (key === "tagItems") { next[key] = tags.resolve(value); return; }
         if (key !== "secDeltaByTea") { next[key] = value; return; }
         if (!isObject(next.secDeltaByTea)) next.secDeltaByTea = {};
         Object.entries(value).forEach(([id, delta]) => {
@@ -85,13 +116,21 @@ const TeaPreferences = (() => {
       try { getStorage().setItem(KEY, JSON.stringify(next)); return { ok: true, reason: null }; }
       catch { return { ok: false, reason: "storage" }; }
     }
+    function restoreTags(items = (tags ? tags.defaults() : [])) {
+      if (!tags || !tags.isValidItems(items)) return { ok: false, reason: "invalid" };
+      const { raw, writable, reason } = readRaw();
+      if (!writable) return { ok: false, reason };
+      const next = { ...raw, tagItems: tags.resolve(items) };
+      try { getStorage().setItem(KEY, JSON.stringify(next)); return { ok: true, reason: null }; }
+      catch { return { ok: false, reason: "storage" }; }
+    }
     function reset() {
       try { getStorage().removeItem(KEY); return { ok: true, reason: null }; }
       catch { return { ok: false, reason: "storage" }; }
     }
-    return { read, patch, reset };
+    return { read, patch, restoreTags, reset };
   }
-  return Object.freeze({ KEY, TEA_IDS, VESSEL_IDS, DEFAULT_TAGS, createStore });
+  return Object.freeze({ KEY, TEA_IDS, VESSEL_IDS, DEFAULT_TAGS, LOCALES, localeChanged, createStore });
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = TeaPreferences;

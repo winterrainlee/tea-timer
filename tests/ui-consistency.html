@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공통 UI 기준 검증</title>
+<style>body{font:16px system-ui}button{min-height:44px}pre{white-space:pre-wrap}iframe{width:375px;height:660px;border:1px solid #888}</style>
+<h1>공통 UI 기준 검증</h1>
+<p>127.0.0.1:8134 전용. 실제 세 화면을 읽어 비교합니다. 설정·타이머를 조작하거나 박수를 전송하지 않습니다.</p>
+<button id="run">UI 기준 검증 실행</button>
+<pre id="result" role="status">대기 중</pre>
+<iframe id="app" title="공통 UI 검증 대상"></iframe>
+<script>
+(() => {
+  const frame = document.getElementById('app'), result = document.getElementById('result');
+  const close = (a,b) => Math.abs(a-b) < .6;
+  const box = el => el.getBoundingClientRect();
+  const center = rect => rect.left + rect.width / 2;
+  async function load(page, width) {
+    frame.style.width = width + 'px';
+    const ready = new Promise(resolve => frame.onload = resolve);
+    frame.src = '../' + page + '?ui=' + Date.now();
+    await ready;
+    const d = frame.contentDocument, w = frame.contentWindow;
+    await w.document.fonts.ready;
+    return {d,w};
+  }
+  document.getElementById('run').onclick = async function () {
+    if (location.origin !== 'http://127.0.0.1:8134') { result.textContent = '중단: 8134 전용'; return; }
+    this.disabled = true;
+    const lines = [];
+    const check = (name, ok) => { if (!ok) throw new Error(name); lines.push('PASS ' + name); result.textContent = lines.join('\n'); };
+    try {
+      for (const [width,height] of [[320,660],[375,660],[768,900]]) {
+        frame.style.height = height + 'px';
+        const observations = {};
+        for (const page of ['index.html','help.html','settings.html']) {
+          const {d,w} = await load(page,width), main = page === 'index.html';
+          const frameRect = box(d.querySelector(main ? '.app' : '.page'));
+          const nav = [...d.querySelectorAll(main ? '.top-actions > .reset-top, .top-tools > button' : '.top > a')];
+          const footer = [...d.querySelectorAll(main ? '.footer > button' : '.clap-button')];
+          const menu = nav.concat(main ? footer : []);
+          const style = w.getComputedStyle(nav[0]);
+          check(width+' '+page+' 공통 CSS 로드·44px 조작·가로 넘침 없음', style.fontSize === '15.04px' && menu.concat(footer).every(el=>box(el).width>=44 && box(el).height>=44) && d.documentElement.scrollWidth <= width);
+          check(width+' '+page+' 메뉴 글자·행 높이·아이콘 통일', menu.every(el=>{const s=w.getComputedStyle(el);return s.fontSize===style.fontSize && s.lineHeight===style.lineHeight && s.fontWeight===style.fontWeight && [...el.querySelectorAll('svg')].every(icon=>close(box(icon).width,19)&&close(box(icon).height,19));}));
+          check(width+' '+page+' 같은 행 수직 중앙', nav.every(el=>close(box(el).top+box(el).height/2,box(nav[0]).top+box(nav[0]).height/2)));
+          check(width+' '+page+' 최대 460px 프레임 가운데', frameRect.width <=460 && close(center(frameRect),d.documentElement.clientWidth/2));
+          observations[page] = {font:style.fontSize,line:style.lineHeight,top:box(nav[0]).top,left:box(nav[0]).left-frameRect.left,right:frameRect.right-box(nav.at(-1)).right};
+          if (main) {
+            const f = footer.map(box);
+            check(width+' 메인 상하단 좌우 기준선 일치', close(f[0].left,box(nav[0]).left) && close(f.at(-1).right,box(nav.at(-1)).right));
+            observations[page].bottom = w.innerHeight-f[0].bottom;
+          } else {
+            const summaries = [...d.querySelectorAll('main > details > summary')];
+            check(width+' '+page+' 문구 자체 가운데·제목 계층', summaries.every(el=>{const r=d.createRange();r.selectNodeContents(el);return close(center(r.getBoundingClientRect()),center(box(el))) && parseFloat(w.getComputedStyle(el).fontSize) < parseFloat(w.getComputedStyle(d.querySelector('h1')).fontSize) && box(el).height>=44;}));
+            observations[page].section = w.getComputedStyle(summaries[0]).fontSize;
+            observations[page].title = w.getComputedStyle(d.querySelector('h1')).fontSize;
+            if (footer.length) {
+              check(width+' 사용법 하단 조작도 같은 기준선',close(frameRect.right-box(footer[0]).right,observations[page].right) && close(w.innerHeight-box(footer[0]).bottom,observations['index.html'].bottom));
+            }
+            if (page === 'settings.html') {
+              check(width+' 설정 주의사항·언어 기본 펼침 유지',d.querySelector('main').firstElementChild.classList.contains('storage-notice') && d.querySelector('.language-detail').open);
+              const chips = [...d.querySelectorAll('.tag-edit-chip')];
+              check(width+' 설정 칩 글자·삭제 영역 유지',chips.every(el=>w.getComputedStyle(el).fontSize==='13.6px' && box(el.querySelector('button')).width>=44 && box(el.querySelector('button')).height>=44));
+            }
+          }
+        }
+        const values = Object.values(observations), baseline = values[0];
+        check(width+' 세 화면 메뉴 크기·상단·좌우 여백 일치', values.every(v=>v.font===baseline.font && v.line===baseline.line && close(v.top,baseline.top) && close(v.left,baseline.left) && close(v.right,baseline.right)));
+        check(width+' 사용법·설정 텍스트 계층 일치',observations['help.html'].section===observations['settings.html'].section && observations['help.html'].title===observations['settings.html'].title);
+      }
+      result.textContent = lines.join('\n')+'\n완료: '+lines.length+'개 통과';
+    } catch(error) { result.textContent = lines.join('\n')+'\nFAIL '+error.message; }
+    finally { this.disabled=false; }
+  };
+})();
+</script>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>TW-05 캐시 자산 확인</title>
+<h1>TW-05 캐시 자산 확인</h1>
+<p>전용 테스트 origin의 메인·설정·사용법을 한 번 연 뒤 확인합니다. 기존 설치 업데이트와 실기기 오프라인 검증은 TW-08에서 별도로 수행합니다.</p>
+<button id="run">캐시 확인</button>
+<pre id="result" role="status">대기 중</pre>
+<script>
+document.getElementById('run').onclick = async () => {
+  const result = document.getElementById('result');
+  if (location.origin !== 'http://127.0.0.1:8134') {
+    result.textContent = '중단: 127.0.0.1:8134 전용'; return;
+  }
+  const paths = ['index.html', 'settings.html', 'help.html', 'styles/ui.css', 'scripts/preferences.js', 'scripts/tags.js', 'scripts/i18n.js', 'scripts/announcements.js', 'scripts/locales/ko.js', 'scripts/locales/ko-settings.js', 'scripts/locales/ko-help.js'];
+  try {
+    const keys = await caches.keys();
+    const shellName = keys.find(key => key === 'chahanjan-shell-v62');
+    if (!shellName) throw new Error('v62 shell 캐시 없음: ' + keys.join(', '));
+    const cache = await caches.open(shellName);
+    const lines = [];
+    for (const path of paths) {
+      const response = await cache.match(new URL('../' + path, location.href).href);
+      if (!response?.ok || !(await response.text()).length) throw new Error('캐시 누락/빈 응답: ' + path);
+      lines.push('PASS ' + path);
+    }
+    result.textContent = lines.join('\n') + '\n완료: ' + paths.length + '개 캐시 응답 확인';
+  } catch (error) { result.textContent = 'FAIL ' + error.message; }
+};
+</script>
+</html>

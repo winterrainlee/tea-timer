@@ -1,0 +1,216 @@
+/* Shared UI roles. Load after page styles; see docs/ui-guidelines.md. */
+:root {
+  --ui-font-text: "Gowun Batang", "Noto Serif TC", "Songti TC", "PMingLiU", "AppleMyungjo", serif;
+  --ui-font-mono: "Space Mono", monospace;
+  --ui-text-page: 1.45rem;
+  --ui-text-title: 1.18rem;
+  --ui-text-section: 1.04rem;
+  --ui-text-menu: .94rem;
+  --ui-text-primary: .98rem;
+  --ui-text-body: .9rem;
+  --ui-text-support: .82rem;
+  --ui-text-caption: .78rem;
+  --ui-text-subtitle: .68rem;
+  --ui-text-tag: .85rem;
+  --ui-line-menu: 1.3125rem;
+  --ui-line-body: 1.75;
+  --ui-line-support: 1.65;
+  --ui-touch: 44px;
+  --ui-icon: 19px;
+  --ui-icon-gap: .3rem;
+  --ui-menu-row-padding: .6rem .65rem;
+  --ui-menu-row-gap: .65rem;
+  --ui-page-width: 460px;
+  --ui-content-inset: 1.05rem;
+  --ui-nav-inset: .8rem;
+  --ui-top-inset: .65rem;
+  --ui-bottom-inset: .45rem;
+  --ui-section-gap: 1.4rem;
+  --ui-disclosure-slot: 24px;
+  --ui-focus-width: 2px;
+  --ui-focus-offset: 3px;
+}
+
+@media (max-width: 340px) {
+  :root { --ui-nav-inset: .7rem; }
+}
+
+/* One frame and alignment rail for the timer and reading pages. */
+.app { --ui-timer-inset: var(--ui-content-inset); width: min(100%, var(--ui-page-width)); padding-inline: var(--ui-timer-inset); }
+@media (max-height: 720px) {
+  .app { --ui-timer-inset: .9rem; }
+}
+.top-actions {
+  top: calc(var(--ui-top-inset) + env(safe-area-inset-top, 0px));
+  left: calc(var(--ui-nav-inset) + env(safe-area-inset-left, 0px));
+  right: calc(var(--ui-nav-inset) + env(safe-area-inset-right, 0px));
+}
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--ui-touch);
+  margin-left: calc(var(--ui-nav-inset) - var(--ui-timer-inset));
+  margin-right: calc(var(--ui-nav-inset) - var(--ui-timer-inset));
+  padding: .2rem env(safe-area-inset-right, 0px) calc(var(--ui-bottom-inset) + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px);
+}
+
+.top-actions .reset-top, .top-actions .top-tool, .footer button,
+.ui-subpage .back, .ui-subpage .mark-link {
+  min-width: var(--ui-touch);
+  min-height: var(--ui-touch);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-icon-gap);
+  padding: 0 .2rem;
+  border: 0;
+  background: none;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: var(--ui-font-text);
+  font-size: var(--ui-text-menu);
+  font-weight: 400;
+  line-height: var(--ui-line-menu);
+  color: var(--ink-dim);
+}
+.top-actions .reset-top { min-width: 64px; }
+.top-actions .top-tool svg, .top-actions .nav-popover svg, .footer button svg,
+.ui-subpage .top svg, .ui-subpage .back > [aria-hidden="true"] {
+  width: var(--ui-icon);
+  height: var(--ui-icon);
+  flex: none;
+}
+.ui-subpage .back > [aria-hidden="true"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--ui-icon);
+  line-height: 1;
+}
+.top-actions .nav-popover button, .top-actions .nav-popover a {
+  width: 100%;
+  min-height: var(--ui-touch);
+  padding: var(--ui-menu-row-padding);
+  gap: var(--ui-menu-row-gap);
+  justify-content: flex-start;
+  font-family: var(--ui-font-text);
+  font-size: var(--ui-text-menu);
+  font-weight: 400;
+  line-height: var(--ui-line-menu);
+  text-align: left;
+  color: var(--ink);
+  border-radius: 4px;
+}
+.top-actions button:active, .top-actions a:active, .footer button:active,
+.ui-subpage .back:active, .ui-subpage .mark-link:active { color: var(--gold-soft); }
+.top-actions :focus-visible, .footer button:focus-visible,
+.ui-subpage :is(button, a, input, summary):focus-visible {
+  outline: var(--ui-focus-width) solid var(--gold-soft);
+  outline-offset: var(--ui-focus-offset);
+}
+
+.hdr .title { font-size: var(--ui-text-title); line-height: 1.5; }
+.hdr .sub, .ui-subpage .sub {
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-text-subtitle);
+  line-height: 1.5;
+  letter-spacing: .16em;
+  color: var(--ink-dim);
+}
+
+/* Reading-page structure; timer controls and export-card typography stay local. */
+.ui-subpage { font-family: var(--ui-font-text); }
+.ui-subpage .page {
+  width: min(100%, var(--ui-page-width));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: calc(var(--ui-top-inset) + env(safe-area-inset-top, 0px))
+    calc(var(--ui-content-inset) + env(safe-area-inset-right, 0px))
+    calc(1.1rem + env(safe-area-inset-bottom, 0px))
+    calc(var(--ui-content-inset) + env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.ui-subpage .top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--ui-touch);
+  margin-inline: calc(var(--ui-nav-inset) - var(--ui-content-inset));
+}
+.ui-subpage header { text-align: center; padding: .6rem 0 1rem; }
+.ui-subpage h1 { font-size: var(--ui-text-page); line-height: 1.4; font-weight: 700; color: var(--gold-soft); letter-spacing: .04em; }
+.ui-subpage .sub { margin-top: .35rem; }
+.ui-subpage main { display: flex; flex-direction: column; gap: var(--ui-section-gap); }
+.ui-subpage p { color: var(--ink-dim); line-height: var(--ui-line-body); font-size: var(--ui-text-body); margin-bottom: .6rem; }
+.ui-subpage :is(ol, ul) { padding-left: 1.15rem; color: var(--ink); line-height: var(--ui-line-body); font-size: var(--ui-text-body); }
+.ui-subpage .foot { margin-top: auto; padding-top: 1rem; color: var(--ink-faint); font-size: var(--ui-text-caption); line-height: 1.6; text-align: center; }
+
+.help-section, .pref-detail { margin-bottom: 0; }
+.help-section > summary, .pref-detail > summary {
+  position: relative;
+  min-height: var(--ui-touch);
+  padding: .35rem var(--ui-disclosure-slot);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  cursor: pointer;
+  font-size: var(--ui-text-section);
+  line-height: 1.5;
+  font-weight: 700;
+  color: var(--gold-soft);
+  text-align: center;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.help-section > summary::-webkit-details-marker, .pref-detail > summary::-webkit-details-marker { display: none; }
+.help-section > summary::after, .pref-detail > summary::after {
+  content: "⌄";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: var(--ui-disclosure-slot);
+  transform: translateY(-50%);
+  color: var(--ink-dim);
+  font-size: var(--ui-text-support);
+  line-height: 1;
+}
+.help-section[open] > summary::after, .pref-detail[open] > summary::after { transform: translateY(-50%) rotate(180deg); }
+.help-section-body, .pref-detail-body { padding: .5rem 0 .75rem; }
+.language-detail .pref-detail-body { padding: 0; }
+.ui-subpage .storage-notice p, .ui-subpage .language-preview, .ui-subpage .tag-damaged {
+  font-size: var(--ui-text-support);
+  line-height: var(--ui-line-support);
+}
+.ui-subpage .storage-notice p { margin: 0; }
+.ui-subpage .language-preview { margin: .65rem 0 0; }
+.language-option { font-size: var(--ui-text-body); line-height: var(--ui-line-body); }
+.ui-subpage .language-option input:focus-visible { outline: none; }
+.ui-subpage .language-option:has(input:focus-visible) { outline: var(--ui-focus-width) solid var(--gold-soft); outline-offset: var(--ui-focus-offset); }
+
+.announcements-box h2, .support-modal h2 { font-size: var(--ui-text-title); line-height: 1.5; }
+.announcements-box h3 { font-size: var(--ui-text-section); line-height: 1.5; }
+.announcements-box summary, .announcements-box details p { font-size: var(--ui-text-body); }
+.ui-subpage .support-modal p { font-size: var(--ui-text-body); color: var(--ink); }
+.ui-subpage .modal-actions button, .ui-subpage .preference-reset, .ui-subpage .btn-add-tag, .ui-subpage .btn-restore-single {
+  font-family: var(--ui-font-text);
+  font-size: var(--ui-text-menu);
+  font-weight: 400;
+  line-height: var(--ui-line-menu);
+  min-height: var(--ui-touch);
+}
+.brew { font-size: var(--ui-text-primary); }
+.step, .ui-subpage .btn-step { min-width: var(--ui-touch); min-height: var(--ui-touch); font-size: var(--ui-icon); }
+.tag-edit-chip { font-size: var(--ui-text-tag); }
+
+.ui-help .page { padding-bottom: calc(var(--ui-touch) + var(--ui-bottom-inset) + 1rem + env(safe-area-inset-bottom, 0px)); }
+.ui-help .clap-button {
+  right: max(calc(var(--ui-nav-inset) + env(safe-area-inset-right, 0px)), calc((100% - var(--ui-page-width)) / 2 + var(--ui-nav-inset) + env(safe-area-inset-right, 0px)));
+  bottom: calc(var(--ui-bottom-inset) + env(safe-area-inset-bottom, 0px));
+  min-width: var(--ui-touch);
+  min-height: var(--ui-touch);
+  font-size: var(--ui-icon);
+}

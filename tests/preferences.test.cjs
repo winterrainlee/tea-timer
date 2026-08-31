@@ -6,8 +6,11 @@ const {
   DEFAULT_TAGS,
   TEA_IDS,
   VESSEL_IDS,
+  LOCALES,
+  localeChanged,
   createStore,
 } = require('../scripts/preferences.js');
+const TeaTags = require('../scripts/tags.js');
 
 function storageWith(raw) {
   let value = raw;
@@ -36,20 +39,38 @@ function payload(fields = {}) {
   });
 }
 
-test('exports stable key, IDs, and 14 default tags', () => {
+function runtime(fields = {}) {
+  return {
+    lastTeaId: 'oolong', lastVesselId: 'gaiwan', muted: false,
+    secDeltaByTea: {}, customTags: DEFAULT_TAGS, locale: 'ko',
+    tagItems: TeaTags.defaults(), tagItemsProtected: false,
+    ...fields,
+  };
+}
+
+test('exports stable key, IDs, and the confirmed 15 default tags', () => {
   assert.equal(KEY, 'teaTimer.preferences.v1');
   assert.deepEqual(TEA_IDS, ['green', 'white', 'oolong', 'nong', 'black', 'sheng', 'shou']);
   assert.deepEqual(VESSEL_IDS, ['teapot', 'eastern-pot', 'gaiwan', 'mug', 'piaoyibei']);
-  assert.equal(DEFAULT_TAGS.length, 14);
+  assert.deepEqual(LOCALES, ['ko', 'zh-TW']);
+  assert.deepEqual(DEFAULT_TAGS, ['식물향', '꽃향', '달콤한 향', '과일향', '구운 향', '감칠맛', '단맛', '짠맛', '신맛', '쓴맛', '깔끔함', '텁텁함', '떫음', '묵직함', '여운']);
+});
+
+test('localeChanged ignores unrelated writes and identifies actual supported-locale transitions', () => {
+  const ko = payload({ locale: 'ko', muted: false });
+  const koTimeOnly = payload({ locale: 'ko', muted: true, secDeltaByTea: { oolong: -15 } });
+  const zh = payload({ locale: 'zh-TW' });
+  const noLocale = payload();
+  assert.equal(localeChanged(ko, koTimeOnly), false);
+  assert.equal(localeChanged(ko, zh), true);
+  assert.equal(localeChanged(zh, noLocale), true);
+  assert.equal(localeChanged('{malformed', null), false);
 });
 
 test('missing storage key reads defaults and does not write until an explicit patch', () => {
   const { storage, store } = storeFor(null);
   const read = store.read();
-  assert.deepEqual(read.values, {
-    lastTeaId: 'oolong', lastVesselId: 'gaiwan', muted: false,
-    secDeltaByTea: {}, customTags: DEFAULT_TAGS,
-  });
+  assert.deepEqual(read.values, runtime());
   assert.equal(read.writable, true);
   assert.equal(read.reason, null);
   assert.equal(storage.raw(), null);
@@ -63,10 +84,7 @@ test('partially damaged known fields fall back while preserving unrelated raw fi
     secDeltaByTea: { oolong: 116, green: -4, extra: 'keep' },
     customTags: ['保留', 9], extraField: { nested: true },
   }));
-  assert.deepEqual(store.read().values, {
-    lastTeaId: 'oolong', lastVesselId: 'gaiwan', muted: false,
-    secDeltaByTea: { green: -4 }, customTags: DEFAULT_TAGS,
-  });
+  assert.deepEqual(store.read().values, runtime({ secDeltaByTea: { green: -4 } }));
   assert.equal(store.patch({ muted: true }).ok, true);
   const saved = JSON.parse(storage.raw());
   assert.equal(saved.extraField.nested, true);
@@ -190,6 +208,102 @@ test('unknown locale and tagItems fields, including nested values, survive unrel
     assert.deepEqual(saved.tagItems, extra.tagItems);
     assert.deepEqual(saved.nested, extra.nested);
   }
+});
+
+test('locale is a field patch and invalid saved locale falls back without rewrite', () => {
+  const { storage, store } = storeFor(payload({ locale: 'future-locale', nested: { keep: true } }));
+  assert.equal(store.read().values.locale, 'ko');
+  assert.equal(store.patch({ locale: 'zh-TW' }).ok, true);
+  const saved = JSON.parse(storage.raw());
+  assert.equal(saved.locale, 'zh-TW');
+  assert.deepEqual(saved.nested, { keep: true });
+  assert.equal(store.patch({ locale: 'en' }).reason, 'invalid');
+});
+
+test('valid tagItems take priority and preserve builtin/custom identity and raw duplicates', () => {
+  const tagItems = [
+    { kind: 'builtin', id: 'taste.sweet' },
+    { kind: 'custom', text: '단맛' },
+    { kind: 'custom', text: '단맛' },
+  ];
+  const { storage, store } = storeFor(payload({ customTags: ['legacy'], tagItems }));
+  const values = store.read().values;
+  assert.deepEqual(values.tagItems, tagItems);
+  assert.equal(values.tagItemsProtected, false);
+  assert.deepEqual(TeaTags.dedupe(values.tagItems), tagItems.slice(0, 2));
+  assert.equal(TeaTags.key(tagItems[0]), 'builtin/taste.sweet');
+  assert.equal(TeaTags.key(tagItems[1]), 'custom/단맛');
+  assert.equal(TeaTags.label(tagItems[0], key => ({ 'tag.taste.sweet': '甜味' })[key]), '甜味');
+  assert.equal(TeaTags.label(tagItems[1], () => 'wrong'), '단맛');
+  assert.equal(store.patch({ tagItems: [{ kind: 'custom', text: '새 단어' }] }).ok, true);
+  const saved = JSON.parse(storage.raw());
+  assert.deepEqual(saved.tagItems, [{ kind: 'custom', text: '새 단어' }]);
+  assert.deepEqual(saved.customTags, ['legacy']);
+});
+
+test('saved legacy builtin and legacy string lists survive reads and unrelated locale edits', () => {
+  const legacyItems = TeaTags.BUILTIN_IDS.slice(0, 14).map(id => ({ kind: 'builtin', id }));
+  const legacyStrings = TeaTags.BUILTIN_ITEMS.slice(0, 14).map(([, label]) => label);
+  for (const fields of [{ tagItems: legacyItems, customTags: ['사용자'] }, { customTags: legacyStrings }]) {
+    const { storage, store } = storeFor(payload(fields));
+    assert.deepEqual(store.read().values.tagItems, fields.tagItems || legacyStrings.map(text => ({ kind: 'custom', text })));
+    assert.equal(store.patch({ locale: 'zh-TW' }).ok, true);
+    const saved = JSON.parse(storage.raw());
+    if (fields.tagItems) assert.deepEqual(saved.tagItems, legacyItems);
+    else assert.deepEqual(saved.customTags, legacyStrings);
+  }
+});
+
+test('same-text custom and explicit empty lists remain unchanged, while restore writes new defaults only', () => {
+  const { storage, store } = storeFor(payload({
+    customTags: ['식물향'], tagItems: [{ kind: 'custom', text: '식물향' }],
+    muted: true, locale: 'zh-TW', extra: { keep: true },
+  }));
+  assert.equal(store.patch({ muted: false }).ok, true);
+  assert.deepEqual(JSON.parse(storage.raw()).tagItems, [{ kind: 'custom', text: '식물향' }]);
+  const empty = storeFor(payload({ customTags: [], tagItems: [] }));
+  assert.deepEqual(empty.store.read().values.tagItems, []);
+  assert.equal(empty.store.patch({ locale: 'zh-TW' }).ok, true);
+  assert.deepEqual(JSON.parse(empty.storage.raw()).tagItems, []);
+  assert.equal(store.restoreTags().ok, true);
+  const restored = JSON.parse(storage.raw());
+  assert.deepEqual(restored.tagItems, TeaTags.defaults());
+  assert.deepEqual(restored.customTags, ['식물향']);
+  assert.equal(restored.extra.keep, true);
+  assert.equal(restored.muted, false);
+});
+
+test('legacy tags remain literal custom items, including duplicates and empty lists', () => {
+  for (const customTags of [['단맛', '단맛'], []]) {
+    const { store } = storeFor(payload({ customTags }));
+    assert.deepEqual(store.read().values.tagItems, customTags.map(text => ({ kind: 'custom', text })));
+  }
+});
+
+test('damaged tagItems keep raw data through unrelated writes and require explicit restore', () => {
+  const damaged = { future: ['원문'] };
+  const { storage, store } = storeFor(payload({ customTags: ['원문'], tagItems: damaged }));
+  const read = store.read();
+  assert.equal(read.values.tagItemsProtected, true);
+  assert.deepEqual(read.values.tagItems, [{ kind: 'custom', text: '원문' }]);
+  assert.equal(store.patch({ muted: true }).ok, true);
+  assert.deepEqual(JSON.parse(storage.raw()).tagItems, damaged);
+  assert.equal(store.patch({ tagItems: TeaTags.defaults() }).reason, 'protected');
+  assert.equal(store.patch({ customTags: ['변경'] }).reason, 'protected');
+  assert.deepEqual(JSON.parse(storage.raw()).tagItems, damaged);
+  assert.equal(store.restoreTags().ok, true);
+  const saved = JSON.parse(storage.raw());
+  assert.deepEqual(saved.tagItems, TeaTags.defaults());
+  assert.deepEqual(saved.customTags, ['원문']);
+});
+
+test('tag restore and tag edits report storage failures without changing raw data', () => {
+  const storage = storageWith(payload({ tagItems: { bad: true } }));
+  storage.setItem = () => { throw new Error('set'); };
+  const store = createStore(() => storage);
+  const before = storage.raw();
+  assert.equal(store.restoreTags().reason, 'storage');
+  assert.equal(storage.raw(), before);
 });
 
 test('malformed delta containers remain raw until an explicit canonical edit replaces them', () => {

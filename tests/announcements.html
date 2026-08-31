@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>공지 배포 묶음 회귀 검증</title>
+<style>body{font:16px system-ui}button{min-height:44px}iframe{width:375px;height:660px;border:1px solid #777}pre{white-space:pre-wrap}</style>
+<h1>공지 배포 묶음 회귀 검증</h1>
+<p>8134 테스트 origin 전용. 실제 앱에 검증용 공지 데이터를 주입합니다. 실제 공지를 게시하거나 저장값을 변경하지 않습니다.</p>
+<button id="run">공지 분류 검증</button>
+<pre id="result" role="status">대기 중</pre>
+<iframe id="app" title="검증용 공지 화면"></iframe>
+<script>
+document.getElementById('run').onclick = async function () {
+  const result = document.getElementById('result'), frame = document.getElementById('app');
+  if (location.origin !== 'http://127.0.0.1:8134') { result.textContent = '중단: 8134 테스트 origin 전용'; return; }
+  this.disabled = true;
+  const lines = [];
+  const check = (label, ok) => { if (!ok) throw new Error(label); lines.push('PASS ' + label); result.textContent = lines.join('\n'); };
+  try {
+    const [html, core] = await Promise.all(['../index.html', '../scripts/announcements.js'].map(async path => {
+      const response = await fetch(path, { cache: 'no-store' });
+      if (!response.ok) throw new Error('fixture source ' + response.status);
+      return response.text();
+    }));
+    const item = id => ({ id, titleKey: 'fixture.' + id, bodyKey: 'announcements.plannedBody' });
+    const first = { id: 'fixture-first', items: [item('old')] };
+    const newest = { id: 'fixture-newest', items: [item('new')] };
+    for (const fixture of [
+      { name: '배포 없음', releases: [], past: false },
+      { name: '첫 배포', releases: [first], past: false },
+      { name: '다음 배포', releases: [newest, first], past: true },
+    ]) {
+      const config = { releases: fixture.releases, planned: [item('planned')] };
+      const injected = 'const TeaAnnouncements = (() => {' + core +
+        '\nreturn Object.freeze({...TeaAnnouncements, getSections: () => TeaAnnouncements.getSections(' + JSON.stringify(config) + ')});})();' +
+        '\nTeaI18n.register("ko", {"fixture.old":"검증용 이전 배포", "fixture.new":"검증용 새 배포", "fixture.planned":"검증용 예정 항목"});';
+      const closeScript = '<' + '/script>';
+      const sourceTag = '<script src="scripts/announcements.js">' + closeScript;
+      if (!html.includes(sourceTag)) throw new Error('공지 script 진입점 변경: fixture 갱신 필요');
+      const loaded = new Promise(resolve => frame.onload = resolve);
+      frame.srcdoc = html.replace('<head>', '<head><base href="/">').replace(sourceTag, '<script>' + injected + closeScript);
+      await loaded;
+      const d = frame.contentDocument;
+      d.getElementById('menuButton').click(); d.getElementById('announcementsButton').click();
+      const headings = [...d.querySelectorAll('#announcementContent h3')];
+      const past = headings.find(el => el.textContent === '지난 업데이트');
+      check(fixture.name + ' 지난 업데이트 조건부 노출', Boolean(past) === fixture.past);
+      check(fixture.name + ' 공지 창 정상 진입', !d.getElementById('announcementsBackdrop').hidden);
+      if (fixture.past) {
+        check('세 구분 제목은 같은 단계·스타일', headings.length === 3 && headings.every(el => el.tagName === 'H3' && getComputedStyle(el).fontSize === getComputedStyle(headings[0]).fontSize && getComputedStyle(el).color === getComputedStyle(headings[0]).color));
+        check('현재는 새 배포·과거는 이전 배포', headings[0].nextElementSibling.textContent.includes('검증용 새 배포') && past.nextElementSibling.textContent.includes('검증용 이전 배포') && !past.nextElementSibling.textContent.includes('검증용 새 배포'));
+        const summary = past.nextElementSibling.querySelector('summary'); summary.click();
+        check('과거 항목도 접고 펼치기', summary.parentElement.open);
+        summary.click(); check('과거 항목 다시 접기', !summary.parentElement.open);
+        check('과거 항목에 예정 상태 표시 없음', !past.nextElementSibling.querySelector('.announcement-status'));
+      }
+    }
+    result.textContent = lines.join('\n') + '\n완료: ' + lines.length + '개 통과';
+  } catch (error) { result.textContent = lines.join('\n') + '\nFAIL ' + error.message; }
+  finally { this.disabled = false; }
+};
+</script>
+</html>
