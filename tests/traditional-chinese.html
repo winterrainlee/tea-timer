@@ -101,13 +101,13 @@
       let copied = ''; Object.defineProperty(w.navigator, 'clipboard', { configurable:true, value:{ writeText:async text => { copied = text; } } });
       click($('copyBtn')); await until(() => copied, 'text copy');
       check('번체 텍스트 복사도 사용자 원문과 선택 단어 보존', copied.includes('原文茶名') && copied.includes('PNG 原文筆記') && copied.includes('#青香') && copied.includes('차 한 잔의 시간'));
-      click($('cardBtn'));
-      check('번체 카드 미리보기 UI 라벨·원문·제품명', $('cardDialogTitle').textContent === '卡片預覽' && $('cardTagsContainer').textContent.includes('青香') && $('cardNoteQuote').textContent.includes('PNG 原文筆記') && $('cardTeaName').textContent.includes('原文茶名') && $('cardFooterDate').textContent.includes('차 한 잔의 시간'));
       let shared, png, drawn = []; const originalGetContext = w.HTMLCanvasElement.prototype.getContext;
       const originalCanShare = w.navigator.canShare, originalShare = w.navigator.share;
       w.HTMLCanvasElement.prototype.getContext = function (...args) { const ctx = originalGetContext.apply(this, args), fillText = ctx.fillText.bind(ctx); ctx.fillText = (...values) => { drawn.push(String(values[0])); return fillText(...values); }; return ctx; };
       Object.defineProperty(w.navigator, 'canShare', { configurable:true, value: data => !!data.files?.length });
       Object.defineProperty(w.navigator, 'share', { configurable:true, value: async data => { shared = data; } });
+      click($('cardBtn'));
+      check('번체 카드 미리보기 UI 라벨·원문·제품명', $('cardDialogTitle').textContent === '卡片預覽' && $('cardTagsContainer').textContent.includes('青香') && $('cardNoteQuote').textContent.includes('PNG 原文筆記') && $('cardTeaName').textContent.includes('原文茶名') && $('cardFooterDate').textContent.includes('차 한 잔의 시간'));
       try { click($('shareCardBtn')); await until(() => shared?.files?.[0], 'PNG share capture'); png = shared.files[0]; }
       finally {
         w.HTMLCanvasElement.prototype.getContext = originalGetContext;

@@ -50,7 +50,7 @@ const TeaI18n = (() => {
     let timer;
     try {
       return await Promise.race([
-        Promise.all([document.fonts.load(`22px ${fontFamily}`, sample), document.fonts.load('16px "Space Mono"')]).then(() => true).catch(() => false),
+        Promise.all([document.fonts.load(`22px ${fontFamily}`, sample), document.fonts.load(`700 38px ${fontFamily}`, sample), document.fonts.load('16px "Space Mono"')]).then(() => true).catch(() => false),
         new Promise(resolve => { timer = setTimeout(() => resolve(false), 1200); }),
       ]);
     } finally { clearTimeout(timer); }
