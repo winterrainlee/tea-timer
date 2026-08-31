@@ -93,6 +93,7 @@
   line-height: 1;
 }
 .top-actions .nav-popover button, .top-actions .nav-popover a {
+  display: flex;
   width: 100%;
   min-height: var(--ui-touch);
   padding: var(--ui-menu-row-padding);
