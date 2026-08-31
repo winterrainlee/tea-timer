@@ -185,11 +185,11 @@
 }
 .help-section[open] > summary::after, .pref-detail[open] > summary::after { transform: translateY(-50%) rotate(180deg); }
 .help-section-body, .pref-detail-body { padding: .5rem 0 .75rem; }
-.ui-help:lang(ko) { --ui-help-word-break: keep-all; }
-.ui-help:lang(zh) { --ui-help-word-break: normal; line-break: strict; }
-.ui-help :is(main, .feedback-dialog, .support-modal) {
+:is(.ui-help, .announcements-box):lang(ko) { --ui-prose-word-break: keep-all; }
+:is(.ui-help, .announcements-box):lang(zh) { --ui-prose-word-break: normal; line-break: strict; }
+.ui-help :is(main, .feedback-dialog, .support-modal), .announcements-box {
   text-align: left;
-  word-break: var(--ui-help-word-break, normal);
+  word-break: var(--ui-prose-word-break, normal);
   overflow-wrap: anywhere;
 }
 .ui-help .help-section > summary {
@@ -198,7 +198,7 @@
   text-align: left;
   word-break: inherit;
 }
-.ui-help .support-modal p { word-break: inherit; }
+.ui-help .support-modal p, .announcements-box summary { word-break: inherit; }
 .ui-help .support-modal h2 { padding-right: 2rem; }
 .language-detail .pref-detail-body { padding: 0; }
 .ui-subpage .storage-notice p, .ui-subpage .language-preview, .ui-subpage .tag-damaged {
