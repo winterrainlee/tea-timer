@@ -51,7 +51,7 @@
             observations[page].bottom = w.innerHeight-f[0].bottom;
           } else {
             const summaries = [...d.querySelectorAll('main > details > summary')];
-            check(width+' '+page+' 문구 자체 가운데·제목 계층', summaries.every(el=>{const r=d.createRange();r.selectNodeContents(el);return close(center(r.getBoundingClientRect()),center(box(el))) && parseFloat(w.getComputedStyle(el).fontSize) < parseFloat(w.getComputedStyle(d.querySelector('h1')).fontSize) && box(el).height>=44;}));
+            check(width+' '+page+' 제목 정렬·계층', summaries.every(el=>{const r=d.createRange();r.selectNodeContents(el);const aligned=page==='help.html' ? close(r.getBoundingClientRect().left,box(el).left) : close(center(r.getBoundingClientRect()),center(box(el)));return aligned && parseFloat(w.getComputedStyle(el).fontSize) < parseFloat(w.getComputedStyle(d.querySelector('h1')).fontSize) && box(el).height>=44;}));
             observations[page].section = w.getComputedStyle(summaries[0]).fontSize;
             observations[page].title = w.getComputedStyle(d.querySelector('h1')).fontSize;
             if (page === 'help.html') {

@@ -1,5 +1,5 @@
 // 차 한 잔의 시간 · Time for Tea — 문서 갱신 + 정적 자산 cache-first
-const CACHE_VERSION = "v76";
+const CACHE_VERSION = "v77";
 const CACHE_PREFIX = "chahanjan-";
 const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
 const STATIC_CACHE = `${CACHE_PREFIX}static-${CACHE_VERSION}`;
