@@ -226,7 +226,7 @@ TW-05에는 언어 선택·기본 메뉴와 [공지사항](design-navigation.md#
 
 ## Phase E — 향과 맛의 단어장 · 미구현
 
-차 느낌 작성 중 직접 입력한 단어를 이번 카드에 선택하고 설정에도 저장하는 소규모 보강은 [별도로 구현·로컬 검증했다](CHANGELOG.md#feeling-inline-tags). 아래 참고용 단어장 탐색·설명 페이지의 구현 완료를 뜻하지 않는다.
+차 느낌 작성 중 직접 입력한 단어를 이번 카드에 선택하고 설정에도 저장하는 소규모 보강은 [구현·로컬 검증 후 통합했다](CHANGELOG.md#feeling-inline-tags). 아래 참고용 단어장 탐색·설명 페이지의 구현 완료를 뜻하지 않는다.
 
 상세 설계는 [sensory-vocabulary.md](sensory-vocabulary.md), 느낌 시트의 맥락 진입과 메뉴의 독립 탐색은 [배치 설계](design-navigation.md)를 따른다.
 
