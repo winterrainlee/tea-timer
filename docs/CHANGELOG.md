@@ -19,6 +19,8 @@
 
 검증: `node --test tests/*.test.cjs` 61개, 전용 8134의 `inline-tags.html` 37개·`accessibility.html` 36개·v65 캐시 응답 14개 통과. 실제 5초 우림·초안/IME·단어 추가/설정 저장·긴 단어·44px·PNG를 기존 회귀로 확인했다. 순수 스타일 변경에 새 자동 테스트는 추가하지 않았으며, 구문·문서 링크·전체 diff를 확인했다.
 
+기능 커밋 `62f6a3a`를 `fa645bf`에서 `codex/tw-readiness`에 병합했다. 통합 상태에서 Node 61개·인라인 단어/실제 우림 회귀 37개를 다시 통과했다. `main` 반영·원격 푸시·배포는 하지 않았다.
+
 <a id="feeling-sheet-spacing"></a>
 
 ### 2026-08-31 — 차 느낌의 중복 안내 제거·상단 여백 축소
