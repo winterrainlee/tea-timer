@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TW-03 초안·종료 회귀 검증</title>
+<style>
+  body { font:16px system-ui; margin:16px; background:#eee; color:#222; }
+  button { min-height:44px; } iframe { width:375px; height:660px; border:1px solid #888; }
+  pre { white-space:pre-wrap; max-height:240px; overflow:auto; }
+  #artifacts a { display:block; }
+</style>
+<h1>TW-03 초안·종료 회귀 검증</h1>
+<p>저장소 루트에서 <code>python3 -m http.server 8134 --bind 127.0.0.1</code>을 실행합니다. 전용 8134 origin의 테스트 설정만 교체합니다. 실행 중 탭을 활성 상태로 유지합니다.</p>
+<p>실제 앱·5초 타이머·Canvas PNG를 사용합니다. 키·IME는 합성 이벤트이고 클립보드·파일 공유는 테스트 대역입니다. 실제 OS·PWA 검증을 대신하지 않습니다.</p>
+<button id="run">초안 회귀 검증 실행</button>
+<pre id="result" role="status">대기 중</pre>
+<div id="artifacts"></div>
+<iframe id="app" title="검증 대상 타이머"></iframe>
+<script>
+  const frame = document.getElementById('app'), result = document.getElementById('result');
+  const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+  async function until(test, name) {
+    const start = performance.now();
+    while (!test()) { if (performance.now() - start > 15000) throw new Error('시간 초과: ' + name); await pause(25); }
+  }
+  document.getElementById('run').onclick = async function () {
+    if (location.hostname !== '127.0.0.1' || location.port !== '8134') { result.textContent = '중단: 전용 http://127.0.0.1:8134 에서 실행해야 합니다.'; return; }
+    this.disabled = true;
+    const lines = [], artifacts = document.getElementById('artifacts'); artifacts.replaceChildren();
+    const check = (name, ok) => { if (!ok) throw new Error(name); lines.push('PASS ' + name); result.textContent = lines.join('\n'); };
+    try {
+      const prefs = {version:1,lastTeaId:'oolong',lastVesselId:'gaiwan',muted:true,secDeltaByTea:{oolong:-15},customTags:['단맛','꽃향'],locale:'future-locale',future:{keep:true}};
+      const keyName = 'teaTimer.preferences.v1'; localStorage.setItem(keyName,JSON.stringify(prefs));
+      frame.src = '../index.html?tw03=' + Date.now(); await new Promise(resolve => frame.onload = resolve);
+      const w = frame.contentWindow, d = w.document, $ = id => d.getElementById(id), click = id => $(id).click();
+      const errors = []; w.addEventListener('error',e => errors.push(e.message)); w.addEventListener('unhandledrejection',e => errors.push(String(e.reason)));
+      const fill = (el,value) => { el.value = value; el.dispatchEvent(new w.Event('input',{bubbles:true})); };
+      const key = (value,options={}) => d.activeElement.dispatchEvent(new w.KeyboardEvent('keydown',{key:value,bubbles:true,cancelable:true,...options}));
+      const compose = (el,type) => el.dispatchEvent(new w.CompositionEvent(type,{bubbles:true,data:'차'}));
+      const focus = id => d.activeElement === $(id);
+      let copied = '', files = [], painted = [];
+      Object.defineProperty(w.navigator,'clipboard',{configurable:true,value:{writeText:async text => {copied = text;}}});
+      Object.defineProperty(w.navigator,'canShare',{configurable:true,value:() => true});
+      Object.defineProperty(w.navigator,'share',{configurable:true,value:async data => {files.push(data.files[0]);throw new w.DOMException('Test cancel','AbortError');}});
+      const fillText = w.CanvasRenderingContext2D.prototype.fillText;
+      w.CanvasRenderingContext2D.prototype.fillText = function (text,...args) { painted.push(String(text)); return fillText.call(this,text,...args); };
+      const help = d.querySelector('a.help-link'); let navigationBlocked;
+      d.addEventListener('click', e => { if(e.target === help) { navigationBlocked = e.defaultPrevented; e.preventDefault(); } });
+      const navigate = (options={}) => { navigationBlocked = undefined; help.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true,button:0,...options})); return navigationBlocked; };
+      const name = () => $('teaTitleDisplay').textContent;
+      async function exportCard(label, expected) {
+        click('cardBtn'); check(label + ' DOM 포 수', $('cardInfusions').textContent.includes(expected));
+        painted = []; const before = files.length; click('shareCardBtn');
+        await until(() => files.length > before,'PNG ' + label);
+        check(label + ' Canvas 포 수',painted.some(text => text.includes(expected)) && (expected !== '완료된 우림 없음' || !painted.some(text => /1포 우림/.test(text))));
+        const file = files[files.length - 1], link = document.createElement('a');
+        link.href = await new Promise(resolve => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.readAsDataURL(file); });
+        link.download = label + '.png'; link.textContent = label + ' PNG 원본'; artifacts.append(link);
+        const image = new Image(); image.src = link.href; await image.decode();
+        check(label + ' 실제 PNG 크기', image.naturalWidth === 680 && image.naturalHeight === 900);
+      }
+      await until(() => !$('brew').disabled,'준비');
+      check('빈 idle 사용법 이동 허용',navigate() === false);
+      click('note'); check('첫 우림 전 시트 0포', $('infusionHistoryDisplay').textContent === '완료된 우림 없음');
+      click('copyBtn'); check('첫 우림 전 텍스트 0포',copied.includes('완료된 우림 없음') && !copied.includes('1포 우림'));
+      await exportCard('before-brew','완료된 우림 없음');
+      click('editTitleBtn'); key('Enter'); fill($('noteInput'),'   \n  '); click('draftBtn');
+      check('임시저장은 내용을 유지하고 닫기', $('sheetBackdrop').hidden && focus('note'));
+      check('변경 없는 제목·공백 메모는 보호 대상 아님', navigate() === false);
+      click('reset'); check('내용 없는 종료는 확인 없이 즉시', $('endSessionBackdrop').hidden && $('brew').textContent === '우리기 시작');
+      for (const kind of ['title','tag','note']) {
+        click('note'); const original = name();
+        if (kind === 'title') {click('editTitleBtn');fill($('teaTitleInput'),'  🍵 사용자 차  ');key('Enter');}
+        if (kind === 'tag') $('tagsGrid').firstElementChild.click();
+        if (kind === 'note') fill($('noteInput'),'  잃으면 안 되는 메모\n끝  ');
+        click('draftBtn'); const stored = localStorage.getItem(keyName);
+        click('teaNext'); click('vesselNext');
+        check(kind + ' 차·다구 변경과 설정 쓰기 차단',localStorage.getItem(keyName) === stored && $('toast').textContent.includes('작성한 느낌이 있습니다'));
+        check(kind + ' 현재 페이지 이동 차단',navigate() === true);
+        check(kind + ' 새 탭 이동은 차단하지 않음',navigate({ctrlKey:true}) === false);
+        click('reset'); check(kind + ' 종료 확인·취소 기본 포커스',!$('endSessionBackdrop').hidden && focus('cancelEndSessionBtn'));
+        key('Tab'); check(kind + ' 확인 버튼 이동',focus('confirmEndSessionBtn')); key('Tab'); check(kind + ' 확인창 Tab 순환',focus('cancelEndSessionBtn'));
+        key('Escape'); check(kind + ' Escape 취소·종료 버튼 복귀', $('endSessionBackdrop').hidden && focus('reset'));
+        click('reset'); click('endSessionBackdrop'); check(kind + ' 배경 클릭 취소', $('endSessionBackdrop').hidden);
+        click('note');
+        check(kind + ' 취소 후 초안 원문 유지', kind === 'title' ? name() === '🍃   🍵 사용자 차  ' : kind === 'tag' ? $('tagsGrid').firstElementChild.getAttribute('aria-pressed') === 'true' && name() === original : $('noteInput').value === '  잃으면 안 되는 메모\n끝  ');
+        click('closeSheetBtn'); click('reset'); click('cancelEndSessionBtn'); click('reset'); click('confirmEndSessionBtn'); click('confirmEndSessionBtn');
+        check(kind + ' 승인 종료 한 번·저장 설정 보존', $('endSessionBackdrop').hidden && $('brew').textContent === '우리기 시작' && localStorage.getItem(keyName) === stored);
+        click('note'); check(kind + ' 승인 뒤 초안·기록 비움', $('noteInput').value === '' && !$('tagsGrid').querySelector('[aria-pressed="true"]') && $('infusionHistoryDisplay').textContent === '완료된 우림 없음' && !name().includes('사용자'));
+        click('closeSheetBtn'); check(kind + ' 승인 후 페이지 이동 가능',navigate() === false);
+      }
+      click('teaNext'); check('빈 초안 차 변경 허용', JSON.parse(localStorage.getItem(keyName)).lastTeaId !== 'oolong'); click('teaPrev');
+      click('vesselNext'); await until(() => !$('brew').disabled,'다구 변경'); check('빈 초안 다구 변경 허용',JSON.parse(localStorage.getItem(keyName)).lastVesselId !== 'gaiwan');
+      click('vesselPrev'); await until(() => !$('brew').disabled,'개완 복귀');
+      click('note'); click('editTitleBtn'); const input = $('teaTitleInput'); compose(input,'compositionstart'); fill(input,'조합 중'); click('draftBtn');
+      check('조합 완료 전 임시저장 대기',!$('sheetBackdrop').hidden); compose(input,'compositionend'); fill(input,'최종 조합 차'); await until(() => $('sheetBackdrop').hidden,'조합 완료');
+      click('note'); check('조합 임시저장 최종 글자 유지',name() === '🍃 최종 조합 차'); click('closeSheetBtn');
+      click('brew'); check('우림 중 페이지 이동 차단',navigate() === true);
+      click('note'); click('copyBtn'); check('첫 포 진행 중 텍스트 0포',copied.includes('완료된 우림 없음'));
+      await exportCard('during-brew','완료된 우림 없음');
+      click('closeSheetBtn'); click('reset');
+      await until(() => $('brew').textContent === '차 따라내기','확인 중 우림 완료');
+      check('확인 중 타이머 계속·포커스 유지',focus('cancelEndSessionBtn') && $('endSessionDialog').querySelector('[role="status"]').textContent.includes('우림을 마쳤습니다'));
+      click('cancelEndSessionBtn'); check('종료 취소 뒤 완료 기록 보호',navigate() === true);
+      click('note'); check('취소·재진입 완료 1포·제목 유지',$('infusionHistoryDisplay').textContent.includes('총 1포') && name() === '🍃 최종 조합 차');
+      click('copyBtn'); check('완료 후 텍스트 1포',copied.includes('1포 5초') && !copied.includes('완료된 우림 없음'));
+      await exportCard('completed-brew','1포 우림');
+      check('공유 취소 후 초안 유지',name() === '🍃 최종 조합 차' && !$('sheetBackdrop').hidden);
+      Object.defineProperty(w.navigator,'canShare',{configurable:true,value:() => false});
+      let download; const anchorClick = w.HTMLAnchorElement.prototype.click;
+      w.HTMLAnchorElement.prototype.click = function () {
+        if (this.download) download = {url:this.href,name:this.download};
+        else anchorClick.call(this);
+      };
+      click('cardBtn'); click('shareCardBtn'); await until(() => download,'PNG 다운로드 폴백');
+      const downloaded = await fetch(download.url).then(response => response.blob());
+      check('다운로드 폴백 실제 PNG·파일명·초안 유지',downloaded.type === 'image/png' && downloaded.size > 0 && /^tea-feeling-.*\.png$/.test(download.name) && name() === '🍃 최종 조합 차');
+      w.HTMLAnchorElement.prototype.click = anchorClick;
+      click('closeSheetBtn'); click('reset'); click('confirmEndSessionBtn');
+      check('완료 후 명시적 종료 초기화',$('brew').textContent === '우리기 시작' && navigate() === false);
+      check('미지 설정 필드·태그·시간·음소거 보존', JSON.stringify(JSON.parse(localStorage.getItem(keyName))) === JSON.stringify(prefs));
+      check('브라우저 오류 없음',errors.length === 0);
+      lines.push('완료: ' + lines.length + '개 통과'); result.textContent = lines.join('\n');
+    } catch(error) { result.textContent = lines.join('\n') + '\nFAIL ' + error.message; }
+    finally { this.disabled = false; }
+  };
+</script>
+</html>

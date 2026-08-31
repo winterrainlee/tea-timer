@@ -1390,6 +1390,13 @@
     }
 
     .sheet-backdrop[hidden], .card-modal-backdrop[hidden] { display: none; }
+    .confirm-backdrop { z-index: 180; }
+    .confirm-box { text-align: left; }
+    .confirm-box h2 { font-size: 1.1rem; line-height: 1.6; color: var(--gold-soft); }
+    .confirm-box p, .draft-hint { font-size: .85rem; line-height: 1.65; color: var(--ink-dim); }
+    .confirm-actions { display: grid; grid-template-columns: 1fr 1.6fr; gap: .5rem; margin-top: 1.2rem; }
+    .confirm-actions button { padding: .6rem; }
+    .draft-hint { margin: .8rem 0 0; }
     body.has-dialog { overflow: hidden; }
     .sheet-container :focus-visible, .card-preview-box :focus-visible {
       outline: 2px solid var(--gold-soft);
@@ -1670,10 +1677,11 @@
 
       <!-- Action Buttons -->
       <div class="action-grid">
-        <button class="btn-action" id="draftBtn">💾 임시 저장</button>
+        <button class="btn-action" id="draftBtn" aria-describedby="draftHint">💾 임시저장</button>
         <button class="btn-action" id="copyBtn">📋 텍스트 복사</button>
         <button class="btn-action" id="cardBtn">🖼️ 카드 이미지 저장</button>
       </div>
+      <p class="draft-hint" id="draftHint">임시저장은 이번 우림 동안만 유지됩니다.<br>새로고침·앱 종료 뒤에는 복원되지 않습니다. 오래 남길 느낌은 텍스트나 이미지로 내보낼 수 있습니다.</p>
     </div>
   </div>
 
@@ -1695,6 +1703,20 @@
       <div class="card-note-quote" id="cardNoteQuote">"첫 모금은 산뜻하고, 두 번째는 맑았다."</div>
       <div class="card-footer-date" id="cardFooterDate">2026.07.28 · 차 한 잔의 시간</div>
       <button class="btn-share-card" id="shareCardBtn">공유 또는 이미지 저장</button>
+    </div>
+  </div>
+
+  <div class="card-modal-backdrop confirm-backdrop" id="endSessionBackdrop" hidden inert aria-hidden="true">
+    <div class="card-preview-box confirm-box" id="endSessionDialog" role="dialog" aria-labelledby="endSessionTitle" aria-describedby="endSessionDescription" tabindex="-1">
+      <h2 id="endSessionTitle">느낌을 지우고 우림을 끝냅니다.</h2>
+      <p id="endSessionDescription">내보내지 않은 내용은 사라집니다.</p>
+      <div class="modal-timer-notice" hidden>
+        <p role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+      <div class="confirm-actions">
+        <button class="btn-action" id="cancelEndSessionBtn">취소</button>
+        <button class="btn-action" id="confirmEndSessionBtn">느낌 지우고 끝내기</button>
+      </div>
     </div>
   </div>
 
@@ -1801,9 +1823,12 @@
 
       // ---- audio ----
       let actx = null, muted = preferences.muted, audioSuspendTimer = 0;
+      let audioGeneration = 0;
       const activeAudioSources = new Set();
       function clearAudioSuspend() { if (audioSuspendTimer) clearTimeout(audioSuspendTimer); audioSuspendTimer = 0; }
       function stopActiveAudio() {
+        audioGeneration++;
+        clearAudioSuspend();
         activeAudioSources.forEach(source => { try { source.stop(); } catch (e) { } });
         activeAudioSources.clear();
       }
@@ -1842,15 +1867,29 @@
         });
         setTimeout(() => { try { master.disconnect(); } catch (e) { } }, Math.ceil((dur + .25) * 1000));
       }
-      async function tone(freq, dur, gain) { if (muted || !await ensureAudio() || muted) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); activeAudioSources.add(o); o.onended = () => { activeAudioSources.delete(o); try { o.disconnect(); ge.disconnect(); } catch (e) { } if (phase !== "pour" && phase !== "steep" && phase !== "draining") suspendAudioWhenIdle(0); }; o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
+      async function tone(freq, dur, gain) { const generation = audioGeneration; if (muted || !await ensureAudio() || muted || generation !== audioGeneration) return; const t = actx.currentTime; const o = actx.createOscillator(); o.type = "sine"; o.frequency.value = freq; const ge = actx.createGain(); ge.gain.setValueAtTime(0, t); ge.gain.linearRampToValueAtTime(gain, t + .005); ge.gain.exponentialRampToValueAtTime(.0001, t + dur); activeAudioSources.add(o); o.onended = () => { activeAudioSources.delete(o); try { o.disconnect(); ge.disconnect(); } catch (e) { } if (phase !== "pour" && phase !== "steep" && phase !== "draining") suspendAudioWhenIdle(0); }; o.connect(ge).connect(actx.destination); o.start(t); o.stop(t + dur + .05); }
       const tick = () => tone(1320, .06, .12);
       const preWarn = () => tone(784, .5, .16);              // G5
-      async function chime() { if (muted || !await ensureAudio() || muted) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); suspendAudioWhenIdle(); }
+      async function chime() { const generation = audioGeneration; if (muted || !await ensureAudio() || muted || generation !== audioGeneration) return; const t = actx.currentTime; bell(659.25, t, 2.6, .26); bell(987.77, t + .17, 2.9, .2); suspendAudioWhenIdle(); }
 
       // ---- wake lock ----
       let wakeLock = null;
-      async function reqWake() { try { if ("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) { } }
-      function relWake() { try { wakeLock && wakeLock.release(); } catch (e) { } wakeLock = null; }
+      let wakeRequestGeneration = 0;
+      async function reqWake() {
+        if (wakeLock && !wakeLock.released) return;
+        const generation = ++wakeRequestGeneration;
+        try {
+          if (!("wakeLock" in navigator)) return;
+          const lock = await navigator.wakeLock.request("screen");
+          if (generation !== wakeRequestGeneration || (phase !== "pour" && phase !== "steep")) await lock.release();
+          else wakeLock = lock;
+        } catch (e) { }
+      }
+      function relWake() {
+        wakeRequestGeneration++;
+        try { if (wakeLock) void wakeLock.release().catch(() => {}); } catch (e) { }
+        wakeLock = null;
+      }
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {
           if (!muted && actx && (phase === "pour" || phase === "steep")) void ensureAudio();
@@ -2174,6 +2213,7 @@
       }
       async function selectVessel(delta) {
         if (vesselLoading || phase === "pour" || phase === "steep" || phase === "draining") return;
+        if (blockSelectionForDraft()) return;
         if (infusionHistory.length > 0) {
           showToast("진행 중인 차가 있습니다.\n[우림 끝]을 누르면 차와 도구를 바꿀 수 있습니다.");
           return;
@@ -2188,7 +2228,7 @@
             showToast("도구 이미지를 불러오지 못했습니다.");
             return;
           }
-          if (vesselId !== originVesselId || phase !== originPhase || infusionHistory.length > 0) {
+          if (vesselId !== originVesselId || phase !== originPhase || infusionHistory.length > 0 || blockSelectionForDraft()) {
             discardPreparedVessel(nextVessel);
             return;
           }
@@ -2211,7 +2251,8 @@
         applyRingGeom();
       }
       function selectTea(i) {
-        if (vesselLoading || phase === "pour" || phase === "steep") return;
+        if (vesselLoading || phase === "pour" || phase === "steep" || phase === "draining") return;
+        if (blockSelectionForDraft()) return;
         if (infusionHistory.length > 0) {
           showToast("진행 중인 차가 있습니다.\n[우림 끝]을 누르면 차와 도구를 바꿀 수 있습니다.");
           return;
@@ -2472,6 +2513,7 @@
       let isDrained = false;
 
       function finishSteep() {
+        if (phase !== "steep") return;
         phase = "done"; curAlpha = tea().peak; strengthT = 1; openEff = 1; glow = 1; isUrgent = false; agitate = 0;
         isDrained = false; drain = 0;
         setTeaPickerActive(true);
@@ -2497,6 +2539,7 @@
         kickFrame();
       }
       function finishDrain() {
+        if (phase !== "draining") return;
         phase = "done"; isDrained = true; drain = 1;
         prepareNextInfusion();
         displayedMessage = (vesselId === "piaoyibei") ? "出湯 · 아래 잔에 차" : "出湯 · 잔에 차 따라냄";
@@ -2508,6 +2551,7 @@
 
       function reset({ allowWhileVesselLoading = false } = {}) {
         if (vesselLoading && !allowWhileVesselLoading) return false;
+        drainCallback = null;
         phase = "idle"; infusion = 1; sec = adjustedSecFor(infusion); pyDrained = false; isDrained = false; drain = 0; infusionHistory = []; activeBrew = null;
         setInf(); syncSlider(); previewIdle();
         els.brew.disabled = vesselLoading; els.slider.disabled = false; els.dec.disabled = false; els.inc.disabled = false; els.brew.textContent = "우리기 시작";
@@ -2522,6 +2566,8 @@
         if (!infusionHistory.some(h => h.n === b.n)) infusionHistory.push({ n: b.n, sec: b.sec });
         activeBrew = null;
         updateInfusionLine();
+        updateInfusionSummary();
+        if (modalStack.includes(cardLayer)) $("cardInfusions").textContent = cardInfusionText();
       }
       function prepareNextInfusion() {
         const last = infusionHistory[infusionHistory.length - 1];
@@ -2610,6 +2656,8 @@
       // Only the top dialog is interactive. Keep the timer running behind it.
       const noteLayer = { backdrop: $("sheetBackdrop"), dialog: $("noteDialog"), close: $("closeSheetBtn") };
       const cardLayer = { backdrop: $("cardModalBackdrop"), dialog: $("cardDialog"), close: $("closeCardModalBtn") };
+      const endLayer = { backdrop: $("endSessionBackdrop"), dialog: $("endSessionDialog"), close: $("cancelEndSessionBtn") };
+      const modalLayers = [noteLayer, cardLayer, endLayer];
       const modalStack = [];
       const topModal = () => modalStack[modalStack.length - 1];
       function syncModalState(focusTarget) {
@@ -2617,7 +2665,7 @@
         $("timerApp").inert = !!top;
         if (!top) $("timerApp").removeAttribute("aria-hidden");
         document.body.classList.toggle("has-dialog", !!top);
-        for (const layer of [noteLayer, cardLayer]) {
+        for (const layer of modalLayers) {
           layer.backdrop.inert = layer !== top;
           if (layer === top) {
             layer.backdrop.removeAttribute("aria-hidden");
@@ -2631,7 +2679,7 @@
         } else (top?.close || $("note")).focus();
         if (top) $("timerApp").setAttribute("aria-hidden", "true");
         else $("timerApp").removeAttribute("aria-hidden");
-        for (const layer of [noteLayer, cardLayer]) {
+        for (const layer of modalLayers) {
           if (layer === top) layer.backdrop.removeAttribute("aria-hidden");
           else layer.backdrop.setAttribute("aria-hidden", "true");
         }
@@ -2667,7 +2715,8 @@
         if (!top || e.isComposing || e.keyCode === 229 || composingInput) return;
         if (e.key === "Escape") {
           e.preventDefault();
-          if (top === cardLayer) closeModal(cardLayer);
+          if (top === endLayer) closeModal(endLayer);
+          else if (top === cardLayer) closeModal(cardLayer);
           else closeNoteSheet();
         } else if (e.key === "Tab") {
           const items = modalFocusables(top);
@@ -2681,12 +2730,13 @@
       });
       function updateModalTimerNotice() {
         const active = phase === "pour" || phase === "steep" || phase === "draining" || phase === "done";
-        for (const layer of [noteLayer, cardLayer]) {
+        for (const layer of modalLayers) {
           const notice = layer.dialog.querySelector(".modal-timer-notice");
           notice.hidden = !active;
           // Only update the exposed live region, so nested dialogs do not announce twice.
           if (layer !== topModal()) continue;
-          const message = phase === "done" ? (isDrained ? "차를 따라냈습니다. 타이머로 돌아가 다음 우림을 시작할 수 있습니다." : "우림을 마쳤습니다. 타이머로 돌아가 차를 따라낼 수 있습니다.")
+          const message = layer === endLayer ? (phase === "done" ? "우림을 마쳤습니다. 취소하면 이번 우림을 이어갈 수 있습니다." : "타이머는 계속 진행되고 있습니다.")
+            : phase === "done" ? (isDrained ? "차를 따라냈습니다. 타이머로 돌아가 다음 우림을 시작할 수 있습니다." : "우림을 마쳤습니다. 타이머로 돌아가 차를 따라낼 수 있습니다.")
             : phase === "draining" ? "차를 따라내고 있습니다." : "차를 우리는 중입니다. 느낌을 적는 동안에도 타이머는 계속됩니다.";
           const status = notice.querySelector('[role="status"]');
           if (status.textContent !== message) status.textContent = message;
@@ -2704,11 +2754,13 @@
       let titleEdit = null;
       let composingInput = null;
       let pendingCompositionAction = null;
-      noteLayer.dialog.addEventListener("compositionstart", e => { composingInput = e.target; });
+      let compositionVersion = 0;
+      noteLayer.dialog.addEventListener("compositionstart", e => { composingInput = e.target; compositionVersion++; });
       noteLayer.dialog.addEventListener("compositionend", e => {
         const input = e.target;
+        const version = compositionVersion;
         setTimeout(() => {
-          if (composingInput !== input) return;
+          if (composingInput !== input || version !== compositionVersion) return;
           composingInput = null;
           if (titleEdit?.input === input && document.activeElement !== input) finishTitleEdit();
           const action = pendingCompositionAction;
@@ -2732,6 +2784,27 @@
         display.textContent = getTeaEmoji(name) + " " + name;
         input.replaceWith(display);
       }
+
+      function hasContentDraft() {
+        const title = titleEdit && titleEdit.input.value !== titleEdit.initialValue ? titleEdit.input.value : customTitle;
+        const note = modalStack.includes(noteLayer) ? $("noteInput").value : sessionDraftNote;
+        return !!(title.trim() || sessionDraftTags.length || note.trim());
+      }
+      function blockSelectionForDraft() {
+        if (!hasContentDraft()) return false;
+        showToast("작성한 느낌이 있습니다.\n차나 다구는 [우림 끝]을 누른 뒤 바꿀 수 있습니다.");
+        return true;
+      }
+      // Only guard same-document departures; opening a new tab preserves this session.
+      document.addEventListener("click", e => {
+        const link = e.target.closest('a[href]');
+        if (!link || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.download || (link.target && link.target !== "_self")) return;
+        const url = new URL(link.href, location.href);
+        if (url.origin !== location.origin || !/(?:^|\/)(?:help|settings)\.html$/.test(url.pathname)) return;
+        if (phase === "idle" && !infusionHistory.length && !hasContentDraft() && !vesselLoading && !titleEdit && !composingInput) return;
+        e.preventDefault();
+        showToast("우림과 느낌을 유지하고 있습니다.\n필요한 느낌을 내보내고 [우림 끝]을 누른 뒤 이동할 수 있습니다.", 4200);
+      });
 
       function getTeaEmoji(name) {
         if (/농향|홍차|숙차|흑차|대홍포|육계|수선|암차|동방미인|탄배|배화|호지차/.test(name)) return '🍂';
@@ -2779,12 +2852,14 @@
         const today = new Date();
         const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
         $("sessionDateDisplay").textContent = dateStr;
-
+        updateInfusionSummary();
+      }
+      function updateInfusionSummary() {
         if (infusionHistory.length > 0) {
           const historyStr = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" · ");
           $("infusionHistoryDisplay").textContent = `${historyStr} (총 ${infusionHistory.length}포)`;
         } else {
-          $("infusionHistoryDisplay").textContent = `우림 완료 기록 없음 (첫 우림 전)`;
+          $("infusionHistoryDisplay").textContent = "완료된 우림 없음";
         }
       }
 
@@ -2831,20 +2906,21 @@
       $("sheetBackdrop").onclick = (e) => { if (e.target === $("sheetBackdrop")) closeNoteSheet(); };
 
       // Draft Save
-      $("draftBtn").onclick = () => {
-        sessionDraftNote = $("noteInput").value;
-        showToast("이번 우림의 느낌을 임시 저장했습니다.");
-      };
+      $("draftBtn").onclick = () => afterComposition(() => {
+        closeNoteSheet();
+        showToast("이번 우림의 느낌을 임시저장했습니다.");
+      });
 
       // Copy Plain Text
-      $("copyBtn").onclick = () => {
+      $("copyBtn").onclick = () => afterComposition(() => {
+        finishTitleEdit();
         sessionDraftNote = $("noteInput").value;
         const rawName = customTitle || (tea().name + " · " + vessel().name);
         const emoji = getTeaEmoji(rawName);
         const today = new Date();
         const dateStr = today.getFullYear() + "." + String(today.getMonth() + 1).padStart(2, '0') + "." + String(today.getDate()).padStart(2, '0');
 
-        let historyLines = "우림 기록이 없습니다.";
+        let historyLines = "완료된 우림 없음";
         if (infusionHistory.length > 0) {
           historyLines = infusionHistory.map(h => `${h.n}포 ${h.sec}초`).join(" / ");
         }
@@ -2854,7 +2930,7 @@
 
         const textToCopy = `[차 한 잔의 시간 시음 노트]
 ${emoji} ${rawName}
-📅 ${dateStr} (${infusionHistory.length}포 우림)
+📅 ${dateStr} (${infusionHistory.length ? infusionHistory.length + "포 우림" : "완료된 우림 없음"})
 ⏱️ ${historyLines}
 🏷️ ${tagsLine}
 💬 ${noteLine}`;
@@ -2864,7 +2940,7 @@ ${emoji} ${rawName}
         } else {
           showToast("이 브라우저에서는 텍스트 복사를 지원하지 않습니다.");
         }
-      };
+      });
 
       // Balanced Tag Rows for Card Image & Preview
       function getBalancedTagRows(tags) {
@@ -2898,7 +2974,7 @@ ${emoji} ${rawName}
 
         // Update DOM preview modal
         $("cardTeaName").textContent = emoji + " " + rawName;
-        $("cardInfusions").textContent = `${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`;
+        $("cardInfusions").textContent = cardInfusionText();
         $("cardNoteQuote").textContent = sessionDraftNote.trim() ? `"${sessionDraftNote.trim()}"` : `"차 한 잔의 평화로운 순간"`;
         $("cardFooterDate").textContent = `${dateStr} · 차 한 잔의 시간`;
 
@@ -2933,6 +3009,10 @@ ${emoji} ${rawName}
       $("cardModalBackdrop").onclick = (e) => {
         if (e.target === $("cardModalBackdrop")) closeModal(cardLayer);
       };
+
+      function cardInfusionText() {
+        return `${infusionHistory.length ? infusionHistory.length + "포 우림" : "완료된 우림 없음"} (${vessel().name})`;
+      }
 
       async function renderAndShareCanvasCard() {
         const canvas = document.createElement("canvas");
@@ -2973,7 +3053,7 @@ ${emoji} ${rawName}
         // Infusion Info
         ctx.fillStyle = "#e4d691";
         ctx.font = "22px 'Gowun Batang', serif";
-        ctx.fillText(`${infusionHistory.length > 0 ? infusionHistory.length : 1}포 우림 (${vessel().name})`, 340, 235);
+        ctx.fillText(cardInfusionText(), 340, 235);
 
         // History times
         if (infusionHistory.length > 0) {
@@ -3113,16 +3193,28 @@ ${emoji} ${rawName}
       };
 
       // Session Reset ("우림 끝" Button)
-      $("reset").onclick = () => {
+      $("reset").onclick = () => afterComposition(() => {
         if (vesselLoading) return;
-        if (infusionHistory.length > 0) {
-          showToast("이번 차를 마무리했습니다.");
-        }
+        finishTitleEdit();
+        if (hasContentDraft()) openModal(endLayer, $("reset"));
+        else endSession();
+      });
+      $("cancelEndSessionBtn").onclick = () => closeModal(endLayer);
+      $("endSessionBackdrop").onclick = e => { if (e.target === endLayer.backdrop) closeModal(endLayer); };
+      $("confirmEndSessionBtn").onclick = () => {
+        if (topModal() !== endLayer) return;
+        endSession();
+      };
+      function endSession() {
+        const hadContent = hasContentDraft() || infusionHistory.length > 0;
+        while (topModal()) closeModal(topModal());
         customTitle = "";
         sessionDraftNote = "";
         sessionDraftTags = [];
+        $("noteInput").value = "";
         reset();
-      };
+        if (hadContent) showToast("이번 차를 마무리했습니다.");
+      }
 
       $("vesselPrev").onclick = () => selectVessel(-1);
       $("vesselNext").onclick = () => selectVessel(1);
