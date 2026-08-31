@@ -35,6 +35,8 @@ TW-02의 [공통 토스트 C·문구 통일](CHANGELOG.md#common-toast)에 이�
 
 2026-08-31 [로컬 최종 점검](CHANGELOG.md#tw-08-local-final-check)에서 Node 67개·브라우저 404개와 앱 서버 중단 시 캐시 복구를 통과했다. 실제 배포 공지 적용·배포 준비와 사용자의 실기기 결과는 남아 있다. 이 결과만으로 TW-07/08 전체 완료를 표시하지 않는다.
 
+간체·의견함·최신 UI를 합친 [후속 최종 점검](CHANGELOG.md#tw-release-readiness)은 자동 테스트 96개·브라우저 500개와 DB 이관 검사를 통과했다. [배포 실행 체크리스트](tw-implementation-plan.md#release-execution)와 공지 게시 후보를 준비했으며, 현재 Cloudflare 재인증 승인 대기로 운영 반영은 보류 중이다.
+
 **첫 배포 공지 검토 후 추가 범위(2026-08-31):** 이름·연락처 없는 비공개 의견함과 이메일 대신 Codex 조회를 [구현·로컬 검증](CHANGELOG.md#creator-feedback-local)했다. [의견함 설계](creator-feedback.md)에 따라 이용 안내의 메시지 작성, AI 제작·검토 고지, Worker/D1 접수·비공개 조회, 로컬 조회 도구를 준비했다. 네 항목의 한국어·번체·간체 공지 초안을 준비했지만 런타임 `releases[]`는 비어 있고, 예정 항목은 ‘준비 중’으로 정리된 상태다. 운영 의견함은 `FEEDBACK_ENABLED=false`로 비활성 상태이며 사용자가 로컬 의견함 동작을 확인했다([기록](CHANGELOG.md#feedback-creator-section)). **남은 단계:** 운영 Worker/DB/비밀키 반영과 의견함 서버 확인, 네 항목 공지 게시, GitHub Pages 배포, 배포 후 HTTPS 실기기 검증. 정기 조회 자동화는 주기를 정할 때 별도로 등록한다.
 
 **간체 추가(2026-08-31):** 사용자 승인에 따라 중국 대륙 간체와 별도 기본 단어 15개·의견함을 [구현·로컬 검증](CHANGELOG.md#simplified-chinese-local)했다. 공지 4개 초안도 세 언어로 준비했으나 `releases[]` 게시와 운영 의견함 활성화(`FEEDBACK_ENABLED=false`)는 남아 있다. 간체 실기기 확인은 배포 후 범위에 추가하며 영어·일본어는 후속으로 유지한다.
