@@ -1,7 +1,7 @@
 # 차 한 잔의 시간 · Time for Tea — 통합 설계 문서
 
 > 활성 기준일: 2026-08-31
-> 구현 기준: TW-01–03·TW-05 + [한국어 공통 기반·UI 마감](CHANGELOG.md#tw-05-close)
+> 구현 기준: TW 구현·한국어/번체/간체·의견함·후속 UI 수정 배포(SW v85). [구현·배포 이력](ROADMAP.md#taiwan-priority)과 현재 코드가 기준이며, 아래에 시점이 명시된 스냅샷·결정 이력은 당시 상태로 구분한다.
 > 제품 방향 출처: `dd98847` (`Refine product roadmap and user data philosophy`, 문서만 변경)
 > 통합 대상: 기존 루트 `DESIGN.md`, `archieves/design-v0.1.md`, `archieves/design-v0.2.md`, `archieves/next-checklist.md`, 현재 `index.html`, `help.html`, `settings.html`, `sw.js`, `manifest.webmanifest`, `workers/reactions/` 구현
 > 문서 규칙: 이 파일이 제품·디자인·구현 상태의 단일 기준이다. 개발 카테고리·남은 작업·우선순위와 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md), 날짜별 개발 상세는 [CHANGELOG.md](CHANGELOG.md)에서 관리한다. `docs/archieves/` 아래 문서는 히스토리 원문 스냅샷으로만 본다.
@@ -421,7 +421,7 @@ stage
 
 사용자 기록을 중앙에 저장하지 않는 방향은 현재 도움말의 Worker/D1 박수·반응 집계와 별개다. 재고·구매·가격 관리, 커뮤니티/SNS는 제품의 비목표로 둔다.
 
-### 6.5 TW 동작 계약 — TW-01–03 반영·TW-04 보류·TW-05 화면 검토 완료·TW-06 통합 완료·TW-07 로컬 검증·TW-08 대기
+### 6.5 TW에서 확정한 동작 계약
 
 | 결정 | 채택한 정책 | 상세 기준 / 구현 담당 |
 |---|---|---|
@@ -433,7 +433,7 @@ stage
 | 페이지 이동 | 활성 우림·완료 포·초안이 있으면 도움말/설정으로 현재 문서를 떠나는 동작 유예 | [이동 정책](design-localization.md#navigation-policy), 보호는 TW-03·언어 연동은 TW-05 |
 | 표시·배포 | 기존 제품명·설치명 유지, 일반 UI·공유 설명은 현지화, 글꼴 폴백과 새 자산 캐시 검증 | [다국어 설계](design-localization.md), TW-05–08 |
 
-이 표는 구현 순서를 바꾸거나 TW 완료를 선언하지 않는다. 재실행 초안 복구·장기 기록·전체 백업·다른 언어·백그라운드 완료음 보장은 이번 계약 밖이다.
+이 계약은 TW 실행표 정리 이후에도 유지한다. 구현·배포 이력은 [로드맵](ROADMAP.md#taiwan-priority), 즉시 출탕 보류와 미검증 실기기/PWA 조합은 [Phase A](ROADMAP.md#phase-a)에서 관리한다. 재실행 초안 복구·장기 기록·전체 백업·영어/일본어·백그라운드 완료음 보장은 이 계약 밖이다.
 
 ---
 
@@ -692,7 +692,7 @@ TW-04의 번호와 이전 설계는 보존하되 이번 TW 묶음의 구현·번
 
 개발 카테고리의 정의·경계·앱 철학과의 연결, 남은 작업과 우선순위, 완료 아이템 색인은 [ROADMAP.md](ROADMAP.md)에서 관리한다. 날짜별 구현 상세와 관련 커밋은 [CHANGELOG.md](CHANGELOG.md)에 둔다. 이 문서는 현재 제품·디자인·구현 기준과 중요한 결정 이유를 설명하며, 개별 개발 로그를 중복해서 추가하지 않는다.
 
-2026-08-31에 대만 실사용을 위한 [Phase A 핵심 안정화 + D-1 번체 중국어 우선 처리](ROADMAP.md#taiwan-priority)를 정했다. 착수 전 단계에서 §6.5의 동작 계약을 결정했다. TW-01–03은 구현·로컬 검증 완료, TW-04는 [실사용 수요에 따라 보류](#early-pour-policy), TW-05는 한국어 공통 기반·UI 구현·사용자 화면 검토 완료다. TW-06의 번체 카탈로그·독립 기본 단어는 구현·검증·통합했다([기록](CHANGELOG.md#tw-06-traditional-chinese)). TW-07 A안은 구현·로컬 검증했다([기록](CHANGELOG.md#tw-07-balanced-card)). TW-07의 실제 기기 글꼴 확인과 TW-08 실기기/PWA 검증은 남아 있다. 배포와 배포 후 현지인 검수는 아직 수행하지 않았다. 기능별 브랜치에서 설계·구현·검증을 함께 진행한다.
+2026-08-31 사용자 요청으로 TW 구현·배포 항목을 [완료 이력](ROADMAP.md#taiwan-priority)으로 정리했다. 한국어·번체·간체, 차 느낌 카드, 의견함, 오프라인 안내·공지 줄바꿈까지 배포했으며 §6.5의 동작 계약은 유지한다. 보류한 즉시 출탕과 남은 실기기/PWA·의견함 운영 확인은 [Phase A](ROADMAP.md#phase-a), 현지인 문구 검수·영어/일본어 확장은 [Phase D](ROADMAP.md#phase-d)에서 관리한다. 실행표 정리는 미검증 항목의 통과를 뜻하지 않으며 이후 기능도 통합 브랜치에서 분기해 설계·구현·검증한다.
 
 ---
 

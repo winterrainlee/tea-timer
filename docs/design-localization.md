@@ -1,9 +1,9 @@
 # 한국어·번체·간체 중국어 — 설계
 
 > 결정일: 2026-08-31
-> 상태: **TW-06 번체 카탈로그·언어별 기본 단어 구현·로컬 검증·통합 완료**. 검증·통합 결과는 [TW-06 기록](CHANGELOG.md#tw-06-traditional-chinese)을 따른다. TW-07 카드 조판은 구현·로컬 검증했고 실기기 글꼴 확인과 TW-08 실기기·PWA 검증은 남아 있으며 현지인 문구 검수는 배포 후 진행한다.
-> 간체 추가 상태: 카탈로그·독립 기본 단어·SC 글꼴/PNG·의견함 확장을 구현·로컬 검증했다([검증 기록](CHANGELOG.md#simplified-chinese-local)). 배포·간체 실기기·현지인 검수는 별도다.
-> 범위: [ROADMAP의 대만 우선 처리](ROADMAP.md#taiwan-priority). 설정 저장은 [데이터 보존 계약](data-portability.md#preferences-contract), 초안은 [차 느낌 설계](design-tea-feeling.md#draft-policy)를 따른다.
+> 상태: 한국어·번체·간체 UI, 언어별 기본 단어와 카드 조판을 구현·로컬 검증·통합하고 GitHub Pages에 배포했다. 구현 근거는 [번체 기록](CHANGELOG.md#tw-06-traditional-chinese)과 [간체 기록](CHANGELOG.md#simplified-chinese-local)을 따른다.
+> 남은 확인: 실기기 글꼴·공유·Safari/PWA 등 미검증 조합은 [Phase A](ROADMAP.md#phase-a-device-validation), 번체·간체 현지인 문구 검수는 [Phase D](ROADMAP.md#phase-d)에서 관리한다. 아래의 당시 검토·검증 계약은 유지한다.
+> 범위: [TW 구현·배포 이력](ROADMAP.md#taiwan-priority). 설정 저장은 [데이터 보존 계약](data-portability.md#preferences-contract), 초안은 [차 느낌 설계](design-tea-feeling.md#draft-policy)를 따른다.
 
 ## 1. 목표와 제외 범위
 

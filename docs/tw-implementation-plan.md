@@ -1,12 +1,13 @@
-# TW-01–08 구현 순서 검토
+# TW-01–08 구현·배포 기록
 
 > 검토일: 2026-08-31
 > 코드 기준: `8fb124d` (런타임 기준 `89a5043`) + 작업 트리의 대만 우선순위 문서 변경
 > 개발 브랜치: `codex/tw-readiness`
-> 상태: TW-01–03·TW-05·TW-06·간체 구현·로컬 검증·통합 완료(2026-08-31), TW-04 보류, TW-07 A안 구현·로컬 검증·실기기 확인 대기, TW-08 Pages 배포·공개 브라우저 확인 후 실기기/PWA 검증 대기. 운영 의견함과 GitHub Pages 첫 배포를 완료했다([운영 기록](CHANGELOG.md#tw-feedback-production-ready), [Pages 기록](CHANGELOG.md#tw-pages-deployed)). [TW-06 검증·통합 기록](CHANGELOG.md#tw-06-traditional-chinese)과 [간체 검증 기록](CHANGELOG.md#simplified-chinese-local)을 따르며 실기기·전체 완료와 구분한다. 아래 코드 위험·라인 번호는 착수 전 스냅샷이다.
-> 범위와 완료 조건의 원본: [ROADMAP.md](ROADMAP.md#taiwan-priority)
+> 문서 성격: TW 구현·배포 과정의 이력. 2026-08-31 사용자 요청으로 별도 실행표를 정리했으며 현재 작업 순서는 [로드맵 Phase](ROADMAP.md#phase-a)를 따른다.
+> 현재 상태: TW-01–03·TW-05·06·간체와 TW-07 카드 조판은 구현·배포했고, TW-08의 로컬 통합 검증·운영 의견함·Pages 배포도 수행했다. 후속 공지 줄바꿈까지 배포한 기준점은 `f953ab3` / SW v85다. TW-04 보류와 TW-07·08의 미검증 조합·의견함 운영 후속은 [Phase A](ROADMAP.md#phase-a), 현지인 검수는 [Phase D](ROADMAP.md#phase-d)로 이관했다. 필수 검증의 통과를 선언하거나 면제하지 않는다.
+> 이력 색인: [TW 구현·배포 기록](ROADMAP.md#taiwan-priority). 아래의 순서·선행 위험·배포 절차는 당시 검토와 실행 근거로 보존하며, 과거 상태를 현재 TODO로 다시 적용하지 않는다.
 
-## 권장 순서
+## 당시 권장 순서
 
 착수 전 검토안 중 채택한 정책은 [DESIGN §6.5](DESIGN.md), [차 느낌](design-tea-feeling.md#draft-policy), [저장 계약](data-portability.md#preferences-contract), [다국어 설계](design-localization.md)에 반영했다. 아래 코드 위험은 검토 당시의 근거이며, 동작 정책은 해당 상세 설계가 기준이다.
 
@@ -89,9 +90,9 @@ TW별로 검토 가능한 커밋을 나누고, TW-05는 ‘한국어 공통 기�
 
 <a id="release-execution"></a>
 
-## 현재 배포 실행 체크리스트 — 2026-08-31
+## 첫 배포 실행 기록 — 2026-08-31
 
-이 절은 위 착수 전 검토와 구분한 실제 배포 준비 기록이다. `ko`·`zh-TW`·`zh-CN`과 의견함을 포함하며, 운영 의견함 확인 후에도 정적 앱 배포·실기기 검증은 별도 단계로 남긴다.
+이 절은 위 착수 전 검토와 구분한 첫 배포 당시의 준비·실행 기록이다. `ko`·`zh-TW`·`zh-CN`과 의견함을 포함한다. 아래 v83·첫 배포 커밋은 당시 기준점이며 이후 오프라인 안내(v84)·공지 줄바꿈(v85)을 배포했다. 미검증 실기기 조합·운영 확인은 현재 로드맵 Phase A에서 관리한다.
 
 ### 확인한 기준점
 

@@ -23,16 +23,14 @@
 - 기능 병합, `main` 반영, 원격 푸시, 배포는 서로 다른 단계다. 통합 브랜치 병합만으로 배포 완료라고 보고하지 않으며, 원격 반영과 배포는 사용자가 요청한 범위에 따른다.
 - 문서만 다루는 공통 작업은 통합 브랜치의 문서 전용 커밋으로 관리할 수 있다. 기존 미커밋 문서는 변경 출처와 포함 범위를 확인한 뒤 묶고 기능 완료 기록과 혼합하지 않는다.
 
-### 현재 TW 묶음
+### TW 구현·배포 정리 후 운영
 
-- 통합 브랜치는 **`codex/tw-readiness`**다.
-- 현재 순서는 **TW-01 → TW-02 → TW-03 → TW-05 → TW-06 → TW-07 → TW-08**이다. TW-01–03·TW-05·TW-06은 구현·로컬 검증 후 통합했다. TW-06 결과와 미검증 범위는 [마감 기록](docs/CHANGELOG.md#tw-06-traditional-chinese)을 따른다. TW-07 A안 카드 조판도 구현·로컬 검증했다([기록](docs/CHANGELOG.md#tw-07-balanced-card)). Pages 배포는 완료했으며 TW-07 실기기 글꼴 확인, TW-08 실기기/PWA 검증은 남아 있다. 현지인 문구 검수는 배포 후 진행한다. TW-04는 실사용 수요 확인 후 재검토하는 보류 항목으로 이번 묶음의 선행 조건·완료 기준에서 제외한다. 상세 의존성과 사전 점검은 [구현 순서 검토](docs/tw-implementation-plan.md)를 따른다.
-- 2026-08-31 후속 승인으로 중국 대륙 간체(`zh-CN`)도 이번 배포 범위에 추가했다. [간체 확정 계약](docs/design-localization.md#simplified-chinese-review)과 [로컬 검증 기록](docs/CHANGELOG.md#simplified-chinese-local)을 따른다. 간체 실기기·현지인 검수와 운영 반영은 별도다.
-- 2026-08-31 운영 의견함과 GitHub Pages 첫 배포를 완료했다([운영 기록](docs/CHANGELOG.md#tw-feedback-production-ready), [Pages 기록](docs/CHANGELOG.md#tw-pages-deployed)). 실제 박수 POST는 집계 오염 방지를 위해 보내지 않았고, 만료 행 삭제·iPhone/PWA·현지인 검수는 남아 있다. TW-07·08 전체 완료로 표시하지 않는다.
-- 기능 브랜치 예: `codex/tw-01-preferences`, `codex/tw-02-accessibility`. 각 항목 착수 시 최신 통합 브랜치에서 생성한다.
-- TW-01 때 언어 설정·태그 호환 계약을 함께 검토하고, TW-05 초반에 번체 글꼴 사전 점검을 한다. 최종 TW-07·08 통합 검증을 대체하지 않는다.
-- 각 TW의 완료와 배포를 구분한다. 2026-08-31 사용자 결정에 따라 로컬 검증·배포 준비를 마친 뒤 GitHub Pages에 배포하고, HTTPS가 필요한 실기기 검증은 배포 후 수행한다. 임시 인증서는 설치하지 않는다. [검증 시점 계약](docs/design-localization.md#pages-device-validation)을 따르며, 전체 완료는 배포 후 TW-07·08 필수 검증까지 확인한 뒤 판단한다.
-- TW 묶음이 끝나거나 우선순위가 바뀌면 이 절과 관련 실행 계획을 함께 갱신한다.
+- 현재 통합 브랜치는 **`codex/tw-readiness`**다. 브랜치를 새로 정하기 전까지 기존 분기·검증·병합 흐름을 유지한다.
+- 2026-08-31 사용자 요청으로 TW 별도 실행표를 정리했다. 설정·초안·접근성, 한국어/번체/간체, A안 카드, 의견함과 GitHub Pages 배포는 구현·배포 이력으로 관리한다. 완료 범위는 [로드맵 이력](docs/ROADMAP.md#taiwan-priority), 당시 순서와 검증 계약은 [TW 실행 기록](docs/tw-implementation-plan.md)을 따른다. TW-01부터 다시 순차 착수하지 않는다.
+- **남은 작업은 기존 Phase에서 관리한다.** TW-04 즉시 출탕의 수요 확인 후 보류, TW-07·08의 미검증 실기기/PWA 조합, 의견함의 만료 정리 확인·정기 조회 주기 결정은 [Phase A](docs/ROADMAP.md#phase-a)에 둔다. 번체·간체 현지인 검수와 영어·일본어 확장은 [Phase D](docs/ROADMAP.md#phase-d)에 둔다. 장기 기록·백업·단어장·회고·레시피는 기존 Phase를 유지한다.
+- 구현·배포 완료와 검증 완료를 구분한다. 사용자의 iPhone 13 mini 화면·카드 및 비행기 모드 확인을 세 언어·Safari/설치형 PWA 전체 통과로 확대하지 않는다. 미검증 조합은 [Phase A 실기기 검증](docs/ROADMAP.md#phase-a-device-validation)에 남기며 기존 필수 검증을 면제하지 않는다.
+- 공개 HTTPS에서 실기기 검증하며 임시 인증서는 설치하지 않는다. [검증 시점 계약](docs/design-localization.md#pages-device-validation)을 유지한다. 현지인 문구 검수와 정기 조회 자동화 등록도 각각 별도 단계다.
+- 우선순위나 통합 브랜치를 바꾸면 이 절과 로드맵을 함께 갱신한다. 문서 정리만으로 런타임 변경·새 원격 배포를 수행하거나 SW 버전을 올리지 않는다.
 
 ## 3. 문서의 역할
 
