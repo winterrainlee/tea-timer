@@ -205,12 +205,3 @@
 .brew { font-size: var(--ui-text-primary); }
 .step, .ui-subpage .btn-step { min-width: var(--ui-touch); min-height: var(--ui-touch); font-size: var(--ui-icon); }
 .tag-edit-chip { font-size: var(--ui-text-tag); }
-
-.ui-help .page { padding-bottom: calc(var(--ui-touch) + var(--ui-bottom-inset) + 1rem + env(safe-area-inset-bottom, 0px)); }
-.ui-help .clap-button {
-  right: max(calc(var(--ui-nav-inset) + env(safe-area-inset-right, 0px)), calc((100% - var(--ui-page-width)) / 2 + var(--ui-nav-inset) + env(safe-area-inset-right, 0px)));
-  bottom: calc(var(--ui-bottom-inset) + env(safe-area-inset-bottom, 0px));
-  min-width: var(--ui-touch);
-  min-height: var(--ui-touch);
-  font-size: var(--ui-icon);
-}

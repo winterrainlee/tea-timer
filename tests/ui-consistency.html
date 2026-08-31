@@ -54,8 +54,10 @@
             check(width+' '+page+' 문구 자체 가운데·제목 계층', summaries.every(el=>{const r=d.createRange();r.selectNodeContents(el);return close(center(r.getBoundingClientRect()),center(box(el))) && parseFloat(w.getComputedStyle(el).fontSize) < parseFloat(w.getComputedStyle(d.querySelector('h1')).fontSize) && box(el).height>=44;}));
             observations[page].section = w.getComputedStyle(summaries[0]).fontSize;
             observations[page].title = w.getComputedStyle(d.querySelector('h1')).fontSize;
-            if (footer.length) {
-              check(width+' 사용법 하단 조작도 같은 기준선',close(frameRect.right-box(footer[0]).right,observations[page].right) && close(w.innerHeight-box(footer[0]).bottom,observations['index.html'].bottom));
+            if (page === 'help.html') {
+              d.getElementById('feedbackOpen').closest('details').open=true;
+              const actions=[...d.querySelectorAll('.creator-actions > button')];
+              check(width+' 제작자 메시지·박수 한 행·44px·고정 버튼 없음',actions.length===2 && close(box(actions[0]).top,box(actions[1]).top) && close(box(actions[0]).width,box(actions[1]).width) && actions.every(el=>box(el).height>=44 && box(el).width>=44 && w.getComputedStyle(el).position!=='fixed') && !d.querySelector('.clap-button') && d.documentElement.scrollWidth<=width);
             }
             if (page === 'settings.html') {
               check(width+' 설정 주의사항·언어 기본 펼침 유지',d.querySelector('main').firstElementChild.classList.contains('storage-notice') && d.querySelector('.language-detail').open);

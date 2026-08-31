@@ -1,4 +1,4 @@
-.feedback-open, .feedback-submit {
+.creator-action, .feedback-submit {
   min-height: 44px;
   border: 1px solid var(--gold-line);
   border-radius: 8px;
@@ -8,7 +8,10 @@
   line-height: 1.5;
   cursor: pointer;
 }
-.feedback-open { display: block; margin: .8rem auto .2rem; background: transparent; color: var(--gold-soft); }
+.creator-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; margin: 1rem 0; }
+.creator-action { display: flex; align-items: center; justify-content: center; gap: .45rem; min-width: 0; background: transparent; color: var(--gold-soft); }
+.creator-action-icon { display: inline-flex; align-items: center; justify-content: center; width: 19px; height: 19px; flex: 0 0 19px; font-size: 19px; line-height: 1; }
+.creator-action:active { background: rgba(205,191,99,.1); }
 .feedback-submit { width: 100%; background: var(--gold-soft); color: var(--bg-0); }
 .feedback-submit:disabled { opacity: .55; cursor: default; }
 .feedback-dialog {
@@ -48,5 +51,5 @@
 .feedback-draft { margin: .55rem 0; }
 .feedback-status { min-height: 1.65em; margin: .6rem 0; font-size: var(--ui-text-body); line-height: 1.65; color: var(--gold-soft); }
 .feedback-status[data-error="true"] { color: #eda69c; }
-body.has-feedback { overflow: hidden; }
-.feedback-dialog :focus-visible, .feedback-open:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+body.has-feedback, body.has-clap { overflow: hidden; }
+.feedback-dialog :focus-visible, .creator-action:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
