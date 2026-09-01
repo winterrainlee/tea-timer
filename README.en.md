@@ -5,7 +5,7 @@
 A small mobile web app for timing tea steeps.
 You can always use a normal stopwatch, but I wanted something gentler, prettier, and more fitted to short 15- or 20-second infusions.
 
-The interface still contains a little Korean, but most of the app is visual: choose a tea, choose a vessel, adjust the suggested time, and start brewing.
+This English README describes an app whose UI is currently available in Korean, Traditional Chinese, and Simplified Chinese. Most of the app is visual: choose a tea, choose a vessel, adjust the suggested time, and start brewing.
 
 ## Screenshots
 
@@ -19,10 +19,17 @@ The interface still contains a little Korean, but most of the app is visual: cho
 
 - Tea presets for green tea, white tea, light oolong, dark oolong, black tea, raw puer, and ripe puer
 - Five brewing vessels: teapot, small teapot, gaiwan, mug, and Kamjove-style brewer
+- Dry-leaf previews, brewing steam, visible liquor changes, and a two-chamber drain flow for the Kamjove-style brewer
 - Suggested steeping time and water temperature per tea
 - Quick time adjustment with slider and `-` / `+` buttons
 - Pre-finish warning sounds, countdown ticks, completion bell, and screen flash
 - Wake Lock support while brewing
+- Tea-feeling notes with a title, vocabulary tags, steeping history, and a memo
+- Text copy and shareable tea-feeling card images
+- Per-tea time adjustments and browser-local preferences
+- Korean, Traditional Chinese, and Simplified Chinese UI, with 15 default sensory words per language
+- Offline timer use and tea-feeling card editing/image saving after the app has loaded
+- Announcements, creator feedback, and applause
 - Installable PWA structure for mobile use
 
 ## How To Use
@@ -44,10 +51,12 @@ To run it yourself:
 ```bash
 git clone https://github.com/winterrainlee/tea-timer.git
 cd tea-timer
-python3 -m http.server 8123
+python3 tools/preview_server.py --port 8123
 ```
 
-Then open `http://localhost:8123` in your browser.
+Then open `http://localhost:8123` in your browser. This preview server exposes only the app's public assets and does not expose repository files, verification tools, or secrets.
+
+To test the creator feedback form locally as well, follow the [local Worker instructions](workers/reactions/README.md) and start the Worker on port 8787 in a separate terminal. Local preview feedback is stored only in the local database; if the Worker is unavailable, the app keeps the message and shows a failure notice. Forks and previews never send feedback to the production inbox. The [private feedback reader](tools/feedback/README.md) can also inspect locally received messages.
 
 If you want to make your own changes on GitHub, fork this repository first, then clone your fork.
 
